@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Deployment Feilmeldinger</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .error-card {
+      background: white;
+      border: 2px solid #fca5a5;
+      border-left: 6px solid #ef4444;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      overflow: hidden;
+    }
+    .error-card-header {
+      background: #fef2f2;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid #fecaca;
+    }
+    .error-card-header h3 {
+      margin: 0;
+      color: #dc2626;
+      font-family: monospace;
+      font-size: 0.95rem;
+    }
+    .error-card-body {
+      padding: 1.25rem;
+    }
+    .error-card-body h4 {
+      margin: 0 0 0.5rem 0;
+      color: #1e293b;
+    }
+    .error-card-body p {
+      margin: 0 0 1rem 0;
+      color: #64748b;
+    }
+    .solution {
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      border-radius: 6px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    .solution h5 {
+      margin: 0 0 0.5rem 0;
+      color: #166534;
+    }
+    .category-header {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      margin: 2rem 0 1rem 0;
+    }
+    .category-header h2 {
+      margin: 0;
+    }
+    .search-box {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 2rem;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    .search-box input:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="../grunnleggende/index.html">Grunnleggende</a>
+    <a href="index.html">Feilmeldinger</a>
+    <a href="typescript-feil.html">TypeScript</a>
+    <a href="runtime-feil.html">Runtime</a>
+    <a href="nextjs-feil.html">Next.js</a>
+    <a href="supabase-feil.html">Supabase</a>
+    <a href="tailwind-feil.html">Tailwind</a>
+    <a href="deploy-feil.html"><strong>Deploy</strong></a>
+  </nav>
+
+  <div class="container">
+    <h1>Vercel & Deployment Feilmeldinger</h1>
+
+    <blockquote>
+      <p>Alle vanlige deployment, build og production-feil med løsninger.</p>
+    </blockquote>
+
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Søk etter feilmelding... (f.eks. 'build failed')" onkeyup="filterErrors()">
+    </div>
+
+    <div class="info-box">
+      <strong>Tips:</strong> Test alltid med "npm run build" lokalt før du deployer til Vercel.
+    </div>
+
+    <!-- BUILD ERRORS -->
+    <div class="category-header">
+      <h2>Build Feil</h2>
+    </div>
+
+    <div class="error-card" data-search="build failed error command exit code">
+      <div class="error-card-header">
+        <h3>Build failed / Error: Command failed with exit code 1</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Next.js bygge-prosessen krasjet. Kan være TypeScript-feil, ESLint-feil, eller runtime errors.</p>
+        <div class="solution">
+          <h5>Løsning 1: Test build lokalt</h5>
+          <pre><code># Kjør samme kommando som Vercel
+npm run build
+
+# Hvis den feiler, se feilmeldingen
+# Vanlige årsaker:
+# - TypeScript errors
+# - ESLint errors
+# - Missing dependencies
+# - Import errors</code></pre>
+          <h5>Løsning 2: Sjekk Vercel build logs</h5>
+          <pre><code>1. Gå til vercel.com → Ditt prosjekt
+2. Klikk på failed deployment
+3. Se "Build Logs" for eksakt feilmelding
+4. Løs feilen lokalt
+5. Push til GitHub igjen</code></pre>
+          <h5>Løsning 3: Vanlige build-feil og løsninger</h5>
+          <pre><code>// TypeScript error i build
+// → Fiks alle røde understreker i VS Code
+
+// ESLint error
+// → Kjør "npm run lint" og fiks alle feil
+
+// Module not found
+// → Kjør "npm install" og commit package-lock.json
+
+// Import error
+// → Sjekk at alle imports har riktig path og at filene eksisterer</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-card" data-search="module not found can't resolve dependency">
+      <div class="error-card-header">
+        <h3>Module not found in build / Can't resolve dependency</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>En npm-pakke eller fil mangler under bygging. Ofte fordi package.json ikke er oppdatert.</p>
+        <pre><code>// PROBLEM
+Error: Module not found: Can't resolve 'some-package'</code></pre>
+        <div class="solution">
+          <h5>Løsning 1: Installer og commit dependencies</h5>
+          <pre><code># Installer pakken
+npm install some-package
+
+# VIKTIG: Commit package-lock.json
+git add package.json package-lock.json
+git commit -m "Add missing dependency"
+git push
+
+# Vercel bruker package-lock.json til å installere samme versjoner</code></pre>
+          <h5>Løsning 2: Sjekk at pakken er i dependencies, ikke devDependencies</h5>
+          <pre><code>// package.json
+
+// FEIL - Pakker brukt i koden MÅ være i dependencies
+{
+  "devDependencies": {
+    "some-package": "^1.0.0"  // ← Flytt til dependencies
+  }
+}
+
+// RIKTIG
+{
+  "dependencies": {
+    "some-package": "^1.0.0"  // ← Brukes i production
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"  // ← Kun for development
+  }
+}</code></pre>
+          <h5>Løsning 3: Sjekk import-paths</h5>
+          <pre><code>// FEIL - Relativ path er feil
+import Component from '../../../components/Component'
+
+// RIKTIG - Bruk @ alias
+import Component from '@/components/Component'
+
+// FEIL - Filnavn har feil case
+import Button from '@/components/button'  // Fil heter Button.tsx
+
+// RIKTIG
+import Button from '@/components/Button'</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-card" data-search="type error typescript ts build">
+      <div class="error-card-header">
+        <h3>Type error: TypeScript errors in build</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>TypeScript-feil forhindrer bygging. Vercel kjører TypeScript-sjekk automatisk.</p>
+        <div class="solution">
+          <h5>Løsning 1: Fiks alle TypeScript-feil</h5>
+          <pre><code># Se alle TypeScript-feil
+npx tsc --noEmit
+
+# Fiks feilene i VS Code (røde understreker)
+# Deretter test build:
+npm run build</code></pre>
+          <h5>Løsning 2: Midlertidig deaktiver TypeScript-sjekk (ikke anbefalt)</h5>
+          <pre><code>// next.config.ts
+const config = {
+  typescript: {
+    ignoreBuildErrors: true,  // ← Ignorer TypeScript-feil i build
+  },
+}
+
+// VIKTIG: Kun midlertidig! Fiks feilene heller.</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENVIRONMENT VARIABLES -->
+    <div class="category-header">
+      <h2>Environment Variables Feil</h2>
+    </div>
+
+    <div class="error-card" data-search="environment variables missing undefined env">
+      <div class="error-card-header">
+        <h3>Environment variables missing / undefined in production</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Miljøvariabler fra .env.local er ikke tilgjengelige på Vercel.</p>
+        <pre><code>// PROBLEM - Fungerer lokalt, men ikke på Vercel
+const apiKey = process.env.NEXT_PUBLIC_API_KEY
+console.log(apiKey)  // undefined på Vercel</code></pre>
+        <div class="solution">
+          <h5>Løsning 1: Legg til i Vercel Dashboard</h5>
+          <pre><code>1. Gå til vercel.com → Ditt prosjekt
+2. Settings → Environment Variables
+3. Legg til hver variabel:
+   - Key: NEXT_PUBLIC_API_KEY
+   - Value: din-api-key
+   - Environment: Production, Preview, Development
+4. Save
+5. Redeploy prosjektet (Deployments → ... → Redeploy)</code></pre>
+          <h5>Løsning 2: Sjekk at navnet starter med NEXT_PUBLIC_</h5>
+          <pre><code>// FEIL - Ikke tilgjengelig på klient-side
+API_KEY=abc123
+
+// RIKTIG - Tilgjengelig på klient-side
+NEXT_PUBLIC_API_KEY=abc123
+
+// Bruk:
+console.log(process.env.NEXT_PUBLIC_API_KEY)
+
+// VIKTIG: NEXT_PUBLIC_ variabler er synlige i nettleseren!
+// Bruk ALDRI for secrets (API keys, tokens, etc.)</code></pre>
+          <h5>Løsning 3: Server-side variabler (uten NEXT_PUBLIC_)</h5>
+          <pre><code>// Variabler UTEN NEXT_PUBLIC_ er kun tilgjengelige server-side
+
+// .env (legg til i Vercel også)
+DATABASE_URL=postgres://...
+API_SECRET=abc123
+
+// Bruk kun i Server Components eller API routes
+// src/app/page.tsx (Server Component)
+export default async function Page() {
+  const secret = process.env.API_SECRET  // ✓ Fungerer
+  // ...
+}
+
+// src/app/client.tsx
+"use client"
+export default function ClientPage() {
+  const secret = process.env.API_SECRET  // ✗ undefined
+  // Bruk Server Action eller API route i stedet
+}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-card" data-search="supabase api key url production">
+      <div class="error-card-header">
+        <h3>Supabase connection failed in production</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Supabase-miljøvariabler mangler på Vercel.</p>
+        <div class="solution">
+          <h5>Løsning: Legg til Supabase miljøvariabler i Vercel</h5>
+          <pre><code>1. Gå til supabase.com → Prosjekt → Settings → API
+2. Kopier "Project URL" og "anon public" key
+3. Gå til vercel.com → Prosjekt → Settings → Environment Variables
+4. Legg til:
+
+   Key: NEXT_PUBLIC_SUPABASE_URL
+   Value: https://xxxxxxxxxxxxx.supabase.co
+
+   Key: NEXT_PUBLIC_SUPABASE_ANON_KEY
+   Value: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+5. Velg "Production", "Preview", og "Development"
+6. Save
+7. Redeploy prosjektet</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- RUNTIME ERRORS -->
+    <div class="category-header">
+      <h2>Runtime Feil (Production)</h2>
+    </div>
+
+    <div class="error-card" data-search="timeout error function execution timed out">
+      <div class="error-card-header">
+        <h3>Timeout error / Function execution timed out</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>En Server Component eller API route tok for lang tid å kjøre. Vercel har 10s limit på Hobby-plan.</p>
+        <pre><code>// PROBLEM - Tung operasjon tar over 10 sekunder
+export default async function Page() {
+  const data = await fetchLotsOfData()  // ← Tar 15 sekunder
+  return &lt;div&gt;{data}&lt;/div&gt;
+}
+// Error: Function execution timed out after 10s</code></pre>
+        <div class="solution">
+          <h5>Løsning 1: Bruk database-paginering</h5>
+          <pre><code>// Før - Henter ALT (langsomt)
+const { data } = await supabase
+  .from('posts')
+  .select('*')  // ← Kan være 10,000 rader
+
+// Etter - Henter kun det som trengs
+const { data } = await supabase
+  .from('posts')
+  .select('*')
+  .range(0, 9)  // ← Kun 10 rader
+  .order('created_at', { ascending: false })</code></pre>
+          <h5>Løsning 2: Bruk incremental static regeneration</h5>
+          <pre><code>// Generer siden statisk, oppdater hver 60 sekund
+export const revalidate = 60  // Sekunder
+
+export default async function Page() {
+  const data = await fetchData()  // Kjøres kun hver 60s
+  return &lt;div&gt;{data}&lt;/div&gt;
+}</code></pre>
+          <h5>Løsning 3: Optimaliser database queries</h5>
+          <pre><code>// Før - Langsomt (N+1 query problem)
+const posts = await supabase.from('posts').select('*')
+for (const post of posts) {
+  const author = await supabase.from('users').select('*').eq('id', post.user_id).single()
+  // ← 1 ekstra query per post!
+}
+
+// Etter - Raskt (1 query med join)
+const { data: posts } = await supabase
+  .from('posts')
+  .select(`
+    *,
+    author:users(*)
+  `)</code></pre>
+          <h5>Løsning 4: Oppgrader til Pro plan (60s timeout)</h5>
+          <pre><code>Vercel Hobby: 10 sekunder timeout
+Vercel Pro: 60 sekunder timeout
+Vercel Enterprise: 900 sekunder timeout</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-card" data-search="memory limit exceeded out of memory">
+      <div class="error-card-header">
+        <h3>Memory limit exceeded / Out of memory</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Funksjonen bruker mer enn 1024 MB RAM (Hobby-plan limit).</p>
+        <div class="solution">
+          <h5>Løsning 1: Unngå å laste alt i minnet</h5>
+          <pre><code>// Før - Laster alt (kan bruke GB med RAM)
+const allPosts = await supabase.from('posts').select('*')
+const allImages = allPosts.map(p => p.image_url)
+
+// Etter - Stream/paginer
+const { data } = await supabase
+  .from('posts')
+  .select('image_url')
+  .range(0, 99)  // Max 100 om gangen</code></pre>
+          <h5>Løsning 2: Optimaliser SELECT queries</h5>
+          <pre><code>// Før - Henter unødvendig data
+const { data } = await supabase
+  .from('posts')
+  .select('*')  // ← Henter ALLE kolonner
+
+// Etter - Hent bare det du trenger
+const { data } = await supabase
+  .from('posts')
+  .select('id, title, created_at')  // ← Mindre data</code></pre>
+          <h5>Løsning 3: Oppgrader til Pro (3GB RAM)</h5>
+          <pre><code>Vercel Hobby: 1024 MB RAM
+Vercel Pro: 3008 MB RAM</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- EDGE FUNCTIONS -->
+    <div class="category-header">
+      <h2>Edge Functions/Middleware Feil</h2>
+    </div>
+
+    <div class="error-card" data-search="edge runtime node.js api not compatible">
+      <div class="error-card-header">
+        <h3>Edge Runtime: Node.js API not compatible</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Du bruker Node.js-funksjoner som ikke er tilgjengelige i Edge Runtime.</p>
+        <pre><code>// PROBLEM - fs, path, crypto etc. fungerer ikke i Edge Runtime
+export const runtime = 'edge'
+
+import fs from 'fs'  // ← Error: Module not found
+
+export async function GET() {
+  const file = fs.readFileSync('file.txt')  // ← Fungerer ikke
+}</code></pre>
+        <div class="solution">
+          <h5>Løsning 1: Fjern Edge Runtime</h5>
+          <pre><code>// Før - Edge Runtime
+export const runtime = 'edge'  // ← Fjern denne
+
+// Etter - Standard Node.js runtime
+export async function GET() {
+  // Nå kan du bruke fs, path, crypto, etc.
+}</code></pre>
+          <h5>Løsning 2: Bruk Web APIs i stedet</h5>
+          <pre><code>// I stedet for Node.js crypto:
+import { randomUUID } from 'crypto'  // ✗ Fungerer ikke i Edge
+
+// Bruk Web Crypto API:
+const uuid = crypto.randomUUID()  // ✓ Fungerer i Edge
+
+// I stedet for fs:
+// Bruk fetch, supabase storage, eller database</code></pre>
+          <h5>Løsning 3: Forstå når Edge Runtime trengs</h5>
+          <pre><code>// Bruk Edge Runtime kun for:
+// - Middleware
+// - Enkle API routes som trenger global distribusjon
+// - Lav-latency responses
+
+// Bruk IKKE Edge Runtime for:
+// - Node.js pakker (fs, path, etc.)
+// - Tunge operasjoner
+// - Database-intensive operasjoner</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- 404/500 ERRORS -->
+    <div class="category-header">
+      <h2>404 og 500 Feil</h2>
+    </div>
+
+    <div class="error-card" data-search="404 page not found after deploy">
+      <div class="error-card-header">
+        <h3>404 Page Not Found after deployment</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Siden eksisterer lokalt men ikke på Vercel. Vanligvis routing-problem.</p>
+        <div class="solution">
+          <h5>Løsning 1: Sjekk filstruktur i src/app/</h5>
+          <pre><code># Slik fungerer App Router:
+
+src/app/page.tsx          → /
+src/app/about/page.tsx    → /about
+src/app/blog/[id]/page.tsx → /blog/123
+
+# FEIL - Mangler page.tsx
+src/app/about/layout.tsx  → ✗ Gir 404
+src/app/about/page.tsx    → ✓ Fungerer</code></pre>
+          <h5>Løsning 2: Sjekk at filen ble commitet</h5>
+          <pre><code># Se hvilke filer som er i Git
+git ls-files src/app/
+
+# Hvis filen mangler:
+git add src/app/about/page.tsx
+git commit -m "Add about page"
+git push</code></pre>
+          <h5>Løsning 3: Dynamic routes må ha riktig format</h5>
+          <pre><code># FEIL
+src/app/blog/:id/page.tsx     ✗
+src/app/blog/{id}/page.tsx    ✗
+
+# RIKTIG
+src/app/blog/[id]/page.tsx    ✓
+
+// I page.tsx:
+export default function Page({ params }: { params: { id: string } }) {
+  return &lt;div&gt;Post {params.id}&lt;/div&gt;
+}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-card" data-search="500 internal server error production">
+      <div class="error-card-header">
+        <h3>500 Internal Server Error in production</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Server-side kode krasjet. Årsaken er skjult i production.</p>
+        <div class="solution">
+          <h5>Løsning 1: Sjekk Vercel logs</h5>
+          <pre><code>1. Gå til vercel.com → Ditt prosjekt
+2. Klikk på "Logs" (øverst)
+3. Filtrer på "Errors"
+4. Se eksakt feilmelding og stack trace</code></pre>
+          <h5>Løsning 2: Test lokalt i production mode</h5>
+          <pre><code># Bygg production-versjon
+npm run build
+
+# Kjør production server
+npm run start
+
+# Replikér feilen
+# Se feilmelding i terminalen</code></pre>
+          <h5>Løsning 3: Legg til error handling</h5>
+          <pre><code>// Før - Krasjer ved feil
+export default async function Page() {
+  const data = await fetchData()
+  return &lt;div&gt;{data.title}&lt;/div&gt;  // ← Krasjer hvis data er null
+}
+
+// Etter - Håndter feil
+export default async function Page() {
+  try {
+    const data = await fetchData()
+
+    if (!data) {
+      return &lt;div&gt;Ingen data funnet&lt;/div&gt;
+    }
+
+    return &lt;div&gt;{data.title}&lt;/div&gt;
+  } catch (error) {
+    console.error('Error:', error)
+    return &lt;div&gt;Noe gikk galt&lt;/div&gt;
+  }
+}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- CACHE/REVALIDATION -->
+    <div class="category-header">
+      <h2>Cache og Revalidering</h2>
+    </div>
+
+    <div class="error-card" data-search="stale data old data not updating">
+      <div class="error-card-header">
+        <h3>Data not updating / Showing old/stale data</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Next.js cacher siden statisk og viser gammel data.</p>
+        <div class="solution">
+          <h5>Løsning 1: Bruk revalidate for ISR</h5>
+          <pre><code>// Generer siden statisk, oppdater hver 60s
+export const revalidate = 60  // sekunder
+
+export default async function Page() {
+  const data = await supabase.from('posts').select('*')
+  return &lt;div&gt;{JSON.stringify(data)}&lt;/div&gt;
+}</code></pre>
+          <h5>Løsning 2: Disable caching for alltid fersk data</h5>
+          <pre><code>// Siden genereres på hver request
+export const dynamic = 'force-dynamic'
+
+export default async function Page() {
+  const data = await supabase.from('posts').select('*')
+  return &lt;div&gt;{JSON.stringify(data)}&lt;/div&gt;
+}</code></pre>
+          <h5>Løsning 3: Revalidate from API/action</h5>
+          <pre><code>// src/actions/posts.ts
+"use server"
+
+import { revalidatePath } from 'next/cache'
+
+export async function createPost(formData: FormData) {
+  await supabase.from('posts').insert({...})
+
+  revalidatePath('/blog')  // Oppdater /blog-siden
+  revalidatePath('/blog/[id]', 'page')  // Oppdater alle blog posts
+}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p><a href="index.html">← Tilbake til feilmeldinger</a> | <a href="../index.html">Hjem</a></p>
+    </div>
+  </div>
+
+  <script>
+    function filterErrors() {
+      const input = document.getElementById('searchInput').value.toLowerCase();
+      const cards = document.querySelectorAll('.error-card');
+
+      cards.forEach(card => {
+        const searchText = card.getAttribute('data-search') + ' ' + card.textContent.toLowerCase();
+        if (searchText.includes(input)) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+  </script>
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

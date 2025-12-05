@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>00. Hurtigstart - Lever på 1 uke</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html"><strong>Hurtigstart</strong></a>
+    <a href="auto-setup.html">Auto-Setup</a>
+    <a href="prosjektstruktur.html">Struktur</a>
+    <a href="prosjektmaler.html">Maler</a>
+    <a href="cms-guide.html">CMS</a>
+    <a href="docker-deploy.html">Deploy</a>
+  </nav>
+
+  <div class="container">
+    <h1>🚀 Hurtigstart: Lever på 1 uke</h1>
+
+    <blockquote>
+      <p>Komplett guide for å levere kundeprosjekter på under 1 uke med 5 timer per dag. Perfekt for utviklere med OOP/RPA-bakgrunn som er nye i fullstack.</p>
+    </blockquote>
+
+    <div class="success-box">
+      <strong>Målgruppe:</strong> Utviklere med objektorientert programmering og/eller RPA (UiPath) erfaring som skal lære fullstack webutvikling raskt.
+    </div>
+
+    <h2>Ukeplan: 5 dager × 5 timer = 25 timer totalt</h2>
+    <p class="section-desc">
+      En realistisk tidsplan for å levere en komplett nettside. Følg denne planen for å holde fokus og unngå "rabbit holes".
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Dag</th>
+          <th>Timer</th>
+          <th>Oppgaver</th>
+          <th>Leveranse</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Dag 1</strong></td>
+          <td>5t</td>
+          <td>Oppsett + Struktur</td>
+          <td>Prosjekt kjører lokalt, Supabase klar</td>
+        </tr>
+        <tr>
+          <td><strong>Dag 2</strong></td>
+          <td>5t</td>
+          <td>Sider + Layout</td>
+          <td>Alle sider eksisterer, navigasjon fungerer</td>
+        </tr>
+        <tr>
+          <td><strong>Dag 3</strong></td>
+          <td>5t</td>
+          <td>Funksjonalitet</td>
+          <td>Skjemaer, database-integrasjon</td>
+        </tr>
+        <tr>
+          <td><strong>Dag 4</strong></td>
+          <td>5t</td>
+          <td>Styling + Responsivt</td>
+          <td>Ser bra ut på mobil og desktop</td>
+        </tr>
+        <tr>
+          <td><strong>Dag 5</strong></td>
+          <td>5t</td>
+          <td>Testing + Deploy</td>
+          <td>Live på internett, klar for kunde</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Dag 1: Oppsett (5 timer)</h2>
+
+    <div class="step">
+      <div class="step-number">1</div>
+      <div class="step-content">
+        <h4>Timer 1-2: Opprett prosjekt</h4>
+        <p>Kjør kommandoene under. Ikke endre noe - bruk standardvalg.</p>
+      </div>
+    </div>
+
+    <pre><code># METODE 1: Obligar Consulting Auto-Setup (anbefalt - 30 sekunder)
+# Oppretter komplett prosjekt med alle filer på sekunder
+curl -fsSL https://obligarconsulting.no/setup.sh | bash -s kundenavn
+
+# METODE 2: Manuelt oppsett med Next.js 16
+npx create-next-app@16 kundenavn-nettside --typescript --tailwind --eslint --app --src-dir --turbopack --import-alias "@/*"
+
+cd kundenavn-nettside
+
+# Installer ALLE avhengigheter på én gang
+npm install @supabase/supabase-js zustand react-hook-form @hookform/resolvers zod bcryptjs jsonwebtoken js-cookie react-hot-toast lucide-react dayjs clsx tailwind-merge class-variance-authority
+
+npm install -D @types/bcryptjs @types/jsonwebtoken @types/js-cookie</code></pre>
+
+    <div class="step">
+      <div class="step-number">2</div>
+      <div class="step-content">
+        <h4>Timer 2-3: Supabase oppsett</h4>
+        <p>Gå til <a href="https://supabase.com" target="_blank">supabase.com</a>, opprett prosjekt, og kjør SQL.</p>
+      </div>
+    </div>
+
+    <pre><code>-- KJØR DETTE I SUPABASE SQL EDITOR
+-- Tilpass tabellene etter kundens behov
+
+-- Brukere (alltid nødvendig)
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  phone VARCHAR(50),
+  role VARCHAR(50) DEFAULT 'user',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Kontaktskjema-meldinger (de fleste nettsider trenger dette)
+CREATE TABLE contact_messages (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  phone VARCHAR(50),
+  message TEXT NOT NULL,
+  is_read BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Generisk innhold (for produkter, tjenester, artikler, etc.)
+CREATE TABLE content (
+  id SERIAL PRIMARY KEY,
+  type VARCHAR(100) NOT NULL,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  image_url VARCHAR(500),
+  price DECIMAL(10, 2),
+  is_active BOOLEAN DEFAULT true,
+  sort_order INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Aktiver sikkerhet
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE content ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow all" ON users FOR ALL USING (true);
+CREATE POLICY "Allow all" ON contact_messages FOR ALL USING (true);
+CREATE POLICY "Allow all" ON content FOR ALL USING (true);</code></pre>
+
+    <div class="step">
+      <div class="step-number">3</div>
+      <div class="step-content">
+        <h4>Timer 3-4: Konfigurasjonsfiler</h4>
+        <p>Opprett disse filene. Kopier koden direkte.</p>
+      </div>
+    </div>
+
+    <pre><code># .env.local (i rotmappen)
+SUPABASE_PROJECT_URL=https://din-id.supabase.co
+SUPABASE_API_KEY=din-anon-key
+JWT_SECRET=MinstTrettiToTegnLangHemmeligNokkel123456</code></pre>
+
+    <pre><code>// src/config/supabase-config.ts
+import { createClient } from "@supabase/supabase-js"
+
+const supabaseUrl = process.env.SUPABASE_PROJECT_URL!
+const supabaseKey = process.env.SUPABASE_API_KEY!
+
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error("Supabase config missing")
+}
+
+export default createClient(supabaseUrl, supabaseKey)</code></pre>
+
+    <pre><code>// src/lib/utils.ts
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}</code></pre>
+
+    <div class="step">
+      <div class="step-number">4</div>
+      <div class="step-content">
+        <h4>Timer 4-5: Test at alt fungerer</h4>
+        <p>Start serveren og verifiser at alt kjører uten feil.</p>
+      </div>
+    </div>
+
+    <pre><code>npm run dev
+# Åpne http://localhost:3000 - skal vise Next.js velkomstside</code></pre>
+
+    <h2>Dag 2: Sider og Layout (5 timer)</h2>
+
+    <div class="step">
+      <div class="step-number">1</div>
+      <div class="step-content">
+        <h4>Timer 1-2: Mappestruktur</h4>
+        <p>Opprett alle mapper og filer. Ikke skriv innhold ennå - bare opprett filene.</p>
+      </div>
+    </div>
+
+    <pre><code># Kjør disse kommandoene for å opprette struktur
+mkdir -p src/components/ui
+mkdir -p src/components/layout
+mkdir -p src/actions
+mkdir -p src/interfaces
+
+# Typisk sidestruktur for bedriftsnettside
+touch src/app/page.tsx              # Forside
+touch src/app/om-oss/page.tsx       # Om oss
+touch src/app/tjenester/page.tsx    # Tjenester
+touch src/app/kontakt/page.tsx      # Kontakt
+touch src/app/admin/page.tsx        # Admin (valgfritt)</code></pre>
+
+    <div class="step">
+      <div class="step-number">2</div>
+      <div class="step-content">
+        <h4>Timer 2-4: Layout og navigasjon</h4>
+        <p>Opprett header, footer og hovedlayout.</p>
+      </div>
+    </div>
+
+    <pre><code>// src/components/layout/header.tsx
+import Link from "next/link"
+
+export default function Header() {
+  return (
+    &lt;header className="bg-white border-b sticky top-0 z-50"&gt;
+      &lt;div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between"&gt;
+        &lt;Link href="/" className="text-xl font-bold text-blue-600"&gt;
+          KundeNavn
+        &lt;/Link&gt;
+
+        &lt;nav className="hidden md:flex gap-6"&gt;
+          &lt;Link href="/" className="hover:text-blue-600"&gt;Hjem&lt;/Link&gt;
+          &lt;Link href="/om-oss" className="hover:text-blue-600"&gt;Om oss&lt;/Link&gt;
+          &lt;Link href="/tjenester" className="hover:text-blue-600"&gt;Tjenester&lt;/Link&gt;
+          &lt;Link href="/kontakt" className="hover:text-blue-600"&gt;Kontakt&lt;/Link&gt;
+        &lt;/nav&gt;
+
+        &lt;Link
+          href="/kontakt"
+          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+        &gt;
+          Kontakt oss
+        &lt;/Link&gt;
+      &lt;/div&gt;
+    &lt;/header&gt;
+  )
+}</code></pre>
+
+    <pre><code>// src/components/layout/footer.tsx
+import Link from "next/link"
+
+export default function Footer() {
+  return (
+    &lt;footer className="bg-gray-900 text-white py-12"&gt;
+      &lt;div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8"&gt;
+        &lt;div&gt;
+          &lt;h3 className="text-lg font-bold mb-4"&gt;KundeNavn&lt;/h3&gt;
+          &lt;p className="text-gray-400"&gt;
+            En kort beskrivelse av bedriften og hva de gjør.
+          &lt;/p&gt;
+        &lt;/div&gt;
+
+        &lt;div&gt;
+          &lt;h3 className="text-lg font-bold mb-4"&gt;Kontakt&lt;/h3&gt;
+          &lt;p className="text-gray-400"&gt;post@kundenavn.no&lt;/p&gt;
+          &lt;p className="text-gray-400"&gt;+47 123 45 678&lt;/p&gt;
+        &lt;/div&gt;
+
+        &lt;div&gt;
+          &lt;h3 className="text-lg font-bold mb-4"&gt;Lenker&lt;/h3&gt;
+          &lt;div className="flex flex-col gap-2"&gt;
+            &lt;Link href="/personvern" className="text-gray-400 hover:text-white"&gt;
+              Personvern
+            &lt;/Link&gt;
+            &lt;Link href="/vilkar" className="text-gray-400 hover:text-white"&gt;
+              Vilkår
+            &lt;/Link&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;div className="max-w-6xl mx-auto px-4 pt-8 mt-8 border-t border-gray-800 text-center text-gray-400"&gt;
+        © {new Date().getFullYear()} KundeNavn. Alle rettigheter reservert.
+      &lt;/div&gt;
+    &lt;/footer&gt;
+  )
+}</code></pre>
+
+    <pre><code>// src/app/layout.tsx
+import type { Metadata } from "next"
+import { Inter } from "next/font/google"
+import { Toaster } from "react-hot-toast"
+import Header from "@/components/layout/header"
+import Footer from "@/components/layout/footer"
+import "./globals.css"
+
+const inter = Inter({ subsets: ["latin"] })
+
+export const metadata: Metadata = {
+  title: "KundeNavn - Beskrivelse",
+  description: "En kort beskrivelse for SEO",
+}
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    &lt;html lang="no"&gt;
+      &lt;body className={inter.className}&gt;
+        &lt;Toaster position="top-right" /&gt;
+        &lt;Header /&gt;
+        &lt;main className="min-h-screen"&gt;{children}&lt;/main&gt;
+        &lt;Footer /&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+  )
+}</code></pre>
+
+    <div class="step">
+      <div class="step-number">3</div>
+      <div class="step-content">
+        <h4>Timer 4-5: Forsiden</h4>
+        <p>Lag en enkel men profesjonell forside.</p>
+      </div>
+    </div>
+
+    <pre><code>// src/app/page.tsx
+import Link from "next/link"
+
+export default function HomePage() {
+  return (
+    &lt;&gt;
+      {/* Hero Section */}
+      &lt;section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-20"&gt;
+        &lt;div className="max-w-6xl mx-auto px-4 text-center"&gt;
+          &lt;h1 className="text-4xl md:text-5xl font-bold mb-6"&gt;
+            Overskrift som beskriver verdien
+          &lt;/h1&gt;
+          &lt;p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto"&gt;
+            En kort setning som forklarer hva bedriften gjør og hvorfor kunden bør velge dem.
+          &lt;/p&gt;
+          &lt;div className="flex gap-4 justify-center"&gt;
+            &lt;Link
+              href="/kontakt"
+              className="bg-white text-blue-600 px-6 py-3 rounded-md font-medium hover:bg-gray-100"
+            &gt;
+              Kontakt oss
+            &lt;/Link&gt;
+            &lt;Link
+              href="/tjenester"
+              className="border border-white text-white px-6 py-3 rounded-md font-medium hover:bg-white/10"
+            &gt;
+              Se tjenester
+            &lt;/Link&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+
+      {/* Features Section */}
+      &lt;section className="py-20"&gt;
+        &lt;div className="max-w-6xl mx-auto px-4"&gt;
+          &lt;h2 className="text-3xl font-bold text-center mb-12"&gt;Hvorfor velge oss&lt;/h2&gt;
+
+          &lt;div className="grid grid-cols-1 md:grid-cols-3 gap-8"&gt;
+            {[
+              { title: "Fordel 1", desc: "Beskrivelse av fordel" },
+              { title: "Fordel 2", desc: "Beskrivelse av fordel" },
+              { title: "Fordel 3", desc: "Beskrivelse av fordel" },
+            ].map((item, i) =&gt; (
+              &lt;div key={i} className="bg-white p-6 rounded-lg border shadow-sm"&gt;
+                &lt;div className="w-12 h-12 bg-blue-100 rounded-lg mb-4"&gt;&lt;/div&gt;
+                &lt;h3 className="text-xl font-semibold mb-2"&gt;{item.title}&lt;/h3&gt;
+                &lt;p className="text-gray-600"&gt;{item.desc}&lt;/p&gt;
+              &lt;/div&gt;
+            ))}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+
+      {/* CTA Section */}
+      &lt;section className="bg-gray-100 py-20"&gt;
+        &lt;div className="max-w-6xl mx-auto px-4 text-center"&gt;
+          &lt;h2 className="text-3xl font-bold mb-4"&gt;Klar til å komme i gang?&lt;/h2&gt;
+          &lt;p className="text-gray-600 mb-8"&gt;Ta kontakt for en uforpliktende prat.&lt;/p&gt;
+          &lt;Link
+            href="/kontakt"
+            className="bg-blue-600 text-white px-8 py-3 rounded-md font-medium hover:bg-blue-700"
+          &gt;
+            Kontakt oss i dag
+          &lt;/Link&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+    &lt;/&gt;
+  )
+}</code></pre>
+
+    <h2>Dag 3: Funksjonalitet (5 timer)</h2>
+    <p class="section-desc">
+      <strong>Kontaktskjema</strong> er den viktigste funksjonen. De fleste kundenettside trenger bare dette + visning av innhold.
+    </p>
+
+    <div class="step">
+      <div class="step-number">1</div>
+      <div class="step-content">
+        <h4>Timer 1-2: Server Action for kontaktskjema</h4>
+        <p>Backend-logikk som lagrer meldinger i databasen.</p>
+      </div>
+    </div>
+
+    <pre><code>// src/actions/contact.ts
+"use server"
+
+import supabase from "@/config/supabase-config"
+
+export async function submitContact(payload: {
+  name: string
+  email: string
+  phone?: string
+  message: string
+}) {
+  try {
+    const { error } = await supabase
+      .from("contact_messages")
+      .insert(payload)
+
+    if (error) throw error
+
+    return { success: true, message: "Takk! Vi kontakter deg snart." }
+  } catch (error: any) {
+    return { success: false, message: "Noe gikk galt. Prøv igjen." }
+  }
+}</code></pre>
+
+    <div class="step">
+      <div class="step-number">2</div>
+      <div class="step-content">
+        <h4>Timer 2-4: Kontaktside med skjema</h4>
+        <p>Komplett kontaktside med validering.</p>
+      </div>
+    </div>
+
+    <pre><code>// src/app/kontakt/page.tsx
+"use client"
+
+import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+import toast from "react-hot-toast"
+import { submitContact } from "@/actions/contact"
+
+const schema = z.object({
+  name: z.string().min(2, "Navn må være minst 2 tegn"),
+  email: z.string().email("Ugyldig e-postadresse"),
+  phone: z.string().optional(),
+  message: z.string().min(10, "Melding må være minst 10 tegn"),
+})
+
+type FormData = z.infer&lt;typeof schema&gt;
+
+export default function ContactPage() {
+  const [loading, setLoading] = useState(false)
+
+  const { register, handleSubmit, reset, formState: { errors } } = useForm&lt;FormData&gt;({
+    resolver: zodResolver(schema),
+  })
+
+  const onSubmit = async (data: FormData) =&gt; {
+    setLoading(true)
+    try {
+      const result = await submitContact(data)
+      if (result.success) {
+        toast.success(result.message)
+        reset()
+      } else {
+        toast.error(result.message)
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    &lt;div className="py-20"&gt;
+      &lt;div className="max-w-6xl mx-auto px-4"&gt;
+        &lt;div className="grid grid-cols-1 md:grid-cols-2 gap-12"&gt;
+          {/* Info */}
+          &lt;div&gt;
+            &lt;h1 className="text-3xl font-bold mb-6"&gt;Kontakt oss&lt;/h1&gt;
+            &lt;p className="text-gray-600 mb-8"&gt;
+              Har du spørsmål? Fyll ut skjemaet så svarer vi så fort vi kan.
+            &lt;/p&gt;
+
+            &lt;div className="space-y-4"&gt;
+              &lt;div&gt;
+                &lt;h3 className="font-semibold"&gt;E-post&lt;/h3&gt;
+                &lt;p className="text-gray-600"&gt;post@kundenavn.no&lt;/p&gt;
+              &lt;/div&gt;
+              &lt;div&gt;
+                &lt;h3 className="font-semibold"&gt;Telefon&lt;/h3&gt;
+                &lt;p className="text-gray-600"&gt;+47 123 45 678&lt;/p&gt;
+              &lt;/div&gt;
+              &lt;div&gt;
+                &lt;h3 className="font-semibold"&gt;Adresse&lt;/h3&gt;
+                &lt;p className="text-gray-600"&gt;Gateadresse 123, 0000 By&lt;/p&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+
+          {/* Skjema */}
+          &lt;form onSubmit={handleSubmit(onSubmit)} className="space-y-4"&gt;
+            &lt;div&gt;
+              &lt;label className="block text-sm font-medium mb-1"&gt;Navn *&lt;/label&gt;
+              &lt;input
+                {...register("name")}
+                className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              /&gt;
+              {errors.name && &lt;p className="text-red-500 text-sm mt-1"&gt;{errors.name.message}&lt;/p&gt;}
+            &lt;/div&gt;
+
+            &lt;div&gt;
+              &lt;label className="block text-sm font-medium mb-1"&gt;E-post *&lt;/label&gt;
+              &lt;input
+                {...register("email")}
+                type="email"
+                className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              /&gt;
+              {errors.email && &lt;p className="text-red-500 text-sm mt-1"&gt;{errors.email.message}&lt;/p&gt;}
+            &lt;/div&gt;
+
+            &lt;div&gt;
+              &lt;label className="block text-sm font-medium mb-1"&gt;Telefon&lt;/label&gt;
+              &lt;input
+                {...register("phone")}
+                type="tel"
+                className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              /&gt;
+            &lt;/div&gt;
+
+            &lt;div&gt;
+              &lt;label className="block text-sm font-medium mb-1"&gt;Melding *&lt;/label&gt;
+              &lt;textarea
+                {...register("message")}
+                rows={5}
+                className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              /&gt;
+              {errors.message && &lt;p className="text-red-500 text-sm mt-1"&gt;{errors.message.message}&lt;/p&gt;}
+            &lt;/div&gt;
+
+            &lt;button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-blue-600 text-white py-3 rounded-md font-medium hover:bg-blue-700 disabled:opacity-50"
+            &gt;
+              {loading ? "Sender..." : "Send melding"}
+            &lt;/button&gt;
+          &lt;/form&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <div class="step">
+      <div class="step-number">3</div>
+      <div class="step-content">
+        <h4>Timer 4-5: Om oss og Tjenester-sider</h4>
+        <p>Enkle statiske sider med informasjon.</p>
+      </div>
+    </div>
+
+    <pre><code>// src/app/om-oss/page.tsx
+export default function AboutPage() {
+  return (
+    &lt;div className="py-20"&gt;
+      &lt;div className="max-w-4xl mx-auto px-4"&gt;
+        &lt;h1 className="text-3xl font-bold mb-6"&gt;Om oss&lt;/h1&gt;
+
+        &lt;div className="prose prose-lg"&gt;
+          &lt;p&gt;
+            Skriv litt om bedriften her. Hvem er dere, hva gjør dere,
+            og hvorfor bør kunden velge dere?
+          &lt;/p&gt;
+
+          &lt;h2&gt;Vår historie&lt;/h2&gt;
+          &lt;p&gt;
+            Bedriften ble startet i [år] med mål om å [mål].
+          &lt;/p&gt;
+
+          &lt;h2&gt;Våre verdier&lt;/h2&gt;
+          &lt;ul&gt;
+            &lt;li&gt;Verdi 1 - Beskrivelse&lt;/li&gt;
+            &lt;li&gt;Verdi 2 - Beskrivelse&lt;/li&gt;
+            &lt;li&gt;Verdi 3 - Beskrivelse&lt;/li&gt;
+          &lt;/ul&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h2>Dag 4-5: Se egne guider</h2>
+    <p class="section-desc">
+      Se <a href="prosjektmaler.html">Prosjektmaler</a> for ferdige sider og <a href="sjekkliste.html">Sjekkliste</a> for deploy.
+    </p>
+
+    <h2>Vanlige feil og løsninger</h2>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Feil</th>
+          <th>Årsak</th>
+          <th>Løsning</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>Module not found</code></td>
+          <td>Mangler pakke</td>
+          <td><code>npm install pakkenavn</code></td>
+        </tr>
+        <tr>
+          <td><code>Supabase error</code></td>
+          <td>Feil .env.local</td>
+          <td>Sjekk at URL og KEY er korrekt</td>
+        </tr>
+        <tr>
+          <td><code>Hydration error</code></td>
+          <td>"use client" mangler</td>
+          <td>Legg til "use client" øverst i filen</td>
+        </tr>
+        <tr>
+          <td>Styling fungerer ikke</td>
+          <td>Cache-problem</td>
+          <td>Stopp server, slett .next, start på nytt</td>
+        </tr>
+        <tr>
+          <td>Skjema sender ikke</td>
+          <td>Server Action feil</td>
+          <td>Sjekk at "use server" er øverst</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="info-box">
+      <strong>Tips:</strong> Når du står fast, sjekk konsollen i nettleseren (F12) og terminalen der serveren kjører. Feilmeldingene forteller som regel nøyaktig hva som er galt.
+    </div>
+
+    <div class="footer">
+      <p><a href="../index.html">← Hovedside</a> | <a href="prosjektmaler.html">Prosjektmaler →</a> | <a href="sjekkliste.html">Sjekkliste →</a></p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

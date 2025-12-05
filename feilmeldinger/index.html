@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feilmeldinger og Løsninger</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .error-card {
+      background: white;
+      border: 2px solid #fca5a5;
+      border-left: 6px solid #ef4444;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      overflow: hidden;
+    }
+    .error-card-header {
+      background: #fef2f2;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid #fecaca;
+    }
+    .error-card-header h3 {
+      margin: 0;
+      color: #dc2626;
+      font-family: monospace;
+      font-size: 0.95rem;
+    }
+    .error-card-body {
+      padding: 1.25rem;
+    }
+    .error-card-body h4 {
+      margin: 0 0 0.5rem 0;
+      color: #1e293b;
+    }
+    .error-card-body p {
+      margin: 0 0 1rem 0;
+      color: #64748b;
+    }
+    .solution {
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      border-radius: 6px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    .solution h5 {
+      margin: 0 0 0.5rem 0;
+      color: #166534;
+    }
+    .category-header {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      margin: 2rem 0 1rem 0;
+    }
+    .category-header h2 {
+      margin: 0;
+    }
+    .search-box {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 2rem;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    .search-box input:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="../grunnleggende/index.html">Grunnleggende</a>
+    <a href="index.html"><strong>Feilmeldinger</strong></a>
+    <a href="typescript-feil.html">TypeScript</a>
+    <a href="runtime-feil.html">Runtime</a>
+    <a href="nextjs-feil.html">Next.js</a>
+    <a href="supabase-feil.html">Supabase</a>
+    <a href="tailwind-feil.html">Tailwind</a>
+    <a href="deploy-feil.html">Deploy</a>
+  </nav>
+
+  <div class="container">
+    <h1>Feilmeldinger og Løsninger</h1>
+
+    <blockquote>
+      <p>Søk etter feilmeldingen din og finn løsningen. Alle vanlige feil er dekket.</p>
+    </blockquote>
+
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Søk etter feilmelding... (f.eks. 'Module not found')" onkeyup="filterErrors()">
+    </div>
+
+    <div class="info-box">
+      <strong>Tips:</strong> Kopier feilmeldingen fra terminalen og lim inn i søkefeltet over.
+    </div>
+
+    <!-- TYPESCRIPT ERRORS -->
+    <div class="category-header">
+      <h2>TypeScript Feil (Kompilerings-tid)</h2>
+    </div>
+
+    <div class="error-card" data-search="property does not exist on type">
+      <div class="error-card-header">
+        <h3>Property 'x' does not exist on type 'Y'</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Du prøver å bruke en egenskap som ikke er definert i TypeScript-typen.</p>
+        <pre><code>// FEIL
+interface User { name: string }
+const user: User = { name: "Ola" }
+console.log(user.email)  // Property 'email' does not exist</code></pre>
+        <div class="solution">
+          <h5>Løsning</h5>
+          <pre><code>// Legg til egenskapen i interface
+interface User {
+  name: string
+  email?: string  // ? gjør den valgfri
+}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-card" data-search="type is not assignable to type">
+      <div class="error-card-header">
+        <h3>Type 'X' is not assignable to type 'Y'</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Du prøver å tilordne en verdi av feil type til en variabel.</p>
+        <pre><code>// FEIL
+const name: string = 123  // Type 'number' is not assignable to type 'string'
+const user: User = { name: "Ola" }  // Mangler påkrevde felter</code></pre>
+        <div class="solution">
+          <h5>Løsning</h5>
+          <pre><code>// Bruk riktig type
+const name: string = "123"
+
+// Eller fyll ut alle påkrevde felter
+const user: User = { id: 1, name: "Ola", email: "ola@test.no" }</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-card" data-search="object is possibly undefined null">
+      <div class="error-card-header">
+        <h3>Object is possibly 'undefined' / 'null'</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>TypeScript vet ikke om verdien eksisterer. Den kan være undefined eller null.</p>
+        <pre><code>// FEIL
+const user = users.find(u => u.id === 1)
+console.log(user.name)  // Object is possibly 'undefined'</code></pre>
+        <div class="solution">
+          <h5>Løsning 1: Optional chaining (?)</h5>
+          <pre><code>console.log(user?.name)  // Returnerer undefined hvis user ikke finnes</code></pre>
+          <h5>Løsning 2: Guard/sjekk</h5>
+          <pre><code>if (user) {
+  console.log(user.name)  // TypeScript vet at user eksisterer her
+}</code></pre>
+          <h5>Løsning 3: Non-null assertion (!) - bare hvis du er 100% sikker</h5>
+          <pre><code>console.log(user!.name)  // Forteller TypeScript at user IKKE er null/undefined</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-card" data-search="cannot find module">
+      <div class="error-card-header">
+        <h3>Cannot find module 'X' or its corresponding type declarations</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>TypeScript finner ikke pakken eller typer for pakken.</p>
+        <div class="solution">
+          <h5>Løsning 1: Installer pakken</h5>
+          <pre><code>npm install pakkenavn</code></pre>
+          <h5>Løsning 2: Installer typer (for JS-pakker)</h5>
+          <pre><code>npm install -D @types/pakkenavn</code></pre>
+          <h5>Løsning 3: Sjekk import-path</h5>
+          <pre><code>// FEIL
+import { Button } from "@/components/Button"
+
+// RIKTIG (sjekk filnavn og path)
+import { Button } from "@/components/ui/button"</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-card" data-search="argument of type not assignable parameter">
+      <div class="error-card-header">
+        <h3>Argument of type 'X' is not assignable to parameter of type 'Y'</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Du sender feil type til en funksjon.</p>
+        <pre><code>// FEIL
+function greet(name: string) { ... }
+greet(123)  // Argument of type 'number' is not assignable to parameter of type 'string'</code></pre>
+        <div class="solution">
+          <h5>Løsning</h5>
+          <pre><code>// Send riktig type
+greet("Ola")
+
+// Eller konverter
+greet(String(123))
+greet(myNumber.toString())</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- RUNTIME ERRORS -->
+    <div class="category-header">
+      <h2>Runtime Feil (Kjøretid)</h2>
+    </div>
+
+    <div class="error-card" data-search="module not found can't resolve">
+      <div class="error-card-header">
+        <h3>Module not found: Can't resolve 'X'</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Next.js/Webpack finner ikke filen eller pakken du importerer.</p>
+        <div class="solution">
+          <h5>Løsning 1: Installer manglende pakke</h5>
+          <pre><code>npm install pakkenavn</code></pre>
+          <h5>Løsning 2: Sjekk filsti</h5>
+          <pre><code>// Sjekk at filen eksisterer på denne stien
+// Husk: @ = src/ mappen
+import Component from "@/components/Component"</code></pre>
+          <h5>Løsning 3: Restart server</h5>
+          <pre><code>Ctrl+C
+npm run dev</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-card" data-search="hydration failed text content mismatch">
+      <div class="error-card-header">
+        <h3>Hydration failed / Text content does not match</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Server-rendret HTML matcher ikke det React lager på klienten. Ofte forårsaket av datoer, randomness, eller nesting-feil.</p>
+        <div class="solution">
+          <h5>Løsning 1: Bruk "use client" for dynamisk innhold</h5>
+          <pre><code>"use client"
+
+import { useState, useEffect } from "react"
+
+export default function DateTime() {
+  const [date, setDate] = useState&lt;string&gt;("")
+
+  useEffect(() => {
+    setDate(new Date().toLocaleString())
+  }, [])
+
+  return &lt;span&gt;{date}&lt;/span&gt;
+}</code></pre>
+          <h5>Løsning 2: Sjekk HTML-nesting</h5>
+          <pre><code>// FEIL - &lt;p&gt; inne i &lt;p&gt;
+&lt;p&gt;&lt;p&gt;Tekst&lt;/p&gt;&lt;/p&gt;
+
+// FEIL - &lt;div&gt; inne i &lt;p&gt;
+&lt;p&gt;&lt;div&gt;Tekst&lt;/div&gt;&lt;/p&gt;
+
+// RIKTIG
+&lt;div&gt;&lt;p&gt;Tekst&lt;/p&gt;&lt;/div&gt;</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-card" data-search="usestate useeffect hooks only used client component">
+      <div class="error-card-header">
+        <h3>useState / useEffect can only be used in Client Components</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Du bruker React hooks i en Server Component. Hooks krever "use client".</p>
+        <div class="solution">
+          <h5>Løsning: Legg til "use client" øverst i filen</h5>
+          <pre><code>"use client"
+
+import { useState } from "react"
+
+export default function Counter() {
+  const [count, setCount] = useState(0)
+  return &lt;button onClick={() => setCount(c => c + 1)}&gt;{count}&lt;/button&gt;
+}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-card" data-search="cannot read properties of undefined null">
+      <div class="error-card-header">
+        <h3>Cannot read properties of undefined (reading 'X')</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Du prøver å lese en egenskap fra noe som er undefined eller null.</p>
+        <pre><code>// FEIL
+const user = undefined
+console.log(user.name)  // Cannot read properties of undefined</code></pre>
+        <div class="solution">
+          <h5>Løsning 1: Optional chaining</h5>
+          <pre><code>console.log(user?.name)  // Returnerer undefined i stedet for å krasje</code></pre>
+          <h5>Løsning 2: Sjekk før bruk</h5>
+          <pre><code>if (user) {
+  console.log(user.name)
+}</code></pre>
+          <h5>Løsning 3: Default verdi</h5>
+          <pre><code>console.log(user?.name ?? "Ukjent")</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- NEXT.JS ERRORS -->
+    <div class="category-header">
+      <h2>Next.js Spesifikke Feil</h2>
+    </div>
+
+    <div class="error-card" data-search="async server component promise">
+      <div class="error-card-header">
+        <h3>async/await is not yet supported in Client Components</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Du prøver å bruke async/await i en Client Component.</p>
+        <div class="solution">
+          <h5>Løsning: Bruk useEffect for data-henting i Client Components</h5>
+          <pre><code>"use client"
+
+import { useState, useEffect } from "react"
+
+export default function DataComponent() {
+  const [data, setData] = useState(null)
+
+  useEffect(() => {
+    async function fetchData() {
+      const res = await fetch("/api/data")
+      const json = await res.json()
+      setData(json)
+    }
+    fetchData()
+  }, [])
+
+  return &lt;div&gt;{data}&lt;/div&gt;
+}</code></pre>
+          <h5>Eller: Fjern "use client" og bruk Server Component</h5>
+          <pre><code>// Ingen "use client" = Server Component
+export default async function DataComponent() {
+  const data = await fetch("...").then(r => r.json())
+  return &lt;div&gt;{data}&lt;/div&gt;
+}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-card" data-search="cookies headers server component">
+      <div class="error-card-header">
+        <h3>cookies() / headers() can only be called from Server Components</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Du prøver å bruke Next.js server-funksjoner i en Client Component.</p>
+        <div class="solution">
+          <h5>Løsning: Fjern "use client" eller flytt logikken til Server Action</h5>
+          <pre><code>// Server Action (src/actions/auth.ts)
+"use server"
+
+import { cookies } from "next/headers"
+
+export async function getSession() {
+  const cookieStore = await cookies()
+  return cookieStore.get("token")?.value
+}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-card" data-search="supabase error invalid api key">
+      <div class="error-card-header">
+        <h3>Invalid API key / Supabase connection error</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Supabase-tilkoblingen feiler, ofte pga. feil eller manglende miljøvariabler.</p>
+        <div class="solution">
+          <h5>Løsning 1: Sjekk .env.local</h5>
+          <pre><code># .env.local (i prosjektets rot)
+SUPABASE_PROJECT_URL=https://din-id.supabase.co
+SUPABASE_API_KEY=din-anon-key-her
+
+# VIKTIG: Ingen mellomrom rundt =</code></pre>
+          <h5>Løsning 2: Restart serveren etter endring</h5>
+          <pre><code>Ctrl+C
+npm run dev</code></pre>
+          <h5>Løsning 3: Verifiser at nøklene er riktige i Supabase</h5>
+          <p>Gå til supabase.com → Prosjekt → Settings → API</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUILD ERRORS -->
+    <div class="category-header">
+      <h2>Build/Deploy Feil</h2>
+    </div>
+
+    <div class="error-card" data-search="build failed eslint error">
+      <div class="error-card-header">
+        <h3>Build failed: ESLint error</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>ESLint fant kodefeil som forhindrer bygging.</p>
+        <div class="solution">
+          <h5>Løsning 1: Fiks feilene</h5>
+          <pre><code>npm run lint  # Se alle feil
+# Fiks dem en etter en</code></pre>
+          <h5>Løsning 2: Midlertidig deaktiver (ikke anbefalt)</h5>
+          <pre><code>// next.config.ts
+const config = {
+  eslint: {
+    ignoreDuringBuilds: true
+  }
+}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-card" data-search="enoent no such file directory">
+      <div class="error-card-header">
+        <h3>ENOENT: no such file or directory</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>En fil eller mappe som koden refererer til eksisterer ikke.</p>
+        <div class="solution">
+          <h5>Løsning: Sjekk at filen/mappen eksisterer</h5>
+          <pre><code># Sjekk at path er riktig
+ls -la src/components/
+
+# Opprett manglende mapper
+mkdir -p src/components/ui</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p><a href="../index.html">← Tilbake til hovedsiden</a></p>
+    </div>
+  </div>
+
+  <script>
+    function filterErrors() {
+      const input = document.getElementById('searchInput').value.toLowerCase();
+      const cards = document.querySelectorAll('.error-card');
+
+      cards.forEach(card => {
+        const searchText = card.getAttribute('data-search') + ' ' + card.textContent.toLowerCase();
+        if (searchText.includes(input)) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+  </script>
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

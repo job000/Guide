@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fullstack Arkitektur - Komplett Copy-Paste Guide</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .architecture-diagram {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      color: #e2e8f0;
+      padding: 2rem;
+      border-radius: 16px;
+      margin: 2rem 0;
+      font-family: 'JetBrains Mono', monospace;
+      overflow-x: auto;
+    }
+    .architecture-diagram h3 {
+      color: #60a5fa;
+      margin-top: 0;
+      border: none;
+    }
+    .architecture-diagram h3::before { display: none; }
+    .copy-section {
+      background: linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%);
+      border: 2px solid #22c55e;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+    }
+    .copy-section h3 {
+      color: #166534;
+      margin-top: 0;
+    }
+    .copy-section h3::before { display: none; }
+    .file-path {
+      background: #1e293b;
+      color: #60a5fa;
+      padding: 0.5rem 1rem;
+      border-radius: 8px 8px 0 0;
+      font-family: monospace;
+      font-size: 0.85rem;
+      margin-bottom: 0;
+      display: inline-block;
+    }
+    .file-path + pre {
+      margin-top: 0;
+      border-radius: 0 8px 8px 8px;
+    }
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+    .feature-card {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .feature-card h4 {
+      margin-top: 0;
+      color: #1e40af;
+    }
+    .feature-card h4::before { display: none; }
+    .step-indicator {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2rem;
+      height: 2rem;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      color: white;
+      border-radius: 50%;
+      font-weight: bold;
+      margin-right: 0.75rem;
+    }
+    .quick-nav {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+    }
+    .quick-nav a {
+      display: inline-block;
+      margin: 0.25rem;
+      padding: 0.5rem 1rem;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+    .quick-nav a:hover {
+      border-color: #3b82f6;
+      background: #eff6ff;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html">Start</a>
+    <a href="fullstack-arkitektur.html"><strong>Fullstack Arkitektur</strong></a>
+    <a href="autentisering.html">Auth</a>
+    <a href="admin.html">Admin</a>
+    <a href="cms-guide.html">CMS</a>
+  </nav>
+
+  <div class="container">
+    <h1>Fullstack Arkitektur</h1>
+
+    <blockquote>
+      <p>Komplett guide for store Next.js-prosjekter. Alt du trenger for sikker frontend-til-backend kommunikasjon, mappestruktur, autentisering og gjenbrukbare komponenter. <strong>Bare kopier og tilpass.</strong></p>
+    </blockquote>
+
+    <div class="quick-nav">
+      <strong>Hopp til:</strong><br>
+      <a href="#mappestruktur">Mappestruktur</a>
+      <a href="#auth-komplett">Auth (Login/Register/Glemt)</a>
+      <a href="#proxy">Proxy (Next.js 16)</a>
+      <a href="#route-groups">Route Groups</a>
+      <a href="#server-actions">Server Actions</a>
+      <a href="#admin-panel">Admin Panel</a>
+      <a href="#gjenbrukbare">Gjenbrukbare Komponenter</a>
+      <a href="#sikkerhet">Sikkerhet</a>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- MAPPESTRUKTUR -->
+    <!-- ============================================ -->
+    <h2 id="mappestruktur">Komplett Mappestruktur for Store Prosjekter</h2>
+
+    <div class="architecture-diagram">
+      <h3>Anbefalt Struktur</h3>
+<pre style="margin:0; color: #e2e8f0;">
+<span style="color: #60a5fa;">prosjekt/</span>
+├── <span style="color: #f59e0b;">src/</span>
+│   ├── <span style="color: #60a5fa;">app/</span>                      <span style="color: #94a3b8;"># Next.js App Router</span>
+│   │   ├── <span style="color: #22c55e;">(public)/</span>              <span style="color: #94a3b8;"># Offentlige sider (ingen auth)</span>
+│   │   │   ├── page.tsx           <span style="color: #94a3b8;"># Forside</span>
+│   │   │   ├── om-oss/
+│   │   │   ├── tjenester/
+│   │   │   └── kontakt/
+│   │   │
+│   │   ├── <span style="color: #22c55e;">(auth)/</span>                <span style="color: #94a3b8;"># Auth-sider (egen layout uten header)</span>
+│   │   │   ├── layout.tsx         <span style="color: #94a3b8;"># Minimal layout for auth</span>
+│   │   │   ├── login/
+│   │   │   ├── register/
+│   │   │   └── glemt-passord/
+│   │   │
+│   │   ├── <span style="color: #ef4444;">(protected)/</span>           <span style="color: #94a3b8;"># Beskyttede sider (krever login)</span>
+│   │   │   ├── layout.tsx         <span style="color: #94a3b8;"># Sjekker auth, viser bruker-nav</span>
+│   │   │   ├── dashboard/
+│   │   │   ├── profil/
+│   │   │   └── innstillinger/
+│   │   │
+│   │   ├── <span style="color: #ef4444;">(admin)/</span>               <span style="color: #94a3b8;"># Admin-sider (krever admin-rolle)</span>
+│   │   │   ├── layout.tsx         <span style="color: #94a3b8;"># Admin sidebar, rollesjekk</span>
+│   │   │   └── admin/
+│   │   │       ├── page.tsx       <span style="color: #94a3b8;"># Dashboard</span>
+│   │   │       ├── brukere/
+│   │   │       ├── meldinger/
+│   │   │       └── innhold/
+│   │   │
+│   │   ├── api/                   <span style="color: #94a3b8;"># API Routes (hvis nødvendig)</span>
+│   │   │   └── webhook/
+│   │   │
+│   │   ├── layout.tsx             <span style="color: #94a3b8;"># Root layout (Toaster, fonts)</span>
+│   │   └── globals.css
+│   │
+│   ├── <span style="color: #f59e0b;">actions/</span>                  <span style="color: #94a3b8;"># Server Actions (backend-logikk)</span>
+│   │   ├── auth.ts                <span style="color: #94a3b8;"># Login, register, logout</span>
+│   │   ├── users.ts               <span style="color: #94a3b8;"># Brukerhåndtering</span>
+│   │   ├── content.ts             <span style="color: #94a3b8;"># Innhold CRUD</span>
+│   │   └── contact.ts             <span style="color: #94a3b8;"># Kontaktskjema</span>
+│   │
+│   ├── <span style="color: #f59e0b;">components/</span>               <span style="color: #94a3b8;"># Alle komponenter</span>
+│   │   ├── <span style="color: #22c55e;">ui/</span>                    <span style="color: #94a3b8;"># Basis UI (shadcn/ui)</span>
+│   │   │   ├── button.tsx
+│   │   │   ├── input.tsx
+│   │   │   ├── card.tsx
+│   │   │   └── ...
+│   │   ├── <span style="color: #22c55e;">layout/</span>                <span style="color: #94a3b8;"># Layout-komponenter</span>
+│   │   │   ├── header.tsx
+│   │   │   ├── footer.tsx
+│   │   │   ├── sidebar.tsx
+│   │   │   └── mobile-nav.tsx
+│   │   └── <span style="color: #22c55e;">functional/</span>            <span style="color: #94a3b8;"># Funksjonskomponenter</span>
+│   │       ├── auth-form.tsx
+│   │       ├── contact-form.tsx
+│   │       └── data-table.tsx
+│   │
+│   ├── <span style="color: #f59e0b;">config/</span>                   <span style="color: #94a3b8;"># Konfigurasjon</span>
+│   │   ├── supabase-config.ts     <span style="color: #94a3b8;"># Database-tilkobling</span>
+│   │   └── site-config.ts         <span style="color: #94a3b8;"># Nettside-innstillinger</span>
+│   │
+│   ├── <span style="color: #f59e0b;">interfaces/</span>               <span style="color: #94a3b8;"># TypeScript-typer</span>
+│   │   ├── user.ts
+│   │   ├── content.ts
+│   │   └── api.ts
+│   │
+│   ├── <span style="color: #f59e0b;">lib/</span>                      <span style="color: #94a3b8;"># Hjelpefunksjoner</span>
+│   │   ├── utils.ts               <span style="color: #94a3b8;"># cn(), formatDate(), etc.</span>
+│   │   └── validators.ts          <span style="color: #94a3b8;"># Zod schemas</span>
+│   │
+│   ├── <span style="color: #f59e0b;">store/</span>                    <span style="color: #94a3b8;"># Zustand state management</span>
+│   │   └── user-store.ts
+│   │
+│   └── <span style="color: #f59e0b;">proxy.ts</span>                 <span style="color: #94a3b8;"># Rutebeskyttelse (Next.js 16+)</span>
+│
+├── <span style="color: #f59e0b;">public/</span>                       <span style="color: #94a3b8;"># Statiske filer</span>
+│   ├── images/
+│   └── favicon.ico
+│
+├── .env.local                     <span style="color: #94a3b8;"># Miljøvariabler (IKKE commit!)</span>
+├── package.json
+├── tailwind.config.ts
+└── tsconfig.json
+</pre>
+    </div>
+
+    <div class="info-box">
+      <strong>Route Groups forklart:</strong>
+      <ul>
+        <li><code>(public)</code> - Mapper i parentes blir IKKE en del av URL-en</li>
+        <li><code>(auth)</code> - Grupperer auth-sider med egen layout</li>
+        <li><code>(protected)</code> - Alle sider her krever innlogging</li>
+        <li><code>(admin)</code> - Krever admin-rolle, har egen sidebar</li>
+      </ul>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- KOMPLETT AUTH SYSTEM -->
+    <!-- ============================================ -->
+    <h2 id="auth-komplett">Komplett Auth-system (Copy-Paste)</h2>
+
+    <p class="section-desc">
+      Alt du trenger for brukerautentisering: registrering, innlogging, glemt passord, og utlogging. Bare kopier filene og tilpass.
+    </p>
+
+    <h3><span class="step-indicator">1</span>Database-tabell (SQL)</h3>
+    <div class="file-path">Kjør i Supabase SQL Editor</div>
+    <pre><code>-- Brukertabell med alle nødvendige felt
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  role VARCHAR(50) DEFAULT 'user',  -- 'user', 'admin'
+  avatar_url VARCHAR(500),
+  reset_token VARCHAR(255),          -- For glemt passord
+  reset_token_expires TIMESTAMPTZ,
+  email_verified BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Indekser for raskere søk
+CREATE INDEX idx_users_email ON users(email);
+CREATE INDEX idx_users_reset_token ON users(reset_token);
+
+-- RLS (Row Level Security)
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Brukere kan lese sin egen data
+CREATE POLICY "Users can read own data" ON users
+  FOR SELECT USING (auth.uid()::text = id::text);
+
+-- Policy: Service role kan gjøre alt (for server actions)
+CREATE POLICY "Service role full access" ON users
+  FOR ALL USING (true);</code></pre>
+
+    <h3><span class="step-indicator">2</span>Server Actions - auth.ts</h3>
+    <div class="file-path">src/actions/auth.ts</div>
+    <pre><code>"use server"
+
+import bcrypt from "bcryptjs"
+import jwt from "jsonwebtoken"
+import crypto from "crypto"
+import { cookies } from "next/headers"
+import supabase from "@/config/supabase-config"
+
+// ============================================
+// REGISTRERING
+// ============================================
+export async function register(payload: {
+  name: string
+  email: string
+  password: string
+}) {
+  try {
+    // Sjekk om e-post allerede finnes
+    const { data: existing } = await supabase
+      .from("users")
+      .select("id")
+      .eq("email", payload.email.toLowerCase())
+      .single()
+
+    if (existing) {
+      return { success: false, message: "E-post er allerede registrert" }
+    }
+
+    // Hash passord
+    const hashedPassword = await bcrypt.hash(payload.password, 12)
+
+    // Opprett bruker
+    const { data: user, error } = await supabase
+      .from("users")
+      .insert({
+        name: payload.name,
+        email: payload.email.toLowerCase(),
+        password: hashedPassword,
+      })
+      .select("id, email")
+      .single()
+
+    if (error) throw error
+
+    return {
+      success: true,
+      message: "Konto opprettet! Du kan nå logge inn."
+    }
+  } catch (error: any) {
+    console.error("Register error:", error)
+    return { success: false, message: "Kunne ikke opprette konto" }
+  }
+}
+
+// ============================================
+// INNLOGGING
+// ============================================
+export async function login(payload: {
+  email: string
+  password: string
+}) {
+  try {
+    // Finn bruker
+    const { data: user, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("email", payload.email.toLowerCase())
+      .single()
+
+    if (error || !user) {
+      return { success: false, message: "Ugyldig e-post eller passord" }
+    }
+
+    // Verifiser passord
+    const isValid = await bcrypt.compare(payload.password, user.password)
+
+    if (!isValid) {
+      return { success: false, message: "Ugyldig e-post eller passord" }
+    }
+
+    // Generer JWT
+    const token = jwt.sign(
+      {
+        userId: user.id,
+        email: user.email,
+        role: user.role
+      },
+      process.env.JWT_SECRET!,
+      { expiresIn: "7d" }
+    )
+
+    // Lagre i httpOnly cookie
+    const cookieStore = await cookies()
+    cookieStore.set("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 24 * 7, // 7 dager
+      path: "/",
+    })
+
+    return {
+      success: true,
+      message: "Innlogget!",
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      }
+    }
+  } catch (error: any) {
+    console.error("Login error:", error)
+    return { success: false, message: "Innlogging feilet" }
+  }
+}
+
+// ============================================
+// GLEMT PASSORD - Send reset-lenke
+// ============================================
+export async function forgotPassword(email: string) {
+  try {
+    // Finn bruker
+    const { data: user } = await supabase
+      .from("users")
+      .select("id, email")
+      .eq("email", email.toLowerCase())
+      .single()
+
+    // Alltid returner suksess (sikkerhet - ikke avslør om e-post finnes)
+    if (!user) {
+      return {
+        success: true,
+        message: "Hvis e-posten finnes, vil du motta en lenke"
+      }
+    }
+
+    // Generer reset-token
+    const resetToken = crypto.randomBytes(32).toString("hex")
+    const resetTokenExpires = new Date(Date.now() + 3600000) // 1 time
+
+    // Lagre token i database
+    await supabase
+      .from("users")
+      .update({
+        reset_token: resetToken,
+        reset_token_expires: resetTokenExpires.toISOString(),
+      })
+      .eq("id", user.id)
+
+    // TODO: Send e-post med lenke
+    // const resetUrl = `${process.env.NEXT_PUBLIC_URL}/reset-passord?token=${resetToken}`
+    // await sendEmail(user.email, "Tilbakestill passord", resetUrl)
+
+    console.log("Reset token:", resetToken) // For testing
+
+    return {
+      success: true,
+      message: "Hvis e-posten finnes, vil du motta en lenke"
+    }
+  } catch (error) {
+    console.error("Forgot password error:", error)
+    return { success: false, message: "Noe gikk galt" }
+  }
+}
+
+// ============================================
+// RESET PASSORD - Med token
+// ============================================
+export async function resetPassword(payload: {
+  token: string
+  newPassword: string
+}) {
+  try {
+    // Finn bruker med gyldig token
+    const { data: user } = await supabase
+      .from("users")
+      .select("id, reset_token_expires")
+      .eq("reset_token", payload.token)
+      .single()
+
+    if (!user) {
+      return { success: false, message: "Ugyldig eller utløpt lenke" }
+    }
+
+    // Sjekk om token har utløpt
+    if (new Date(user.reset_token_expires) &lt; new Date()) {
+      return { success: false, message: "Lenken har utløpt" }
+    }
+
+    // Hash nytt passord
+    const hashedPassword = await bcrypt.hash(payload.newPassword, 12)
+
+    // Oppdater passord og fjern reset-token
+    await supabase
+      .from("users")
+      .update({
+        password: hashedPassword,
+        reset_token: null,
+        reset_token_expires: null,
+      })
+      .eq("id", user.id)
+
+    return {
+      success: true,
+      message: "Passord oppdatert! Du kan nå logge inn."
+    }
+  } catch (error) {
+    console.error("Reset password error:", error)
+    return { success: false, message: "Kunne ikke oppdatere passord" }
+  }
+}
+
+// ============================================
+// HENT INNLOGGET BRUKER
+// ============================================
+export async function getLoggedInUser() {
+  try {
+    const cookieStore = await cookies()
+    const token = cookieStore.get("token")?.value
+
+    if (!token) {
+      return { success: false, user: null }
+    }
+
+    // Verifiser token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+      userId: string
+      email: string
+      role: string
+    }
+
+    // Hent oppdatert brukerdata
+    const { data: user } = await supabase
+      .from("users")
+      .select("id, name, email, role, avatar_url")
+      .eq("id", decoded.userId)
+      .single()
+
+    if (!user) {
+      return { success: false, user: null }
+    }
+
+    return { success: true, user }
+  } catch {
+    return { success: false, user: null }
+  }
+}
+
+// ============================================
+// LOGG UT
+// ============================================
+export async function logout() {
+  const cookieStore = await cookies()
+  cookieStore.delete("token")
+  return { success: true }
+}</code></pre>
+
+    <h3><span class="step-indicator">3</span>Proxy - Rutebeskyttelse (Next.js 16+)</h3>
+    <div class="file-path">src/proxy.ts</div>
+    <pre><code>// src/proxy.ts (Next.js 16+)
+import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
+import { jwtVerify } from "jose"
+
+// Ruter som krever innlogging
+const protectedRoutes = ["/dashboard", "/profil", "/innstillinger"]
+
+// Ruter som krever admin-rolle
+const adminRoutes = ["/admin"]
+
+// Ruter kun for ikke-innloggede
+const authRoutes = ["/login", "/register", "/glemt-passord"]
+
+export default function proxy(request: NextRequest) {
+  const token = request.cookies.get("token")?.value
+  const path = request.nextUrl.pathname
+
+  // Sjekk om ruten er beskyttet
+  const isProtected = protectedRoutes.some(route =&gt; path.startsWith(route))
+  const isAdmin = adminRoutes.some(route =&gt; path.startsWith(route))
+  const isAuthRoute = authRoutes.some(route =&gt; path.startsWith(route))
+
+  // Ingen token
+  if (!token) {
+    if (isProtected || isAdmin) {
+      const loginUrl = new URL("/login", request.url)
+      loginUrl.searchParams.set("redirect", path)
+      return NextResponse.redirect(loginUrl)
+    }
+    return NextResponse.next()
+  }
+
+  // Verifiser token
+  try {
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET!)
+    const { payload } = await jwtVerify(token, secret)
+
+    // Innlogget bruker prøver å gå til auth-side
+    if (isAuthRoute) {
+      return NextResponse.redirect(new URL("/dashboard", request.url))
+    }
+
+    // Admin-rute, men ikke admin-rolle
+    if (isAdmin && payload.role !== "admin") {
+      return NextResponse.redirect(new URL("/dashboard", request.url))
+    }
+
+    return NextResponse.next()
+  } catch {
+    // Ugyldig token - slett og redirect
+    const response = NextResponse.redirect(new URL("/login", request.url))
+    response.cookies.delete("token")
+    return response
+  }
+}
+
+export const config = {
+  matcher: [
+    "/dashboard/:path*",
+    "/profil/:path*",
+    "/innstillinger/:path*",
+    "/admin/:path*",
+    "/login",
+    "/register",
+    "/glemt-passord",
+  ],
+}</code></pre>
+
+    <h3><span class="step-indicator">4</span>Gjenbrukbar Auth-form Komponent</h3>
+    <div class="file-path">src/components/functional/auth-form.tsx</div>
+    <pre><code>"use client"
+
+import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+import { useRouter, useSearchParams } from "next/navigation"
+import Link from "next/link"
+import toast from "react-hot-toast"
+import { Loader2, Eye, EyeOff } from "lucide-react"
+
+// ============================================
+// SCHEMAS
+// ============================================
+const loginSchema = z.object({
+  email: z.string().email("Ugyldig e-post"),
+  password: z.string().min(1, "Passord er påkrevd"),
+})
+
+const registerSchema = z.object({
+  name: z.string().min(2, "Navn må være minst 2 tegn"),
+  email: z.string().email("Ugyldig e-post"),
+  password: z.string().min(8, "Passord må være minst 8 tegn"),
+  confirmPassword: z.string(),
+}).refine(data =&gt; data.password === data.confirmPassword, {
+  message: "Passordene må være like",
+  path: ["confirmPassword"],
+})
+
+const forgotSchema = z.object({
+  email: z.string().email("Ugyldig e-post"),
+})
+
+const resetSchema = z.object({
+  password: z.string().min(8, "Passord må være minst 8 tegn"),
+  confirmPassword: z.string(),
+}).refine(data =&gt; data.password === data.confirmPassword, {
+  message: "Passordene må være like",
+  path: ["confirmPassword"],
+})
+
+// ============================================
+// PROPS
+// ============================================
+interface AuthFormProps {
+  mode: "login" | "register" | "forgot" | "reset"
+  onSubmit: (data: any) =&gt; Promise&lt;{ success: boolean; message: string }&gt;
+  resetToken?: string
+}
+
+// ============================================
+// KOMPONENT
+// ============================================
+export default function AuthForm({ mode, onSubmit, resetToken }: AuthFormProps) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [loading, setLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+
+  // Velg schema basert på mode
+  const schema = {
+    login: loginSchema,
+    register: registerSchema,
+    forgot: forgotSchema,
+    reset: resetSchema,
+  }[mode]
+
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    resolver: zodResolver(schema),
+  })
+
+  const handleFormSubmit = async (data: any) =&gt; {
+    setLoading(true)
+    try {
+      // Legg til reset token hvis det er reset-mode
+      if (mode === "reset" && resetToken) {
+        data.token = resetToken
+      }
+
+      const result = await onSubmit(data)
+
+      if (result.success) {
+        toast.success(result.message)
+
+        // Redirect basert på mode
+        if (mode === "login") {
+          const redirect = searchParams.get("redirect") || "/dashboard"
+          router.push(redirect)
+          router.refresh()
+        } else if (mode === "register" || mode === "reset") {
+          router.push("/login")
+        }
+      } else {
+        toast.error(result.message)
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Titler og tekst
+  const config = {
+    login: {
+      title: "Logg inn",
+      subtitle: "Velkommen tilbake!",
+      submitText: "Logg inn",
+      altLink: { text: "Har du ikke konto?", href: "/register", label: "Registrer deg" },
+    },
+    register: {
+      title: "Opprett konto",
+      subtitle: "Kom i gang på få sekunder",
+      submitText: "Registrer",
+      altLink: { text: "Har du allerede konto?", href: "/login", label: "Logg inn" },
+    },
+    forgot: {
+      title: "Glemt passord?",
+      subtitle: "Vi sender deg en lenke for å tilbakestille",
+      submitText: "Send lenke",
+      altLink: { text: "Husket passordet?", href: "/login", label: "Logg inn" },
+    },
+    reset: {
+      title: "Nytt passord",
+      subtitle: "Velg et sterkt passord",
+      submitText: "Oppdater passord",
+      altLink: { text: "", href: "/login", label: "Tilbake til innlogging" },
+    },
+  }[mode]
+
+  return (
+    &lt;div className="w-full max-w-md mx-auto"&gt;
+      {/* Header */}
+      &lt;div className="text-center mb-8"&gt;
+        &lt;h1 className="text-2xl font-bold text-gray-900"&gt;{config.title}&lt;/h1&gt;
+        &lt;p className="text-gray-600 mt-2"&gt;{config.subtitle}&lt;/p&gt;
+      &lt;/div&gt;
+
+      {/* Form */}
+      &lt;form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4"&gt;
+        {/* Navn - kun for register */}
+        {mode === "register" && (
+          &lt;div&gt;
+            &lt;label className="block text-sm font-medium text-gray-700 mb-1"&gt;
+              Navn
+            &lt;/label&gt;
+            &lt;input
+              {...register("name")}
+              type="text"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Ola Nordmann"
+            /&gt;
+            {errors.name && (
+              &lt;p className="text-red-500 text-sm mt-1"&gt;{errors.name.message as string}&lt;/p&gt;
+            )}
+          &lt;/div&gt;
+        )}
+
+        {/* E-post - alle unntatt reset */}
+        {mode !== "reset" && (
+          &lt;div&gt;
+            &lt;label className="block text-sm font-medium text-gray-700 mb-1"&gt;
+              E-post
+            &lt;/label&gt;
+            &lt;input
+              {...register("email")}
+              type="email"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="din@epost.no"
+            /&gt;
+            {errors.email && (
+              &lt;p className="text-red-500 text-sm mt-1"&gt;{errors.email.message as string}&lt;/p&gt;
+            )}
+          &lt;/div&gt;
+        )}
+
+        {/* Passord - login, register, reset */}
+        {mode !== "forgot" && (
+          &lt;div&gt;
+            &lt;label className="block text-sm font-medium text-gray-700 mb-1"&gt;
+              {mode === "reset" ? "Nytt passord" : "Passord"}
+            &lt;/label&gt;
+            &lt;div className="relative"&gt;
+              &lt;input
+                {...register("password")}
+                type={showPassword ? "text" : "password"}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
+                placeholder="••••••••"
+              /&gt;
+              &lt;button
+                type="button"
+                onClick={() =&gt; setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500"
+              &gt;
+                {showPassword ? &lt;EyeOff size={20} /&gt; : &lt;Eye size={20} /&gt;}
+              &lt;/button&gt;
+            &lt;/div&gt;
+            {errors.password && (
+              &lt;p className="text-red-500 text-sm mt-1"&gt;{errors.password.message as string}&lt;/p&gt;
+            )}
+          &lt;/div&gt;
+        )}
+
+        {/* Bekreft passord - register, reset */}
+        {(mode === "register" || mode === "reset") && (
+          &lt;div&gt;
+            &lt;label className="block text-sm font-medium text-gray-700 mb-1"&gt;
+              Bekreft passord
+            &lt;/label&gt;
+            &lt;input
+              {...register("confirmPassword")}
+              type="password"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="••••••••"
+            /&gt;
+            {errors.confirmPassword && (
+              &lt;p className="text-red-500 text-sm mt-1"&gt;{errors.confirmPassword.message as string}&lt;/p&gt;
+            )}
+          &lt;/div&gt;
+        )}
+
+        {/* Glemt passord lenke - kun login */}
+        {mode === "login" && (
+          &lt;div className="text-right"&gt;
+            &lt;Link href="/glemt-passord" className="text-sm text-blue-600 hover:underline"&gt;
+              Glemt passord?
+            &lt;/Link&gt;
+          &lt;/div&gt;
+        )}
+
+        {/* Submit */}
+        &lt;button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        &gt;
+          {loading && &lt;Loader2 className="animate-spin" size={20} /&gt;}
+          {loading ? "Vennligst vent..." : config.submitText}
+        &lt;/button&gt;
+      &lt;/form&gt;
+
+      {/* Alt link */}
+      &lt;p className="text-center mt-6 text-gray-600"&gt;
+        {config.altLink.text}{" "}
+        &lt;Link href={config.altLink.href} className="text-blue-600 font-medium hover:underline"&gt;
+          {config.altLink.label}
+        &lt;/Link&gt;
+      &lt;/p&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h3><span class="step-indicator">5</span>Auth-sider (Login, Register, Glemt passord)</h3>
+
+    <div class="file-path">src/app/(auth)/layout.tsx</div>
+    <pre><code>// Minimal layout for auth-sider (uten header/footer)
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
+  return (
+    &lt;div className="min-h-screen bg-gray-50 flex items-center justify-center p-4"&gt;
+      &lt;div className="w-full max-w-md"&gt;
+        {/* Logo */}
+        &lt;div className="text-center mb-8"&gt;
+          &lt;a href="/" className="text-2xl font-bold text-blue-600"&gt;
+            Logo
+          &lt;/a&gt;
+        &lt;/div&gt;
+
+        {/* Auth Card */}
+        &lt;div className="bg-white rounded-2xl shadow-lg p-8"&gt;
+          {children}
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <div class="file-path">src/app/(auth)/login/page.tsx</div>
+    <pre><code>import AuthForm from "@/components/functional/auth-form"
+import { login } from "@/actions/auth"
+
+export default function LoginPage() {
+  return &lt;AuthForm mode="login" onSubmit={login} /&gt;
+}</code></pre>
+
+    <div class="file-path">src/app/(auth)/register/page.tsx</div>
+    <pre><code>import AuthForm from "@/components/functional/auth-form"
+import { register } from "@/actions/auth"
+
+export default function RegisterPage() {
+  return &lt;AuthForm mode="register" onSubmit={register} /&gt;
+}</code></pre>
+
+    <div class="file-path">src/app/(auth)/glemt-passord/page.tsx</div>
+    <pre><code>import AuthForm from "@/components/functional/auth-form"
+import { forgotPassword } from "@/actions/auth"
+
+export default function ForgotPasswordPage() {
+  const handleSubmit = async (data: { email: string }) =&gt; {
+    return forgotPassword(data.email)
+  }
+
+  return &lt;AuthForm mode="forgot" onSubmit={handleSubmit} /&gt;
+}</code></pre>
+
+    <div class="file-path">src/app/(auth)/reset-passord/page.tsx</div>
+    <pre><code>"use client"
+
+import { useSearchParams } from "next/navigation"
+import AuthForm from "@/components/functional/auth-form"
+import { resetPassword } from "@/actions/auth"
+
+export default function ResetPasswordPage() {
+  const searchParams = useSearchParams()
+  const token = searchParams.get("token")
+
+  if (!token) {
+    return (
+      &lt;div className="text-center"&gt;
+        &lt;h1 className="text-2xl font-bold text-red-600"&gt;Ugyldig lenke&lt;/h1&gt;
+        &lt;p className="mt-2 text-gray-600"&gt;Denne lenken er ugyldig eller har utløpt.&lt;/p&gt;
+      &lt;/div&gt;
+    )
+  }
+
+  return &lt;AuthForm mode="reset" onSubmit={resetPassword} resetToken={token} /&gt;
+}</code></pre>
+
+    <!-- ============================================ -->
+    <!-- ROUTE GROUPS -->
+    <!-- ============================================ -->
+    <h2 id="route-groups">Route Groups - Public vs Protected</h2>
+
+    <p class="section-desc">
+      Route groups lar deg organisere sider med ulike layouts og tilgangsnivåer. Parenteser i mappenavn fjernes fra URL-en.
+    </p>
+
+    <h3>Public Layout (header + footer)</h3>
+    <div class="file-path">src/app/(public)/layout.tsx</div>
+    <pre><code>import Header from "@/components/layout/header"
+import Footer from "@/components/layout/footer"
+
+export default function PublicLayout({ children }: { children: React.ReactNode }) {
+  return (
+    &lt;&gt;
+      &lt;Header /&gt;
+      &lt;main className="min-h-screen"&gt;{children}&lt;/main&gt;
+      &lt;Footer /&gt;
+    &lt;/&gt;
+  )
+}</code></pre>
+
+    <h3>Protected Layout (bruker-sidebar)</h3>
+    <div class="file-path">src/app/(protected)/layout.tsx</div>
+    <pre><code>import { redirect } from "next/navigation"
+import { getLoggedInUser } from "@/actions/auth"
+import UserSidebar from "@/components/layout/user-sidebar"
+
+export default async function ProtectedLayout({ children }: { children: React.ReactNode }) {
+  const { user } = await getLoggedInUser()
+
+  if (!user) {
+    redirect("/login")
+  }
+
+  return (
+    &lt;div className="min-h-screen bg-gray-100"&gt;
+      &lt;UserSidebar user={user} /&gt;
+      &lt;main className="md:ml-64 p-4 md:p-8"&gt;
+        {children}
+      &lt;/main&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h3>Admin Layout (sidebar + rollesjekk)</h3>
+    <div class="file-path">src/app/(admin)/layout.tsx</div>
+    <pre><code>import { redirect } from "next/navigation"
+import { getLoggedInUser } from "@/actions/auth"
+import AdminSidebar from "@/components/layout/admin-sidebar"
+
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const { user } = await getLoggedInUser()
+
+  // Må være innlogget OG admin
+  if (!user) {
+    redirect("/login")
+  }
+
+  if (user.role !== "admin") {
+    redirect("/dashboard")
+  }
+
+  return (
+    &lt;div className="min-h-screen bg-gray-900"&gt;
+      &lt;AdminSidebar /&gt;
+      &lt;main className="md:ml-64 min-h-screen bg-gray-100"&gt;
+        {children}
+      &lt;/main&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- ============================================ -->
+    <!-- ADMIN PANEL -->
+    <!-- ============================================ -->
+    <h2 id="admin-panel">Admin Panel - Komplett</h2>
+
+    <p class="section-desc">
+      Komplett admin-panel med sidebar, dashboard, meldinger og innholdsredigering. Se <a href="admin.html">Admin-guiden</a> for flere detaljer.
+    </p>
+
+    <h3>Admin Sidebar</h3>
+    <div class="file-path">src/components/layout/admin-sidebar.tsx</div>
+    <pre><code>"use client"
+
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import {
+  LayoutDashboard,
+  Mail,
+  FileText,
+  Users,
+  Settings,
+  LogOut,
+  Menu,
+  X
+} from "lucide-react"
+import { useState } from "react"
+import { logout } from "@/actions/auth"
+
+const menuItems = [
+  { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
+  { name: "Meldinger", href: "/admin/meldinger", icon: Mail },
+  { name: "Innhold", href: "/admin/innhold", icon: FileText },
+  { name: "Brukere", href: "/admin/brukere", icon: Users },
+  { name: "Innstillinger", href: "/admin/innstillinger", icon: Settings },
+]
+
+export default function AdminSidebar() {
+  const pathname = usePathname()
+  const [mobileOpen, setMobileOpen] = useState(false)
+
+  const handleLogout = async () =&gt; {
+    await logout()
+    window.location.href = "/login"
+  }
+
+  return (
+    &lt;&gt;
+      {/* Mobile toggle */}
+      &lt;button
+        onClick={() =&gt; setMobileOpen(!mobileOpen)}
+        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-gray-900 text-white rounded-lg"
+      &gt;
+        {mobileOpen ? &lt;X size={24} /&gt; : &lt;Menu size={24} /&gt;}
+      &lt;/button&gt;
+
+      {/* Sidebar */}
+      &lt;aside className={`
+        fixed top-0 left-0 h-full w-64 bg-gray-900 text-white z-40
+        transform transition-transform duration-200
+        ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
+        md:translate-x-0
+      `}&gt;
+        {/* Logo */}
+        &lt;div className="p-6 border-b border-gray-800"&gt;
+          &lt;h1 className="text-xl font-bold"&gt;Admin&lt;/h1&gt;
+        &lt;/div&gt;
+
+        {/* Navigation */}
+        &lt;nav className="p-4 space-y-1"&gt;
+          {menuItems.map((item) =&gt; {
+            const isActive = pathname === item.href ||
+              (item.href !== "/admin" && pathname.startsWith(item.href))
+
+            return (
+              &lt;Link
+                key={item.href}
+                href={item.href}
+                onClick={() =&gt; setMobileOpen(false)}
+                className={`
+                  flex items-center gap-3 px-4 py-3 rounded-lg transition-colors
+                  ${isActive
+                    ? "bg-blue-600 text-white"
+                    : "text-gray-400 hover:bg-gray-800 hover:text-white"
+                  }
+                `}
+              &gt;
+                &lt;item.icon size={20} /&gt;
+                {item.name}
+              &lt;/Link&gt;
+            )
+          })}
+        &lt;/nav&gt;
+
+        {/* Logout */}
+        &lt;div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-800"&gt;
+          &lt;button
+            onClick={handleLogout}
+            className="flex items-center gap-3 px-4 py-3 w-full text-red-400 hover:bg-gray-800 rounded-lg transition-colors"
+          &gt;
+            &lt;LogOut size={20} /&gt;
+            Logg ut
+          &lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/aside&gt;
+
+      {/* Mobile overlay */}
+      {mobileOpen && (
+        &lt;div
+          className="md:hidden fixed inset-0 bg-black/50 z-30"
+          onClick={() =&gt; setMobileOpen(false)}
+        /&gt;
+      )}
+    &lt;/&gt;
+  )
+}</code></pre>
+
+    <h3>Admin Dashboard</h3>
+    <div class="file-path">src/app/(admin)/admin/page.tsx</div>
+    <pre><code>import { Mail, FileText, Users, TrendingUp } from "lucide-react"
+import supabase from "@/config/supabase-config"
+
+async function getStats() {
+  const [messages, content, users] = await Promise.all([
+    supabase.from("contact_messages").select("*", { count: "exact", head: true }).eq("is_read", false),
+    supabase.from("content").select("*", { count: "exact", head: true }),
+    supabase.from("users").select("*", { count: "exact", head: true }),
+  ])
+
+  return {
+    unreadMessages: messages.count || 0,
+    totalContent: content.count || 0,
+    totalUsers: users.count || 0,
+  }
+}
+
+export default async function AdminDashboard() {
+  const stats = await getStats()
+
+  const cards = [
+    {
+      title: "Uleste meldinger",
+      value: stats.unreadMessages,
+      icon: Mail,
+      color: "bg-blue-500",
+      href: "/admin/meldinger"
+    },
+    {
+      title: "Innhold",
+      value: stats.totalContent,
+      icon: FileText,
+      color: "bg-green-500",
+      href: "/admin/innhold"
+    },
+    {
+      title: "Brukere",
+      value: stats.totalUsers,
+      icon: Users,
+      color: "bg-purple-500",
+      href: "/admin/brukere"
+    },
+  ]
+
+  return (
+    &lt;div className="p-4 md:p-8"&gt;
+      &lt;h1 className="text-2xl font-bold mb-6"&gt;Dashboard&lt;/h1&gt;
+
+      {/* Stats Grid */}
+      &lt;div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8"&gt;
+        {cards.map((card) =&gt; (
+          &lt;a
+            key={card.title}
+            href={card.href}
+            className="bg-white rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow"
+          &gt;
+            &lt;div className="flex items-center justify-between"&gt;
+              &lt;div&gt;
+                &lt;p className="text-gray-500 text-sm"&gt;{card.title}&lt;/p&gt;
+                &lt;p className="text-3xl font-bold mt-1"&gt;{card.value}&lt;/p&gt;
+              &lt;/div&gt;
+              &lt;div className={`p-3 rounded-full ${card.color}`}&gt;
+                &lt;card.icon className="text-white" size={24} /&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/a&gt;
+        ))}
+      &lt;/div&gt;
+
+      {/* Quick Actions */}
+      &lt;div className="bg-white rounded-xl p-6 shadow-sm"&gt;
+        &lt;h2 className="font-semibold mb-4"&gt;Hurtighandlinger&lt;/h2&gt;
+        &lt;div className="flex flex-wrap gap-2"&gt;
+          &lt;a href="/admin/innhold/ny" className="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100"&gt;
+            + Nytt innhold
+          &lt;/a&gt;
+          &lt;a href="/admin/meldinger" className="px-4 py-2 bg-gray-50 text-gray-600 rounded-lg hover:bg-gray-100"&gt;
+            Se meldinger
+          &lt;/a&gt;
+          &lt;a href="/" target="_blank" className="px-4 py-2 bg-gray-50 text-gray-600 rounded-lg hover:bg-gray-100"&gt;
+            Se nettside ↗
+          &lt;/a&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- ============================================ -->
+    <!-- GJENBRUKBARE KOMPONENTER -->
+    <!-- ============================================ -->
+    <h2 id="gjenbrukbare">Gjenbrukbare Komponenter</h2>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h4>Header med mobil-meny</h4>
+        <p>Responsiv header med hamburger-meny og bruker-dropdown.</p>
+        <a href="komponenter.html#header">Se kode →</a>
+      </div>
+      <div class="feature-card">
+        <h4>Footer</h4>
+        <p>Footer med lenker, kontaktinfo og sosiale medier.</p>
+        <a href="komponenter.html#footer">Se kode →</a>
+      </div>
+      <div class="feature-card">
+        <h4>Kontaktskjema</h4>
+        <p>Komplett skjema med validering og toast-meldinger.</p>
+        <a href="skjema.html">Se kode →</a>
+      </div>
+      <div class="feature-card">
+        <h4>Data Table</h4>
+        <p>Tabell med sortering, paginering og søk.</p>
+        <a href="admin.html#table">Se kode →</a>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SIKKERHET -->
+    <!-- ============================================ -->
+    <h2 id="sikkerhet">Sikkerhet - Viktige Punkter</h2>
+
+    <div class="warning-box">
+      <strong>KRITISK:</strong> Følg disse reglene for sikker kode:
+      <ul style="margin-top: 0.5rem;">
+        <li><strong>Aldri eksponer sensitive data</strong> - Bruk Server Actions, ikke API routes med GET</li>
+        <li><strong>Alltid valider på server</strong> - Aldri stol kun på frontend-validering</li>
+        <li><strong>Hash passord</strong> - Bruk bcrypt med minimum 12 runder</li>
+        <li><strong>httpOnly cookies</strong> - Aldri lagre tokens i localStorage</li>
+        <li><strong>Miljøvariabler</strong> - ALDRI commit .env.local til git</li>
+        <li><strong>Sanitize input</strong> - Bruk DOMPurify for bruker-innhold</li>
+      </ul>
+    </div>
+
+    <h3>Miljøvariabler</h3>
+    <div class="file-path">.env.local (ALDRI commit denne!)</div>
+    <pre><code># Database
+SUPABASE_PROJECT_URL=https://xxx.supabase.co
+SUPABASE_API_KEY=eyJhbGci...
+
+# Auth
+JWT_SECRET=MinsteFireogTredveTegnLangHemmeligNokkelSomErVanskeligÅGjette123!
+
+# App
+NEXT_PUBLIC_URL=http://localhost:3000</code></pre>
+
+    <div class="file-path">.gitignore</div>
+    <pre><code># Miljøvariabler
+.env
+.env.local
+.env.*.local
+
+# Neste.js
+.next/
+out/
+
+# Node
+node_modules/
+
+# IDE
+.vscode/
+.idea/</code></pre>
+
+    <h3>Avhengigheter - Installer alt</h3>
+    <pre><code># Kjør denne kommandoen for å installere alle nødvendige pakker
+npm install @supabase/supabase-js zustand react-hook-form @hookform/resolvers zod bcryptjs jsonwebtoken jose react-hot-toast lucide-react clsx tailwind-merge
+
+npm install -D @types/bcryptjs @types/jsonwebtoken</code></pre>
+
+    <!-- ============================================ -->
+    <!-- OPPSUMMERING -->
+    <!-- ============================================ -->
+    <h2>Oppsummering - Rask Start</h2>
+
+    <div class="copy-section">
+      <h3>Kopier i denne rekkefølgen:</h3>
+      <ol>
+        <li><strong>SQL</strong> - Kjør database-tabellen i Supabase</li>
+        <li><strong>src/config/supabase-config.ts</strong> - Database-tilkobling</li>
+        <li><strong>src/actions/auth.ts</strong> - Alle auth-funksjoner</li>
+        <li><strong>src/proxy.ts</strong> - Rutebeskyttelse (Next.js 16+)</li>
+        <li><strong>src/components/functional/auth-form.tsx</strong> - Gjenbrukbar form</li>
+        <li><strong>src/app/(auth)/*</strong> - Alle auth-sider</li>
+        <li><strong>src/app/(admin)/*</strong> - Admin-panel</li>
+      </ol>
+    </div>
+
+    <div class="info-box">
+      <strong>Neste steg:</strong>
+      <ul>
+        <li><a href="admin.html">Admin Panel</a> - Mer detaljert admin-guide</li>
+        <li><a href="cms-guide.html">CMS Guide</a> - Strapi, Payload, eller egen admin</li>
+        <li><a href="sikkerhet.html">Sikkerhet</a> - OWASP, GDPR, headers</li>
+        <li><a href="deploy.html">Deploy</a> - Publiser til Vercel eller Docker</li>
+      </ul>
+    </div>
+
+    <div class="footer">
+      <p>
+        <a href="index.html">← Tilbake</a> |
+        <a href="autentisering.html">Auth detaljer →</a> |
+        <a href="admin.html">Admin Panel →</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

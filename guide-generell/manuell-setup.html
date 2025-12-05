@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manuell Setup - Steg for Steg</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .terminal {
+      background: #1e293b;
+      color: #22c55e;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      margin: 1rem 0;
+      overflow-x: auto;
+    }
+    .terminal::before {
+      content: "$ ";
+      color: #64748b;
+    }
+    .file-create {
+      background: linear-gradient(135deg, #ecfdf5 0%, #fff 100%);
+      border: 2px solid #22c55e;
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+    .file-create h4 {
+      color: #166534;
+      margin: 0 0 0.5rem 0;
+      font-family: monospace;
+    }
+    .checkpoint {
+      background: linear-gradient(135deg, #fef3c7 0%, #fff 100%);
+      border: 2px solid #f59e0b;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+    }
+    .checkpoint h3 {
+      color: #92400e;
+      margin-top: 0;
+    }
+    .progress-bar {
+      display: flex;
+      gap: 0.5rem;
+      margin: 2rem 0;
+    }
+    .progress-step {
+      flex: 1;
+      padding: 0.75rem;
+      background: #e2e8f0;
+      border-radius: 4px;
+      text-align: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+    .progress-step.active {
+      background: #3b82f6;
+      color: white;
+    }
+    .progress-step.done {
+      background: #22c55e;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html">Hurtigstart</a>
+    <a href="auto-setup.html">Auto-Setup</a>
+    <a href="manuell-setup.html"><strong>Manuell Setup</strong></a>
+    <a href="konsepter.html">Konsepter</a>
+  </nav>
+
+  <div class="container">
+    <h1>Manuell Setup - Steg for Steg</h1>
+
+    <blockquote>
+      <p>Denne guiden viser deg nøyaktig hva du skal gjøre, kommando for kommando.
+      Perfekt for Windows-brukere eller hvis auto-scriptet ikke fungerer.</p>
+    </blockquote>
+
+    <!-- PROGRESS -->
+    <div class="progress-bar">
+      <div class="progress-step">1. Opprett</div>
+      <div class="progress-step">2. Installer</div>
+      <div class="progress-step">3. Mapper</div>
+      <div class="progress-step">4. Config</div>
+      <div class="progress-step">5. Komponenter</div>
+      <div class="progress-step">6. Test</div>
+    </div>
+
+    <!-- STEG 1 -->
+    <h2>Steg 1: Opprett Next.js-prosjekt</h2>
+
+    <p>Åpne Terminal (Mac) eller Command Prompt (Windows) og kjør:</p>
+
+    <div class="terminal">npx create-next-app@latest kundenavn</div>
+
+    <p>Du får noen spørsmål. Svar slik:</p>
+
+    <table>
+      <tr><th>Spørsmål</th><th>Svar</th></tr>
+      <tr><td>Would you like to use TypeScript?</td><td><strong>Yes</strong></td></tr>
+      <tr><td>Would you like to use ESLint?</td><td><strong>Yes</strong></td></tr>
+      <tr><td>Would you like to use Tailwind CSS?</td><td><strong>Yes</strong></td></tr>
+      <tr><td>Would you like your code inside a `src/` directory?</td><td><strong>Yes</strong></td></tr>
+      <tr><td>Would you like to use App Router?</td><td><strong>Yes</strong></td></tr>
+      <tr><td>Would you like to use Turbopack?</td><td><strong>Yes</strong></td></tr>
+      <tr><td>Would you like to customize the import alias?</td><td><strong>No</strong> (bruk @/*)</td></tr>
+    </table>
+
+    <p>Gå inn i prosjektmappen:</p>
+    <div class="terminal">cd kundenavn</div>
+
+    <div class="checkpoint">
+      <h3>Sjekkpunkt 1</h3>
+      <p>Kjør <code>npm run dev</code> og åpne <a href="http://localhost:3000">localhost:3000</a>.
+      Du skal se Next.js sin standard velkomstside. Trykk <code>Ctrl+C</code> for å stoppe serveren.</p>
+    </div>
+
+    <!-- STEG 2 -->
+    <h2>Steg 2: Installer ekstra pakker</h2>
+
+    <p>Vi trenger noen ekstra verktøy. Kjør denne kommandoen:</p>
+
+    <div class="terminal">npm install @supabase/supabase-js zustand react-hot-toast zod bcryptjs jose clsx tailwind-merge</div>
+
+    <p>Og utvikler-verktøy:</p>
+    <div class="terminal">npm install -D @types/bcryptjs</div>
+
+    <div class="info-box">
+      <strong>Hva installerte vi?</strong>
+      <ul style="margin: 0.5rem 0 0 1.5rem;">
+        <li><strong>@supabase/supabase-js</strong> - Database-tilkobling</li>
+        <li><strong>zustand</strong> - State management (global data)</li>
+        <li><strong>react-hot-toast</strong> - Popup-meldinger</li>
+        <li><strong>zod</strong> - Validering av skjema</li>
+        <li><strong>bcryptjs</strong> - Passord-kryptering</li>
+        <li><strong>jose</strong> - JWT-tokens for innlogging</li>
+        <li><strong>clsx + tailwind-merge</strong> - CSS-hjelpere</li>
+      </ul>
+    </div>
+
+    <!-- STEG 3 -->
+    <h2>Steg 3: Opprett mappestruktur</h2>
+
+    <p>Lag disse mappene inne i <code>src/</code>:</p>
+
+    <div class="terminal">mkdir -p src/actions src/components/layout src/components/ui src/components/functional src/config src/interfaces src/lib src/store src/hooks</div>
+
+    <p class="section-desc"><strong>Windows?</strong> Opprett mappene manuelt i Utforsker, eller bruk:</p>
+    <pre><code>mkdir src\actions
+mkdir src\components\layout
+mkdir src\components\ui
+mkdir src\components\functional
+mkdir src\config
+mkdir src\interfaces
+mkdir src\lib
+mkdir src\store
+mkdir src\hooks</code></pre>
+
+    <!-- STEG 4 -->
+    <h2>Steg 4: Opprett konfigurasjonsfiler</h2>
+
+    <div class="file-create">
+      <h4>Fil: .env.local (i prosjektets rot)</h4>
+      <p>Opprett denne filen og legg inn:</p>
+    </div>
+
+    <pre><code># ===========================================
+# SUPABASE - Hent fra supabase.com → Settings → API
+# ===========================================
+SUPABASE_PROJECT_URL=https://DIN-ID.supabase.co
+SUPABASE_API_KEY=din-anon-key-her
+
+# ===========================================
+# JWT - Lag en tilfeldig lang tekst (minst 32 tegn)
+# ===========================================
+JWT_SECRET=EnVeldigLangOgHemmeligNoekkelMedMinstTrettiToTegn
+
+# ===========================================
+# NETTSIDE INFO
+# ===========================================
+NEXT_PUBLIC_SITE_URL=http://localhost:3000
+NEXT_PUBLIC_SITE_NAME=Kundens Firma</code></pre>
+
+    <div class="file-create">
+      <h4>Fil: src/config/supabase-config.ts</h4>
+    </div>
+
+    <pre><code>import { createClient } from "@supabase/supabase-js"
+
+const supabaseUrl = process.env.SUPABASE_PROJECT_URL!
+const supabaseKey = process.env.SUPABASE_API_KEY!
+
+const supabase = createClient(supabaseUrl, supabaseKey)
+
+export default supabase</code></pre>
+
+    <div class="file-create">
+      <h4>Fil: src/interfaces/index.ts</h4>
+    </div>
+
+    <pre><code>// Standard API-respons fra server actions
+export interface IApiResponse&lt;T = undefined&gt; {
+  success: boolean
+  message?: string
+  data?: T
+}
+
+// Bruker
+export interface IUser {
+  id: number
+  name: string
+  email: string
+  phone?: string
+  role: "user" | "admin"
+  created_at: string
+}
+
+// Kontaktmelding
+export interface IContactMessage {
+  id: number
+  name: string
+  email: string
+  phone?: string
+  message: string
+  is_read: boolean
+  created_at: string
+}</code></pre>
+
+    <div class="file-create">
+      <h4>Fil: src/lib/utils.ts</h4>
+    </div>
+
+    <pre><code>import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+// Kombinerer Tailwind-klasser trygt
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}</code></pre>
+
+    <div class="checkpoint">
+      <h3>Sjekkpunkt 2</h3>
+      <p>Sjekk at du har disse filene:</p>
+      <ul>
+        <li><code>.env.local</code> i prosjektets rot</li>
+        <li><code>src/config/supabase-config.ts</code></li>
+        <li><code>src/interfaces/index.ts</code></li>
+        <li><code>src/lib/utils.ts</code></li>
+      </ul>
+    </div>
+
+    <!-- STEG 5 -->
+    <h2>Steg 5: Opprett komponenter</h2>
+
+    <h3>5.1 Button-komponent</h3>
+    <div class="file-create">
+      <h4>Fil: src/components/ui/button.tsx</h4>
+    </div>
+
+    <pre><code>interface ButtonProps {
+  children: React.ReactNode
+  variant?: "primary" | "secondary" | "outline"
+  size?: "sm" | "md" | "lg"
+  disabled?: boolean
+  type?: "button" | "submit"
+  onClick?: () => void
+  className?: string
+}
+
+export default function Button({
+  children,
+  variant = "primary",
+  size = "md",
+  disabled = false,
+  type = "button",
+  onClick,
+  className = "",
+}: ButtonProps) {
+  const baseStyles = "rounded-lg font-medium transition-all duration-200 disabled:opacity-50"
+
+  const variantStyles = {
+    primary: "bg-blue-600 text-white hover:bg-blue-700",
+    secondary: "bg-gray-600 text-white hover:bg-gray-700",
+    outline: "border-2 border-blue-600 text-blue-600 hover:bg-blue-50",
+  }
+
+  const sizeStyles = {
+    sm: "px-3 py-1.5 text-sm",
+    md: "px-5 py-2.5 text-base",
+    lg: "px-7 py-3.5 text-lg",
+  }
+
+  return (
+    &lt;button
+      type={type}
+      disabled={disabled}
+      onClick={onClick}
+      className={`${baseStyles} ${variantStyles[variant]} ${sizeStyles[size]} ${className}`}
+    &gt;
+      {children}
+    &lt;/button&gt;
+  )
+}</code></pre>
+
+    <h3>5.2 Input-komponent</h3>
+    <div class="file-create">
+      <h4>Fil: src/components/ui/input.tsx</h4>
+    </div>
+
+    <pre><code>interface InputProps {
+  label: string
+  type?: "text" | "email" | "password" | "tel"
+  name: string
+  placeholder?: string
+  required?: boolean
+  error?: string
+}
+
+export default function Input({
+  label,
+  type = "text",
+  name,
+  placeholder,
+  required = false,
+  error,
+}: InputProps) {
+  return (
+    &lt;div className="mb-4"&gt;
+      &lt;label htmlFor={name} className="block text-sm font-medium text-gray-700 mb-1"&gt;
+        {label} {required && &lt;span className="text-red-500"&gt;*&lt;/span&gt;}
+      &lt;/label&gt;
+      &lt;input
+        type={type}
+        id={name}
+        name={name}
+        placeholder={placeholder}
+        required={required}
+        className={`w-full px-4 py-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 ${
+          error ? "border-red-500" : "border-gray-300"
+        }`}
+      /&gt;
+      {error && &lt;p className="mt-1 text-sm text-red-500"&gt;{error}&lt;/p&gt;}
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h3>5.3 Header-komponent</h3>
+    <div class="file-create">
+      <h4>Fil: src/components/layout/header.tsx</h4>
+    </div>
+
+    <pre><code>"use client"
+
+import { useState } from "react"
+import Link from "next/link"
+
+export default function Header() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+  const navLinks = [
+    { href: "/", label: "Hjem" },
+    { href: "/tjenester", label: "Tjenester" },
+    { href: "/om-oss", label: "Om oss" },
+    { href: "/kontakt", label: "Kontakt" },
+  ]
+
+  return (
+    &lt;header className="bg-white shadow-sm sticky top-0 z-50"&gt;
+      &lt;nav className="max-w-7xl mx-auto px-4"&gt;
+        &lt;div className="flex justify-between items-center h-16"&gt;
+          &lt;Link href="/" className="text-2xl font-bold text-blue-600"&gt;
+            Logo
+          &lt;/Link&gt;
+
+          {/* Desktop nav */}
+          &lt;div className="hidden md:flex items-center space-x-8"&gt;
+            {navLinks.map((link) => (
+              &lt;Link key={link.href} href={link.href} className="text-gray-600 hover:text-blue-600"&gt;
+                {link.label}
+              &lt;/Link&gt;
+            ))}
+          &lt;/div&gt;
+
+          {/* Mobile hamburger */}
+          &lt;button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden p-2"&gt;
+            &lt;svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;
+              &lt;path strokeLinecap="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /&gt;
+            &lt;/svg&gt;
+          &lt;/button&gt;
+        &lt;/div&gt;
+
+        {/* Mobile menu */}
+        {isMenuOpen && (
+          &lt;div className="md:hidden py-4 border-t"&gt;
+            {navLinks.map((link) => (
+              &lt;Link
+                key={link.href}
+                href={link.href}
+                className="block py-2 text-gray-600"
+                onClick={() => setIsMenuOpen(false)}
+              &gt;
+                {link.label}
+              &lt;/Link&gt;
+            ))}
+          &lt;/div&gt;
+        )}
+      &lt;/nav&gt;
+    &lt;/header&gt;
+  )
+}</code></pre>
+
+    <h3>5.4 Footer-komponent</h3>
+    <div class="file-create">
+      <h4>Fil: src/components/layout/footer.tsx</h4>
+    </div>
+
+    <pre><code>import Link from "next/link"
+
+export default function Footer() {
+  return (
+    &lt;footer className="bg-gray-900 text-gray-300 py-12"&gt;
+      &lt;div className="max-w-7xl mx-auto px-4"&gt;
+        &lt;div className="grid md:grid-cols-3 gap-8"&gt;
+          &lt;div&gt;
+            &lt;h3 className="text-white text-lg font-bold mb-4"&gt;Firmanavn&lt;/h3&gt;
+            &lt;p className="text-sm"&gt;Kort beskrivelse av bedriften.&lt;/p&gt;
+          &lt;/div&gt;
+          &lt;div&gt;
+            &lt;h3 className="text-white text-lg font-bold mb-4"&gt;Kontakt&lt;/h3&gt;
+            &lt;p className="text-sm"&gt;Tlf: 123 45 678&lt;/p&gt;
+            &lt;p className="text-sm"&gt;post@firma.no&lt;/p&gt;
+          &lt;/div&gt;
+          &lt;div&gt;
+            &lt;h3 className="text-white text-lg font-bold mb-4"&gt;Lenker&lt;/h3&gt;
+            &lt;Link href="/kontakt" className="block text-sm hover:text-white"&gt;Kontakt oss&lt;/Link&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm"&gt;
+          &lt;p&gt;&copy; {new Date().getFullYear()} Firmanavn&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/footer&gt;
+  )
+}</code></pre>
+
+    <h3>5.5 Kontaktskjema</h3>
+    <div class="file-create">
+      <h4>Fil: src/components/functional/contact-form.tsx</h4>
+    </div>
+
+    <pre><code>"use client"
+
+import { useState } from "react"
+import { submitContactForm } from "@/actions/contact"
+import Button from "@/components/ui/button"
+import Input from "@/components/ui/input"
+import toast from "react-hot-toast"
+
+export default function ContactForm() {
+  const [isLoading, setIsLoading] = useState(false)
+
+  async function handleSubmit(e: React.FormEvent&lt;HTMLFormElement&gt;) {
+    e.preventDefault()
+    setIsLoading(true)
+
+    const formData = new FormData(e.currentTarget)
+    const result = await submitContactForm(formData)
+
+    if (result.success) {
+      toast.success(result.message || "Sendt!")
+      ;(e.target as HTMLFormElement).reset()
+    } else {
+      toast.error(result.message || "Noe gikk galt")
+    }
+
+    setIsLoading(false)
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit} className="space-y-4"&gt;
+      &lt;Input label="Navn" name="name" required /&gt;
+      &lt;Input label="E-post" type="email" name="email" required /&gt;
+      &lt;Input label="Telefon" type="tel" name="phone" /&gt;
+      &lt;div className="mb-4"&gt;
+        &lt;label className="block text-sm font-medium text-gray-700 mb-1"&gt;
+          Melding &lt;span className="text-red-500"&gt;*&lt;/span&gt;
+        &lt;/label&gt;
+        &lt;textarea
+          name="message"
+          rows={5}
+          required
+          className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+        /&gt;
+      &lt;/div&gt;
+      &lt;Button type="submit" disabled={isLoading} className="w-full"&gt;
+        {isLoading ? "Sender..." : "Send melding"}
+      &lt;/Button&gt;
+    &lt;/form&gt;
+  )
+}</code></pre>
+
+    <h3>5.6 Server Action for kontaktskjema</h3>
+    <div class="file-create">
+      <h4>Fil: src/actions/contact.ts</h4>
+    </div>
+
+    <pre><code>"use server"
+
+import supabase from "@/config/supabase-config"
+import { IApiResponse } from "@/interfaces"
+
+export async function submitContactForm(formData: FormData): Promise&lt;IApiResponse&gt; {
+  try {
+    const name = formData.get("name") as string
+    const email = formData.get("email") as string
+    const phone = formData.get("phone") as string
+    const message = formData.get("message") as string
+
+    if (!name || !email || !message) {
+      return { success: false, message: "Fyll ut alle påkrevde felt" }
+    }
+
+    const { error } = await supabase
+      .from("contact_messages")
+      .insert({ name, email, phone: phone || null, message })
+
+    if (error) {
+      console.error("Supabase error:", error)
+      return { success: false, message: "Kunne ikke sende melding" }
+    }
+
+    return { success: true, message: "Takk! Vi tar kontakt snart." }
+  } catch (error) {
+    console.error("Error:", error)
+    return { success: false, message: "En feil oppstod" }
+  }
+}</code></pre>
+
+    <!-- STEG 6 -->
+    <h2>Steg 6: Oppdater app-filer</h2>
+
+    <div class="file-create">
+      <h4>Oppdater: src/app/layout.tsx</h4>
+    </div>
+
+    <pre><code>import type { Metadata } from "next"
+import { Inter } from "next/font/google"
+import { Toaster } from "react-hot-toast"
+import Header from "@/components/layout/header"
+import Footer from "@/components/layout/footer"
+import "./globals.css"
+
+const inter = Inter({ subsets: ["latin"] })
+
+export const metadata: Metadata = {
+  title: "Firmanavn - Beskrivelse",
+  description: "Hva bedriften gjør",
+}
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    &lt;html lang="no"&gt;
+      &lt;body className={inter.className}&gt;
+        &lt;Toaster position="top-center" /&gt;
+        &lt;Header /&gt;
+        &lt;main className="min-h-screen"&gt;{children}&lt;/main&gt;
+        &lt;Footer /&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+  )
+}</code></pre>
+
+    <div class="file-create">
+      <h4>Oppdater: src/app/page.tsx</h4>
+    </div>
+
+    <pre><code>import Link from "next/link"
+import Button from "@/components/ui/button"
+
+export default function HomePage() {
+  return (
+    &lt;div&gt;
+      {/* Hero */}
+      &lt;section className="bg-blue-600 text-white py-20"&gt;
+        &lt;div className="max-w-7xl mx-auto px-4 text-center"&gt;
+          &lt;h1 className="text-4xl md:text-6xl font-bold mb-6"&gt;
+            Velkommen til Firmanavn
+          &lt;/h1&gt;
+          &lt;p className="text-xl mb-8"&gt;
+            En kort beskrivelse av hva dere tilbyr.
+          &lt;/p&gt;
+          &lt;Link href="/kontakt"&gt;
+            &lt;Button size="lg"&gt;Kontakt oss&lt;/Button&gt;
+          &lt;/Link&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+
+      {/* Fordeler */}
+      &lt;section className="py-20"&gt;
+        &lt;div className="max-w-7xl mx-auto px-4"&gt;
+          &lt;h2 className="text-3xl font-bold text-center mb-12"&gt;Hvorfor velge oss?&lt;/h2&gt;
+          &lt;div className="grid md:grid-cols-3 gap-8"&gt;
+            {["Fordel 1", "Fordel 2", "Fordel 3"].map((fordel, i) => (
+              &lt;div key={i} className="bg-white p-8 rounded-xl shadow-md text-center"&gt;
+                &lt;h3 className="text-xl font-bold mb-3"&gt;{fordel}&lt;/h3&gt;
+                &lt;p className="text-gray-600"&gt;Beskrivelse av fordelen.&lt;/p&gt;
+              &lt;/div&gt;
+            ))}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <div class="file-create">
+      <h4>Ny fil: src/app/kontakt/page.tsx</h4>
+      <p>Opprett mappen <code>src/app/kontakt</code> først.</p>
+    </div>
+
+    <pre><code>import ContactForm from "@/components/functional/contact-form"
+
+export default function KontaktPage() {
+  return (
+    &lt;div className="py-20"&gt;
+      &lt;div className="max-w-3xl mx-auto px-4"&gt;
+        &lt;h1 className="text-4xl font-bold text-center mb-8"&gt;Kontakt oss&lt;/h1&gt;
+        &lt;div className="bg-white p-8 rounded-xl shadow-lg"&gt;
+          &lt;ContactForm /&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- STEG 7 -->
+    <h2>Steg 7: Sett opp Supabase</h2>
+
+    <div class="step">
+      <div class="step-number">1</div>
+      <div class="step-content">
+        <h4>Opprett Supabase-konto</h4>
+        <p>Gå til <a href="https://supabase.com" target="_blank">supabase.com</a> og opprett konto (gratis).</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-number">2</div>
+      <div class="step-content">
+        <h4>Opprett nytt prosjekt</h4>
+        <p>Klikk "New Project" og gi det et navn.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-number">3</div>
+      <div class="step-content">
+        <h4>Hent API-nøkler</h4>
+        <p>Gå til Settings → API. Kopier "Project URL" og "anon public" key inn i .env.local.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-number">4</div>
+      <div class="step-content">
+        <h4>Opprett database-tabell</h4>
+        <p>Gå til SQL Editor og kjør:</p>
+      </div>
+    </div>
+
+    <pre><code>CREATE TABLE contact_messages (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  phone VARCHAR(50),
+  message TEXT NOT NULL,
+  is_read BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow insert" ON contact_messages FOR INSERT WITH CHECK (true);</code></pre>
+
+    <!-- TEST -->
+    <h2>Steg 8: Test at alt fungerer</h2>
+
+    <div class="terminal">npm run dev</div>
+
+    <p>Åpne <a href="http://localhost:3000">localhost:3000</a></p>
+
+    <div class="checkpoint">
+      <h3>Endelig sjekkpunkt</h3>
+      <ul>
+        <li>Forsiden vises med header og footer</li>
+        <li>Navigasjonen fungerer</li>
+        <li>Kontaktskjemaet vises på /kontakt</li>
+        <li>Skjema-innsending lagrer i Supabase (sjekk i Table Editor)</li>
+      </ul>
+    </div>
+
+    <div class="success-box">
+      <strong>Gratulerer!</strong> Du har nå et fungerende Next.js-prosjekt.
+      Neste steg er å <a href="tilpasning.html">tilpasse innholdet til kunden</a>.
+    </div>
+
+    <div class="footer">
+      <p>
+        <a href="auto-setup.html">← Auto-Setup</a> |
+        <a href="tilpasning.html">Tilpasning →</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

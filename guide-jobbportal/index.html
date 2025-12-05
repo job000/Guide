@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jobbportal Eksempel - Læringsguide</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .code-example {
+      background: #1e293b;
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    .code-example-header {
+      background: #334155;
+      padding: 0.75rem 1rem;
+      color: #94a3b8;
+      font-size: 0.85rem;
+      font-family: monospace;
+    }
+    .code-example pre {
+      margin: 0;
+      padding: 1rem;
+    }
+    .file-tree {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 1rem;
+      font-family: monospace;
+      font-size: 0.9rem;
+    }
+    .file-tree .folder { color: #3b82f6; }
+    .file-tree .file { color: #64748b; }
+    .concept-card {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+    }
+    .concept-card h4 {
+      margin-top: 0;
+      color: #1e40af;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html"><strong>Jobbportal</strong></a>
+    <a href="arkitektur.html">Arkitektur</a>
+    <a href="komponenter.html">Komponenter</a>
+    <a href="server-actions.html">Server Actions</a>
+    <a href="database.html">Database</a>
+  </nav>
+
+  <div class="container">
+    <h1>Jobbportal - Læringseksempel</h1>
+
+    <blockquote>
+      <p>Lær Next.js ved å studere et ferdig prosjekt. Se hvordan alle delene henger sammen.</p>
+    </blockquote>
+
+    <div class="info-box">
+      <strong>Dette er en læringsressurs.</strong> Bruk <a href="../guide-generell/index.html">Ny Nettside-guiden</a> for kundeprosjekter.
+    </div>
+
+    <h2>Hva er Jobbportalen?</h2>
+    <p>En fullstack webapplikasjon hvor:</p>
+    <ul>
+      <li><strong>Jobbsøkere</strong> kan søke på stillinger og laste opp CV</li>
+      <li><strong>Rekrutterere</strong> kan legge ut jobber og behandle søknader</li>
+      <li><strong>Admin</strong> kan se statistikk og håndtere brukere</li>
+    </ul>
+
+    <h2>Lær ved eksempel</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Emne</th>
+          <th>Hva du lærer</th>
+          <th>Fil i prosjektet</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="arkitektur.html">Arkitektur</a></td>
+          <td>Mappestruktur, App Router, route groups</td>
+          <td><code>src/app/</code></td>
+        </tr>
+        <tr>
+          <td><a href="komponenter.html">Komponenter</a></td>
+          <td>Server vs Client, props, gjenbruk</td>
+          <td><code>src/components/</code></td>
+        </tr>
+        <tr>
+          <td><a href="server-actions.html">Server Actions</a></td>
+          <td>Backend-logikk, database-kall</td>
+          <td><code>src/actions/</code></td>
+        </tr>
+        <tr>
+          <td><a href="database.html">Database</a></td>
+          <td>Supabase, SQL, relasjoner</td>
+          <td><code>src/config/</code></td>
+        </tr>
+        <tr>
+          <td><a href="autentisering.html">Auth</a></td>
+          <td>JWT, cookies, rutebeskyttelse</td>
+          <td><code>src/proxy.ts</code> (Next.js 16+)</td>
+        </tr>
+        <tr>
+          <td><a href="state.html">State Management</a></td>
+          <td>Zustand, global state</td>
+          <td><code>src/store/</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Prosjektstruktur</h2>
+    <div class="file-tree">
+<pre>
+<span class="folder">src/</span>
+├── <span class="folder">actions/</span>          <span style="color: #22c55e;">← Backend-logikk (Server Actions)</span>
+│   ├── <span class="file">applications.ts</span>  Søknadshåndtering
+│   ├── <span class="file">jobs.ts</span>          Jobbhåndtering
+│   └── <span class="file">users.ts</span>         Bruker/auth
+│
+├── <span class="folder">app/</span>              <span style="color: #22c55e;">← Sider (App Router)</span>
+│   ├── <span class="folder">(public)/</span>        Offentlige sider
+│   │   ├── <span class="file">page.tsx</span>     Forside
+│   │   ├── <span class="folder">login/</span>       Innlogging
+│   │   └── <span class="folder">register/</span>    Registrering
+│   │
+│   └── <span class="folder">(private)/</span>       Beskyttede sider
+│       ├── <span class="folder">job-seeker/</span>  Jobbsøker-dashbord
+│       └── <span class="folder">recruiter/</span>   Rekrutterer-dashbord
+│
+├── <span class="folder">components/</span>       <span style="color: #22c55e;">← UI-komponenter</span>
+│   ├── <span class="folder">functional/</span>      Funksjonskomponenter
+│   └── <span class="folder">ui/</span>              Basis UI (knapper, input)
+│
+├── <span class="folder">config/</span>           Supabase-tilkobling
+├── <span class="folder">interfaces/</span>       TypeScript-typer
+├── <span class="folder">store/</span>            Zustand state
+└── <span class="file">proxy.ts</span>          Rutebeskyttelse (Next.js 16+)
+</pre>
+    </div>
+
+    <h2>Viktige konsepter demonstrert</h2>
+
+    <div class="concept-card">
+      <h4>1. Server Components vs Client Components</h4>
+      <p>Jobbportalen bruker begge:</p>
+      <ul>
+        <li><strong>Server Components</strong> (standard) - Henter data direkte fra database</li>
+        <li><strong>Client Components</strong> ("use client") - For interaktivitet (forms, onClick)</li>
+      </ul>
+      <div class="code-example">
+        <div class="code-example-header">src/app/(public)/page.tsx - Server Component</div>
+        <pre><code>// Ingen "use client" = Server Component
+import { getJobs } from "@/actions/jobs"
+
+export default async function HomePage() {
+  const jobs = await getJobs() // Kjører på server
+  return &lt;JobList jobs={jobs} /&gt;
+}</code></pre>
+      </div>
+    </div>
+
+    <div class="concept-card">
+      <h4>2. Server Actions</h4>
+      <p>Backend-logikk som kjører sikkert på serveren:</p>
+      <div class="code-example">
+        <div class="code-example-header">src/actions/jobs.ts</div>
+        <pre><code>"use server"
+
+import supabase from "@/config/supabase-config"
+
+export async function createJob(data: JobData) {
+  const { error } = await supabase.from("jobs").insert(data)
+  if (error) throw error
+  return { success: true }
+}</code></pre>
+      </div>
+    </div>
+
+    <div class="concept-card">
+      <h4>3. Route Groups</h4>
+      <p>Parenteser grupperer sider uten å påvirke URL:</p>
+      <ul>
+        <li><code>(public)/login</code> → URL: <code>/login</code></li>
+        <li><code>(private)/dashboard</code> → URL: <code>/dashboard</code></li>
+      </ul>
+    </div>
+
+    <div class="concept-card">
+      <h4>4. Rutebeskyttelse med proxy.ts (Next.js 16+)</h4>
+      <p>Next.js 16 bruker proxy.ts for å beskytte sider:</p>
+      <div class="code-example">
+        <div class="code-example-header">src/proxy.ts</div>
+        <pre><code>// src/proxy.ts (Next.js 16+)
+export default function proxy(request: NextRequest) {
+  const token = request.cookies.get("token")?.value
+
+  if (path.startsWith("/recruiter") && !token) {
+    return NextResponse.redirect(new URL("/login", request.url))
+  }
+
+  return NextResponse.next()
+}</code></pre>
+      </div>
+    </div>
+
+    <h2>Dataflyt i applikasjonen</h2>
+    <pre><code>┌─────────────────────────────────────────────────────────────┐
+│                        BRUKER                               │
+│              Klikker, fyller ut skjema, navigerer           │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    NEXT.JS APP ROUTER                       │
+│   Layout → Page → Components (Server eller Client)          │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    SERVER ACTIONS                           │
+│   createJob() │ getJobs() │ applyForJob() │ login()        │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                        SUPABASE                             │
+│      PostgreSQL Database │ Storage │ Real-time             │
+└─────────────────────────────────────────────────────────────┘</code></pre>
+
+    <h2>Gå videre</h2>
+    <p>Velg et emne for dypere forståelse:</p>
+    <ul>
+      <li><a href="arkitektur.html">Arkitektur</a> - Hvordan prosjektet er organisert</li>
+      <li><a href="komponenter.html">Komponenter</a> - Alle UI-komponenter forklart</li>
+      <li><a href="server-actions.html">Server Actions</a> - Backend-logikk i detalj</li>
+      <li><a href="database.html">Database</a> - SQL-schema og Supabase</li>
+    </ul>
+
+    <div class="footer">
+      <p><a href="../index.html">← Tilbake til hovedsiden</a></p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

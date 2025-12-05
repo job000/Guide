@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prosjektmaler - Komplette nettsidetyper</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .template-card {
+      background: linear-gradient(135deg, #f8fafc 0%, #fff 100%);
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+      transition: all 0.2s;
+    }
+    .template-card:hover {
+      border-color: #3b82f6;
+      box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
+    }
+    .template-card h3 {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin: 0 0 0.5rem 0;
+    }
+    .template-card .icon {
+      font-size: 1.5rem;
+    }
+    .template-card .meta {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .template-card .meta span {
+      background: #f1f5f9;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .feature-list {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.5rem;
+      margin: 1rem 0;
+    }
+    .feature-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
+    .feature-list li::before {
+      content: "✓";
+      color: #10b981;
+      font-weight: bold;
+    }
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .badge-easy { background: #dcfce7; color: #166534; }
+    .badge-medium { background: #fef3c7; color: #92400e; }
+    .badge-advanced { background: #fee2e2; color: #991b1b; }
+    .tip-card {
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+      border: 1px solid #f59e0b;
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      margin: 1rem 0;
+    }
+    .tip-card strong {
+      color: #92400e;
+    }
+    .mobile-tip {
+      background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
+      border: 1px solid #3b82f6;
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      margin: 1rem 0;
+    }
+    .mobile-tip strong {
+      color: #1e40af;
+    }
+    .class-table {
+      font-size: 0.85rem;
+    }
+    .class-table code {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+    .admin-preview {
+      background: #1e293b;
+      border-radius: 12px;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+    .admin-preview img {
+      border-radius: 8px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html">Hurtigstart</a>
+    <a href="prosjektstruktur.html">Struktur</a>
+    <a href="prosjektmaler.html"><strong>Maler</strong></a>
+    <a href="cms-guide.html">CMS</a>
+    <a href="docker-deploy.html">Deploy</a>
+  </nav>
+
+  <div class="container">
+    <h1>Prosjektmaler</h1>
+
+    <blockquote>
+      <p>Komplette maler for ulike nettsidetyper. Velg mal, kopier kode, tilpass innhold - lever pa timer.</p>
+    </blockquote>
+
+    <div class="success-box" style="background: linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%); border: 2px solid #22c55e; padding: 1.5rem; border-radius: 12px; margin-bottom: 2rem;">
+      <h3 style="margin-top: 0; color: #166534;">Auto-Setup Scripts - Obligar Consulting</h3>
+      <p style="margin-bottom: 1rem;">Bruk våre automatiske setup-script for å opprette komplette prosjekter på 30 sekunder:</p>
+      <pre style="background: #1f2937; color: #10b981; padding: 1rem; border-radius: 8px; overflow-x: auto;"><code># Basis (alle nettsider)
+curl -fsSL https://obligarconsulting.no/setup.sh | bash -s kundenavn
+
+# Restaurant/Café (med meny og reservasjon)
+curl -fsSL https://obligarconsulting.no/setup-restaurant.sh | bash -s restaurantnavn
+
+# Treningssenter (med medlemskap og timeplan)
+curl -fsSL https://obligarconsulting.no/setup-gym.sh | bash -s gymnavn</code></pre>
+      <p style="margin-bottom: 0; font-size: 0.9rem;"><a href="auto-setup.html" style="color: #166534; font-weight: 600;">→ Se full dokumentasjon for auto-setup</a></p>
+    </div>
+
+    <!-- VELG MAL -->
+    <h2>Velg riktig mal for kunden</h2>
+    <p class="section-desc">
+      Klikk pa en mal for a hoppe til koden. Hver mal inkluderer database, sider og admin.
+    </p>
+
+    <div class="template-grid">
+      <a href="#bedrift" class="template-card" style="text-decoration: none; color: inherit;">
+        <h3><span class="icon">🏢</span> Bedriftsnettside</h3>
+        <div class="meta">
+          <span>5-7 sider</span>
+          <span>~20 timer</span>
+          <span class="badge badge-easy">Enkel</span>
+        </div>
+        <p>Konsulenter, handverkere, byraer. Tjenester, om oss, kontakt.</p>
+      </a>
+
+      <a href="#trening" class="template-card" style="text-decoration: none; color: inherit;">
+        <h3><span class="icon">💪</span> Treningssenter</h3>
+        <div class="meta">
+          <span>6-8 sider</span>
+          <span>~25 timer</span>
+          <span class="badge badge-medium">Middels</span>
+        </div>
+        <p>Gym, yoga, PT. Timeplan, medlemskap, booking.</p>
+      </a>
+
+      <a href="#restaurant" class="template-card" style="text-decoration: none; color: inherit;">
+        <h3><span class="icon">🍽️</span> Restaurant/Cafe</h3>
+        <div class="meta">
+          <span>4-5 sider</span>
+          <span>~15 timer</span>
+          <span class="badge badge-easy">Enkel</span>
+        </div>
+        <p>Spisesteder, catering. Meny, reservasjon, apningstider.</p>
+      </a>
+
+      <a href="#bestilling" class="template-card" style="text-decoration: none; color: inherit;">
+        <h3><span class="icon">📅</span> Bestillingssystem</h3>
+        <div class="meta">
+          <span>5-6 sider</span>
+          <span>~30 timer</span>
+          <span class="badge badge-medium">Middels</span>
+        </div>
+        <p>Frisor, tannlege, konsulent. Kalender, tidsvalg, bekreftelse.</p>
+      </a>
+
+      <a href="#hjelp" class="template-card" style="text-decoration: none; color: inherit;">
+        <h3><span class="icon">💬</span> Hjelpesenter</h3>
+        <div class="meta">
+          <span>4-5 sider</span>
+          <span>~20 timer</span>
+          <span class="badge badge-medium">Middels</span>
+        </div>
+        <p>Support, FAQ, chat. Kundeservice, henvendelser.</p>
+      </a>
+
+      <a href="#landing" class="template-card" style="text-decoration: none; color: inherit;">
+        <h3><span class="icon">🚀</span> Landingsside</h3>
+        <div class="meta">
+          <span>1 side</span>
+          <span>~8 timer</span>
+          <span class="badge badge-easy">Enkel</span>
+        </div>
+        <p>Produktlansering, kampanje. Hero, features, priser, CTA.</p>
+      </a>
+    </div>
+
+    <!-- ===== MOBILE-FIRST TIPS ===== -->
+    <h2>Mobile-First UI med Tailwind</h2>
+    <p class="section-desc">
+      Bygg for mobil forst, legg til desktop etterpå. Her er de viktigste klassene.
+    </p>
+
+    <div class="mobile-tip">
+      <strong>📱 Mobile-First prinsipp:</strong> Skriv mobilstiler forst, bruk <code>md:</code> og <code>lg:</code> for storre skjermer.
+    </div>
+
+    <h3>Responsive Breakpoints</h3>
+    <table class="class-table">
+      <tr>
+        <th>Prefix</th>
+        <th>Bredde</th>
+        <th>Enhet</th>
+        <th>Eksempel</th>
+      </tr>
+      <tr>
+        <td>(ingen)</td>
+        <td>0px+</td>
+        <td>Mobil</td>
+        <td><code>text-sm</code></td>
+      </tr>
+      <tr>
+        <td><code>sm:</code></td>
+        <td>640px+</td>
+        <td>Stor mobil</td>
+        <td><code>sm:text-base</code></td>
+      </tr>
+      <tr>
+        <td><code>md:</code></td>
+        <td>768px+</td>
+        <td>Tablet</td>
+        <td><code>md:text-lg</code></td>
+      </tr>
+      <tr>
+        <td><code>lg:</code></td>
+        <td>1024px+</td>
+        <td>Laptop</td>
+        <td><code>lg:text-xl</code></td>
+      </tr>
+      <tr>
+        <td><code>xl:</code></td>
+        <td>1280px+</td>
+        <td>Desktop</td>
+        <td><code>xl:text-2xl</code></td>
+      </tr>
+    </table>
+
+    <h3>Vanlige Mobile-First monstre</h3>
+
+    <pre><code>// Grid: 1 kolonne mobil → 2 tablet → 3 desktop
+&lt;div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"&gt;
+
+// Stack → Row
+&lt;div className="flex flex-col md:flex-row gap-4"&gt;
+
+// Skjul pa mobil, vis pa desktop
+&lt;div className="hidden md:block"&gt;Kun desktop&lt;/div&gt;
+&lt;div className="md:hidden"&gt;Kun mobil&lt;/div&gt;
+
+// Padding som skalerer
+&lt;div className="px-4 md:px-8 lg:px-16"&gt;
+
+// Tekststorrelse som skalerer
+&lt;h1 className="text-2xl md:text-4xl lg:text-5xl font-bold"&gt;
+
+// Full bredde mobil → Begrenset desktop
+&lt;div className="w-full md:max-w-md lg:max-w-lg mx-auto"&gt;</code></pre>
+
+    <h3>App-lignende UI-komponenter</h3>
+
+    <pre><code>// Sticky header (som mobilapp)
+&lt;header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b"&gt;
+
+// Bottom navigation (mobilapp-stil)
+&lt;nav className="fixed bottom-0 left-0 right-0 bg-white border-t md:hidden"&gt;
+  &lt;div className="flex justify-around py-2"&gt;
+    &lt;button className="flex flex-col items-center p-2"&gt;
+      &lt;HomeIcon className="w-6 h-6" /&gt;
+      &lt;span className="text-xs"&gt;Hjem&lt;/span&gt;
+    &lt;/button&gt;
+    {/* ... flere knapper */}
+  &lt;/div&gt;
+&lt;/nav&gt;
+
+// Touch-vennlige knapper (44px minimum)
+&lt;button className="min-h-[44px] min-w-[44px] px-6 py-3 rounded-xl
+  active:scale-95 transition-transform"&gt;
+  Trykk meg
+&lt;/button&gt;
+
+// Swipeable cards
+&lt;div className="flex gap-4 overflow-x-auto snap-x snap-mandatory pb-4
+  scrollbar-hide -mx-4 px-4"&gt;
+  &lt;div className="snap-center shrink-0 w-[280px]"&gt;Kort 1&lt;/div&gt;
+  &lt;div className="snap-center shrink-0 w-[280px]"&gt;Kort 2&lt;/div&gt;
+&lt;/div&gt;
+
+// Pull-to-refresh indikator (visuell)
+&lt;div className="h-1 bg-blue-500 animate-pulse" /&gt;</code></pre>
+
+    <div class="tip-card">
+      <strong>💡 Tips:</strong> Test alltid pa ekte mobil! Chrome DevTools er bra, men ikke 100% noktig. Bruk <code>npm run dev</code> og apne pa telefonen via samme WiFi.
+    </div>
+
+    <!-- ===== ADMIN-SYSTEM ===== -->
+    <h2 id="admin">Komplett Admin-system</h2>
+    <p class="section-desc">
+      Alle maler bruker samme admin-struktur. Kopier og tilpass.
+    </p>
+
+    <h3>Admin Dashboard</h3>
+    <pre><code>// src/app/(admin)/admin/page.tsx
+import Link from "next/link"
+import { supabase } from "@/config/supabase-config"
+import { Mail, FileText, Users, Calendar, Settings } from "lucide-react"
+
+// Statistikk-kort komponent
+function StatCard({ title, value, icon: Icon, href, color }: {
+  title: string
+  value: number | string
+  icon: any
+  href: string
+  color: string
+}) {
+  return (
+    &lt;Link
+      href={href}
+      className="bg-white p-6 rounded-xl border shadow-sm hover:shadow-md transition-all"
+    &gt;
+      &lt;div className="flex items-center justify-between"&gt;
+        &lt;div&gt;
+          &lt;p className="text-gray-500 text-sm"&gt;{title}&lt;/p&gt;
+          &lt;p className="text-3xl font-bold mt-1"&gt;{value}&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div className={`p-3 rounded-full ${color}`}&gt;
+          &lt;Icon className="w-6 h-6 text-white" /&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/Link&gt;
+  )
+}
+
+export default async function AdminDashboard() {
+  // Hent statistikk
+  const { count: messageCount } = await supabase
+    .from("contact_messages")
+    .select("*", { count: "exact", head: true })
+    .eq("is_read", false)
+
+  const { count: contentCount } = await supabase
+    .from("content")
+    .select("*", { count: "exact", head: true })
+
+  return (
+    &lt;div className="p-4 md:p-8"&gt;
+      &lt;h1 className="text-2xl font-bold mb-6"&gt;Dashboard&lt;/h1&gt;
+
+      {/* Statistikk-grid */}
+      &lt;div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"&gt;
+        &lt;StatCard
+          title="Uleste meldinger"
+          value={messageCount || 0}
+          icon={Mail}
+          href="/admin/meldinger"
+          color="bg-blue-500"
+        /&gt;
+        &lt;StatCard
+          title="Innhold"
+          value={contentCount || 0}
+          icon={FileText}
+          href="/admin/innhold"
+          color="bg-green-500"
+        /&gt;
+        &lt;StatCard
+          title="Brukere"
+          value="-"
+          icon={Users}
+          href="/admin/brukere"
+          color="bg-purple-500"
+        /&gt;
+        &lt;StatCard
+          title="Bestillinger"
+          value="-"
+          icon={Calendar}
+          href="/admin/bestillinger"
+          color="bg-amber-500"
+        /&gt;
+      &lt;/div&gt;
+
+      {/* Hurtiglenker */}
+      &lt;div className="bg-white rounded-xl border p-6"&gt;
+        &lt;h2 className="font-semibold mb-4"&gt;Hurtighandlinger&lt;/h2&gt;
+        &lt;div className="flex flex-wrap gap-2"&gt;
+          &lt;Link href="/admin/innhold/ny" className="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100"&gt;
+            + Nytt innhold
+          &lt;/Link&gt;
+          &lt;Link href="/admin/meldinger" className="px-4 py-2 bg-gray-50 text-gray-600 rounded-lg hover:bg-gray-100"&gt;
+            Se meldinger
+          &lt;/Link&gt;
+          &lt;Link href="/" target="_blank" className="px-4 py-2 bg-gray-50 text-gray-600 rounded-lg hover:bg-gray-100"&gt;
+            Se nettside ↗
+          &lt;/Link&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h3>Admin Layout med Sidebar</h3>
+    <pre><code>// src/app/(admin)/layout.tsx
+import { redirect } from "next/navigation"
+import { cookies } from "next/headers"
+import Link from "next/link"
+import { Home, Mail, FileText, Users, Settings, LogOut, Menu } from "lucide-react"
+
+const menuItems = [
+  { name: "Dashboard", href: "/admin", icon: Home },
+  { name: "Meldinger", href: "/admin/meldinger", icon: Mail },
+  { name: "Innhold", href: "/admin/innhold", icon: FileText },
+  { name: "Brukere", href: "/admin/brukere", icon: Users },
+  { name: "Innstillinger", href: "/admin/innstillinger", icon: Settings },
+]
+
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const cookieStore = await cookies()
+  const token = cookieStore.get("token")
+
+  if (!token) redirect("/login")
+
+  return (
+    &lt;div className="min-h-screen bg-gray-100"&gt;
+      {/* Desktop Sidebar */}
+      &lt;aside className="hidden md:flex fixed left-0 top-0 h-full w-64 bg-gray-900 text-white flex-col"&gt;
+        &lt;div className="p-6 border-b border-gray-800"&gt;
+          &lt;h2 className="text-xl font-bold"&gt;Admin&lt;/h2&gt;
+        &lt;/div&gt;
+
+        &lt;nav className="flex-1 p-4"&gt;
+          {menuItems.map((item) =&gt; (
+            &lt;Link
+              key={item.href}
+              href={item.href}
+              className="flex items-center gap-3 px-4 py-3 rounded-lg
+                hover:bg-gray-800 transition-colors mb-1"
+            &gt;
+              &lt;item.icon size={20} /&gt;
+              {item.name}
+            &lt;/Link&gt;
+          ))}
+        &lt;/nav&gt;
+
+        &lt;div className="p-4 border-t border-gray-800"&gt;
+          &lt;form action="/api/logout" method="POST"&gt;
+            &lt;button className="flex items-center gap-3 px-4 py-3 w-full
+              rounded-lg hover:bg-gray-800 transition-colors text-red-400"&gt;
+              &lt;LogOut size={20} /&gt;
+              Logg ut
+            &lt;/button&gt;
+          &lt;/form&gt;
+        &lt;/div&gt;
+      &lt;/aside&gt;
+
+      {/* Mobile Header */}
+      &lt;header className="md:hidden fixed top-0 left-0 right-0 bg-gray-900 text-white p-4 z-50"&gt;
+        &lt;div className="flex items-center justify-between"&gt;
+          &lt;h2 className="font-bold"&gt;Admin&lt;/h2&gt;
+          &lt;button className="p-2"&gt;
+            &lt;Menu size={24} /&gt;
+          &lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/header&gt;
+
+      {/* Mobile Bottom Navigation */}
+      &lt;nav className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t z-50"&gt;
+        &lt;div className="flex justify-around py-2"&gt;
+          {menuItems.slice(0, 4).map((item) =&gt; (
+            &lt;Link
+              key={item.href}
+              href={item.href}
+              className="flex flex-col items-center p-2 text-gray-600"
+            &gt;
+              &lt;item.icon size={20} /&gt;
+              &lt;span className="text-xs mt-1"&gt;{item.name}&lt;/span&gt;
+            &lt;/Link&gt;
+          ))}
+        &lt;/div&gt;
+      &lt;/nav&gt;
+
+      {/* Main Content */}
+      &lt;main className="md:ml-64 pt-16 md:pt-0 pb-20 md:pb-0"&gt;
+        {children}
+      &lt;/main&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h3>Meldinger-side med liste/detalj</h3>
+    <pre><code>// src/app/(admin)/admin/meldinger/page.tsx
+"use client"
+
+import { useState, useEffect } from "react"
+import { Mail, MailOpen, Trash2, ArrowLeft } from "lucide-react"
+import toast from "react-hot-toast"
+
+interface Message {
+  id: number
+  name: string
+  email: string
+  phone?: string
+  message: string
+  is_read: boolean
+  created_at: string
+}
+
+export default function MessagesPage() {
+  const [messages, setMessages] = useState&lt;Message[]&gt;([])
+  const [selected, setSelected] = useState&lt;Message | null&gt;(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() =&gt; {
+    loadMessages()
+  }, [])
+
+  const loadMessages = async () =&gt; {
+    const res = await fetch("/api/messages")
+    const data = await res.json()
+    setMessages(data)
+    setLoading(false)
+  }
+
+  const markAsRead = async (id: number) =&gt; {
+    await fetch(`/api/messages/${id}/read`, { method: "POST" })
+    loadMessages()
+    toast.success("Markert som lest")
+  }
+
+  // Mobil: Vis enten liste eller detalj
+  // Desktop: Vis begge side om side
+  return (
+    &lt;div className="p-4 md:p-8"&gt;
+      &lt;h1 className="text-2xl font-bold mb-6"&gt;Meldinger&lt;/h1&gt;
+
+      &lt;div className="grid grid-cols-1 lg:grid-cols-2 gap-6"&gt;
+        {/* Liste - skjul pa mobil hvis melding er valgt */}
+        &lt;div className={`bg-white rounded-xl border ${selected ? "hidden lg:block" : ""}`}&gt;
+          {loading ? (
+            &lt;div className="p-8 text-center text-gray-500"&gt;Laster...&lt;/div&gt;
+          ) : messages.length === 0 ? (
+            &lt;div className="p-8 text-center text-gray-500"&gt;Ingen meldinger&lt;/div&gt;
+          ) : (
+            messages.map((msg) =&gt; (
+              &lt;div
+                key={msg.id}
+                onClick={() =&gt; setSelected(msg)}
+                className={`p-4 border-b cursor-pointer hover:bg-gray-50
+                  ${selected?.id === msg.id ? "bg-blue-50" : ""}
+                  ${!msg.is_read ? "font-medium" : ""}`}
+              &gt;
+                &lt;div className="flex items-center gap-3"&gt;
+                  {msg.is_read ? (
+                    &lt;MailOpen className="text-gray-400 shrink-0" size={20} /&gt;
+                  ) : (
+                    &lt;Mail className="text-blue-500 shrink-0" size={20} /&gt;
+                  )}
+                  &lt;div className="min-w-0"&gt;
+                    &lt;p className="truncate"&gt;{msg.name}&lt;/p&gt;
+                    &lt;p className="text-sm text-gray-500 truncate"&gt;{msg.message}&lt;/p&gt;
+                  &lt;/div&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            ))
+          )}
+        &lt;/div&gt;
+
+        {/* Detalj */}
+        &lt;div className={`bg-white rounded-xl border ${!selected ? "hidden lg:flex items-center justify-center" : ""}`}&gt;
+          {selected ? (
+            &lt;div className="p-6"&gt;
+              {/* Tilbake-knapp (mobil) */}
+              &lt;button
+                onClick={() =&gt; setSelected(null)}
+                className="lg:hidden flex items-center gap-2 text-gray-500 mb-4"
+              &gt;
+                &lt;ArrowLeft size={20} /&gt; Tilbake
+              &lt;/button&gt;
+
+              &lt;div className="flex justify-between items-start mb-4"&gt;
+                &lt;div&gt;
+                  &lt;h2 className="text-xl font-semibold"&gt;{selected.name}&lt;/h2&gt;
+                  &lt;p className="text-gray-500"&gt;{selected.email}&lt;/p&gt;
+                  {selected.phone && &lt;p className="text-gray-500"&gt;{selected.phone}&lt;/p&gt;}
+                &lt;/div&gt;
+                {!selected.is_read && (
+                  &lt;button
+                    onClick={() =&gt; markAsRead(selected.id)}
+                    className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-sm"
+                  &gt;
+                    Marker lest
+                  &lt;/button&gt;
+                )}
+              &lt;/div&gt;
+
+              &lt;div className="bg-gray-50 p-4 rounded-lg"&gt;
+                &lt;p className="whitespace-pre-wrap"&gt;{selected.message}&lt;/p&gt;
+              &lt;/div&gt;
+
+              &lt;p className="text-sm text-gray-400 mt-4"&gt;
+                Mottatt: {new Date(selected.created_at).toLocaleString("nb-NO")}
+              &lt;/p&gt;
+            &lt;/div&gt;
+          ) : (
+            &lt;p className="text-gray-400"&gt;Velg en melding&lt;/p&gt;
+          )}
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- ===== MAL: TRENINGSSENTER ===== -->
+    <h2 id="trening">Mal: Treningssenter / Gym</h2>
+    <p class="section-desc">
+      <strong>Sider:</strong> Forside, Timeplan, Medlemskap, Trenere, Kontakt<br>
+      <strong>Funksjoner:</strong> Timeplan med booking, medlemskapspriser, trener-profiler
+    </p>
+
+    <h3>Database</h3>
+    <pre><code>-- Treningsklasser/timer
+CREATE TABLE classes (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  duration INTEGER DEFAULT 60,  -- minutter
+  max_participants INTEGER DEFAULT 20,
+  instructor_id INTEGER,
+  image_url VARCHAR(500)
+);
+
+-- Timeplan (hvilke dager/tider)
+CREATE TABLE schedule (
+  id SERIAL PRIMARY KEY,
+  class_id INTEGER REFERENCES classes(id),
+  day_of_week INTEGER NOT NULL,  -- 0=mandag, 6=sondag
+  start_time TIME NOT NULL,
+  instructor_id INTEGER,
+  is_active BOOLEAN DEFAULT true
+);
+
+-- Bookinger
+CREATE TABLE bookings (
+  id SERIAL PRIMARY KEY,
+  schedule_id INTEGER REFERENCES schedule(id),
+  user_name VARCHAR(255) NOT NULL,
+  user_email VARCHAR(255) NOT NULL,
+  user_phone VARCHAR(50),
+  date DATE NOT NULL,
+  status VARCHAR(50) DEFAULT 'confirmed',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Medlemskap
+CREATE TABLE memberships (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  price INTEGER NOT NULL,
+  duration_months INTEGER DEFAULT 1,
+  features TEXT[],
+  is_popular BOOLEAN DEFAULT false,
+  sort_order INTEGER DEFAULT 0
+);
+
+-- Trenere
+CREATE TABLE instructors (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  title VARCHAR(100),
+  bio TEXT,
+  image_url VARCHAR(500),
+  specialties TEXT[],
+  instagram VARCHAR(255)
+);
+
+-- Eksempeldata
+INSERT INTO memberships (name, price, features, is_popular, sort_order) VALUES
+('Basis', 299, ARRAY['Tilgang til treningssalen', 'Garderobe'], false, 1),
+('Flex', 499, ARRAY['Alt i Basis', 'Gruppetimer', 'App-tilgang'], true, 2),
+('Premium', 799, ARRAY['Alt i Flex', 'PT-timer', 'Spa'], false, 3);</code></pre>
+
+    <h3>Timeplan-side</h3>
+    <pre><code>// src/app/timeplan/page.tsx
+import { supabase } from "@/config/supabase-config"
+
+const daysOfWeek = ["Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag", "Lordag", "Sondag"]
+
+async function getSchedule() {
+  const { data } = await supabase
+    .from("schedule")
+    .select(`
+      *,
+      class:classes(*),
+      instructor:instructors(name)
+    `)
+    .eq("is_active", true)
+    .order("start_time")
+
+  return data || []
+}
+
+export default async function SchedulePage() {
+  const schedule = await getSchedule()
+
+  // Grupper etter dag
+  const byDay = daysOfWeek.map((day, index) =&gt; ({
+    name: day,
+    classes: schedule.filter(s =&gt; s.day_of_week === index)
+  }))
+
+  return (
+    &lt;div className="py-12"&gt;
+      &lt;div className="max-w-6xl mx-auto px-4"&gt;
+        &lt;h1 className="text-3xl font-bold text-center mb-8"&gt;Timeplan&lt;/h1&gt;
+
+        {/* Mobil: Vertikal liste */}
+        &lt;div className="md:hidden space-y-6"&gt;
+          {byDay.map((day) =&gt; (
+            &lt;div key={day.name}&gt;
+              &lt;h2 className="font-bold text-lg mb-3 pb-2 border-b"&gt;{day.name}&lt;/h2&gt;
+              {day.classes.length === 0 ? (
+                &lt;p className="text-gray-500 text-sm"&gt;Ingen timer&lt;/p&gt;
+              ) : (
+                &lt;div className="space-y-2"&gt;
+                  {day.classes.map((item) =&gt; (
+                    &lt;div key={item.id} className="flex items-center justify-between
+                      bg-white p-3 rounded-lg border"&gt;
+                      &lt;div&gt;
+                        &lt;p className="font-medium"&gt;{item.class?.name}&lt;/p&gt;
+                        &lt;p className="text-sm text-gray-500"&gt;
+                          {item.instructor?.name} • {item.class?.duration} min
+                        &lt;/p&gt;
+                      &lt;/div&gt;
+                      &lt;div className="text-right"&gt;
+                        &lt;p className="font-bold"&gt;{item.start_time.slice(0, 5)}&lt;/p&gt;
+                        &lt;button className="text-xs text-blue-600"&gt;Book&lt;/button&gt;
+                      &lt;/div&gt;
+                    &lt;/div&gt;
+                  ))}
+                &lt;/div&gt;
+              )}
+            &lt;/div&gt;
+          ))}
+        &lt;/div&gt;
+
+        {/* Desktop: Tabell */}
+        &lt;div className="hidden md:block overflow-x-auto"&gt;
+          &lt;table className="w-full"&gt;
+            &lt;thead&gt;
+              &lt;tr&gt;
+                &lt;th className="p-2"&gt;&lt;/th&gt;
+                {daysOfWeek.map(day =&gt; (
+                  &lt;th key={day} className="p-2 text-center"&gt;{day}&lt;/th&gt;
+                ))}
+              &lt;/tr&gt;
+            &lt;/thead&gt;
+            &lt;tbody&gt;
+              {/* Generer rader for hver time (06:00 - 21:00) */}
+              {Array.from({ length: 16 }, (_, i) =&gt; i + 6).map(hour =&gt; (
+                &lt;tr key={hour} className="border-t"&gt;
+                  &lt;td className="p-2 text-sm text-gray-500"&gt;{hour}:00&lt;/td&gt;
+                  {daysOfWeek.map((_, dayIndex) =&gt; {
+                    const classAtTime = schedule.find(
+                      s =&gt; s.day_of_week === dayIndex &&
+                      parseInt(s.start_time) === hour
+                    )
+                    return (
+                      &lt;td key={dayIndex} className="p-1"&gt;
+                        {classAtTime && (
+                          &lt;div className="bg-blue-100 text-blue-800 p-2 rounded text-xs"&gt;
+                            &lt;p className="font-medium"&gt;{classAtTime.class?.name}&lt;/p&gt;
+                            &lt;p&gt;{classAtTime.instructor?.name}&lt;/p&gt;
+                          &lt;/div&gt;
+                        )}
+                      &lt;/td&gt;
+                    )
+                  })}
+                &lt;/tr&gt;
+              ))}
+            &lt;/tbody&gt;
+          &lt;/table&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- ===== MAL: BESTILLING ===== -->
+    <h2 id="bestilling">Mal: Bestillingssystem</h2>
+    <p class="section-desc">
+      <strong>Passer for:</strong> Frisor, tannlege, konsulent, fotograf<br>
+      <strong>Funksjoner:</strong> Velg tjeneste → Velg dato/tid → Bekreft
+    </p>
+
+    <h3>Database</h3>
+    <pre><code>-- Tjenester som kan bookes
+CREATE TABLE bookable_services (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  duration INTEGER NOT NULL,  -- minutter
+  price INTEGER NOT NULL,
+  category VARCHAR(100),
+  is_active BOOLEAN DEFAULT true
+);
+
+-- Tilgjengelige tider (arbeidstid)
+CREATE TABLE availability (
+  id SERIAL PRIMARY KEY,
+  day_of_week INTEGER NOT NULL,  -- 0-6
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL,
+  is_active BOOLEAN DEFAULT true
+);
+
+-- Bookinger
+CREATE TABLE appointments (
+  id SERIAL PRIMARY KEY,
+  service_id INTEGER REFERENCES bookable_services(id),
+  customer_name VARCHAR(255) NOT NULL,
+  customer_email VARCHAR(255) NOT NULL,
+  customer_phone VARCHAR(50) NOT NULL,
+  date DATE NOT NULL,
+  time TIME NOT NULL,
+  notes TEXT,
+  status VARCHAR(50) DEFAULT 'pending',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Eksempel
+INSERT INTO bookable_services (name, duration, price, category) VALUES
+('Herreklipp', 30, 399, 'Klipp'),
+('Dameklipp', 60, 599, 'Klipp'),
+('Farge', 120, 1299, 'Farge'),
+('Styling', 45, 499, 'Styling');
+
+INSERT INTO availability (day_of_week, start_time, end_time) VALUES
+(0, '09:00', '17:00'),  -- Mandag
+(1, '09:00', '17:00'),
+(2, '09:00', '17:00'),
+(3, '09:00', '19:00'),  -- Lang torsdag
+(4, '09:00', '17:00');  -- Fredag</code></pre>
+
+    <h3>Booking-flyt komponent</h3>
+    <pre><code>// src/app/bestill/page.tsx
+"use client"
+
+import { useState, useEffect } from "react"
+import { ChevronLeft, ChevronRight, Check } from "lucide-react"
+
+type Step = "service" | "datetime" | "confirm"
+
+interface Service {
+  id: number
+  name: string
+  duration: number
+  price: number
+}
+
+export default function BookingPage() {
+  const [step, setStep] = useState&lt;Step&gt;("service")
+  const [services, setServices] = useState&lt;Service[]&gt;([])
+  const [selectedService, setSelectedService] = useState&lt;Service | null&gt;(null)
+  const [selectedDate, setSelectedDate] = useState&lt;Date | null&gt;(null)
+  const [selectedTime, setSelectedTime] = useState&lt;string | null&gt;(null)
+  const [formData, setFormData] = useState({ name: "", email: "", phone: "" })
+
+  useEffect(() =&gt; {
+    fetch("/api/services").then(r =&gt; r.json()).then(setServices)
+  }, [])
+
+  const availableTimes = ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00"]
+
+  const handleSubmit = async () =&gt; {
+    const res = await fetch("/api/appointments", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        service_id: selectedService?.id,
+        date: selectedDate?.toISOString().split("T")[0],
+        time: selectedTime,
+        ...formData
+      })
+    })
+
+    if (res.ok) {
+      // Vis bekreftelse
+      alert("Bestilling bekreftet!")
+    }
+  }
+
+  return (
+    &lt;div className="min-h-screen bg-gray-50 py-12"&gt;
+      &lt;div className="max-w-lg mx-auto px-4"&gt;
+        {/* Progress */}
+        &lt;div className="flex items-center justify-center mb-8"&gt;
+          {["Tjeneste", "Tid", "Bekreft"].map((label, i) =&gt; (
+            &lt;div key={label} className="flex items-center"&gt;
+              &lt;div className={`w-8 h-8 rounded-full flex items-center justify-center
+                ${i &lt;= ["service", "datetime", "confirm"].indexOf(step)
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200"}`}&gt;
+                {i + 1}
+              &lt;/div&gt;
+              &lt;span className="ml-2 text-sm hidden sm:inline"&gt;{label}&lt;/span&gt;
+              {i &lt; 2 && &lt;div className="w-8 h-0.5 bg-gray-200 mx-2" /&gt;}
+            &lt;/div&gt;
+          ))}
+        &lt;/div&gt;
+
+        {/* Steg 1: Velg tjeneste */}
+        {step === "service" && (
+          &lt;div className="bg-white rounded-2xl p-6 shadow-sm"&gt;
+            &lt;h2 className="text-xl font-bold mb-4"&gt;Velg tjeneste&lt;/h2&gt;
+            &lt;div className="space-y-3"&gt;
+              {services.map((service) =&gt; (
+                &lt;button
+                  key={service.id}
+                  onClick={() =&gt; {
+                    setSelectedService(service)
+                    setStep("datetime")
+                  }}
+                  className={`w-full p-4 rounded-xl border-2 text-left transition-all
+                    ${selectedService?.id === service.id
+                      ? "border-blue-600 bg-blue-50"
+                      : "border-gray-200 hover:border-blue-300"}`}
+                &gt;
+                  &lt;div className="flex justify-between items-center"&gt;
+                    &lt;div&gt;
+                      &lt;p className="font-medium"&gt;{service.name}&lt;/p&gt;
+                      &lt;p className="text-sm text-gray-500"&gt;{service.duration} min&lt;/p&gt;
+                    &lt;/div&gt;
+                    &lt;p className="font-bold"&gt;{service.price} kr&lt;/p&gt;
+                  &lt;/div&gt;
+                &lt;/button&gt;
+              ))}
+            &lt;/div&gt;
+          &lt;/div&gt;
+        )}
+
+        {/* Steg 2: Velg dato og tid */}
+        {step === "datetime" && (
+          &lt;div className="bg-white rounded-2xl p-6 shadow-sm"&gt;
+            &lt;button onClick={() =&gt; setStep("service")} className="flex items-center text-gray-500 mb-4"&gt;
+              &lt;ChevronLeft size={20} /&gt; Tilbake
+            &lt;/button&gt;
+
+            &lt;h2 className="text-xl font-bold mb-4"&gt;Velg dato og tid&lt;/h2&gt;
+
+            {/* Enkel datovelger */}
+            &lt;div className="mb-6"&gt;
+              &lt;input
+                type="date"
+                onChange={(e) =&gt; setSelectedDate(new Date(e.target.value))}
+                min={new Date().toISOString().split("T")[0]}
+                className="w-full p-3 border rounded-xl"
+              /&gt;
+            &lt;/div&gt;
+
+            {/* Tidsvalg */}
+            {selectedDate && (
+              &lt;div&gt;
+                &lt;p className="text-sm text-gray-500 mb-2"&gt;Ledige tider&lt;/p&gt;
+                &lt;div className="grid grid-cols-3 gap-2"&gt;
+                  {availableTimes.map((time) =&gt; (
+                    &lt;button
+                      key={time}
+                      onClick={() =&gt; {
+                        setSelectedTime(time)
+                        setStep("confirm")
+                      }}
+                      className={`p-3 rounded-lg border-2 font-medium
+                        ${selectedTime === time
+                          ? "border-blue-600 bg-blue-50"
+                          : "border-gray-200 hover:border-blue-300"}`}
+                    &gt;
+                      {time}
+                    &lt;/button&gt;
+                  ))}
+                &lt;/div&gt;
+              &lt;/div&gt;
+            )}
+          &lt;/div&gt;
+        )}
+
+        {/* Steg 3: Bekreft */}
+        {step === "confirm" && (
+          &lt;div className="bg-white rounded-2xl p-6 shadow-sm"&gt;
+            &lt;button onClick={() =&gt; setStep("datetime")} className="flex items-center text-gray-500 mb-4"&gt;
+              &lt;ChevronLeft size={20} /&gt; Tilbake
+            &lt;/button&gt;
+
+            &lt;h2 className="text-xl font-bold mb-4"&gt;Bekreft bestilling&lt;/h2&gt;
+
+            {/* Oppsummering */}
+            &lt;div className="bg-gray-50 rounded-xl p-4 mb-6"&gt;
+              &lt;p&gt;&lt;strong&gt;{selectedService?.name}&lt;/strong&gt;&lt;/p&gt;
+              &lt;p className="text-gray-500"&gt;
+                {selectedDate?.toLocaleDateString("nb-NO")} kl. {selectedTime}
+              &lt;/p&gt;
+              &lt;p className="text-lg font-bold mt-2"&gt;{selectedService?.price} kr&lt;/p&gt;
+            &lt;/div&gt;
+
+            {/* Kontaktinfo */}
+            &lt;div className="space-y-4"&gt;
+              &lt;input
+                type="text"
+                placeholder="Ditt navn"
+                value={formData.name}
+                onChange={(e) =&gt; setFormData({ ...formData, name: e.target.value })}
+                className="w-full p-3 border rounded-xl"
+              /&gt;
+              &lt;input
+                type="email"
+                placeholder="E-post"
+                value={formData.email}
+                onChange={(e) =&gt; setFormData({ ...formData, email: e.target.value })}
+                className="w-full p-3 border rounded-xl"
+              /&gt;
+              &lt;input
+                type="tel"
+                placeholder="Telefon"
+                value={formData.phone}
+                onChange={(e) =&gt; setFormData({ ...formData, phone: e.target.value })}
+                className="w-full p-3 border rounded-xl"
+              /&gt;
+            &lt;/div&gt;
+
+            &lt;button
+              onClick={handleSubmit}
+              className="w-full mt-6 bg-blue-600 text-white py-4 rounded-xl
+                font-bold hover:bg-blue-700 flex items-center justify-center gap-2"
+            &gt;
+              &lt;Check size={20} /&gt; Bekreft bestilling
+            &lt;/button&gt;
+          &lt;/div&gt;
+        )}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- ===== MAL: HJELPESENTER ===== -->
+    <h2 id="hjelp">Mal: Hjelpesenter / Support</h2>
+    <p class="section-desc">
+      <strong>Sider:</strong> FAQ, Kontakt, Chat (valgfritt)<br>
+      <strong>Funksjoner:</strong> Sok i FAQ, kategorier, henvendelsesskjema
+    </p>
+
+    <h3>Database</h3>
+    <pre><code>-- FAQ-kategorier
+CREATE TABLE faq_categories (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  icon VARCHAR(50),
+  sort_order INTEGER DEFAULT 0
+);
+
+-- FAQ-artikler
+CREATE TABLE faq_articles (
+  id SERIAL PRIMARY KEY,
+  category_id INTEGER REFERENCES faq_categories(id),
+  question TEXT NOT NULL,
+  answer TEXT NOT NULL,
+  is_featured BOOLEAN DEFAULT false,
+  views INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Support-henvendelser
+CREATE TABLE support_tickets (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  category VARCHAR(100),
+  subject VARCHAR(255) NOT NULL,
+  message TEXT NOT NULL,
+  status VARCHAR(50) DEFAULT 'open',
+  priority VARCHAR(50) DEFAULT 'normal',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Eksempel
+INSERT INTO faq_categories (name, icon, sort_order) VALUES
+('Kom i gang', 'rocket', 1),
+('Betaling', 'credit-card', 2),
+('Konto', 'user', 3),
+('Teknisk', 'settings', 4);
+
+INSERT INTO faq_articles (category_id, question, answer, is_featured) VALUES
+(1, 'Hvordan oppretter jeg konto?', 'Klikk pa "Registrer" og...', true),
+(2, 'Hvilke betalingsmetoder aksepteres?', 'Vi aksepterer Visa, Mastercard...', true);</code></pre>
+
+    <h3>FAQ-side med sok</h3>
+    <pre><code>// src/app/hjelp/page.tsx
+"use client"
+
+import { useState, useEffect } from "react"
+import { Search, ChevronDown, ChevronUp } from "lucide-react"
+import Link from "next/link"
+
+interface FAQ {
+  id: number
+  question: string
+  answer: string
+  category: { name: string }
+}
+
+export default function HelpPage() {
+  const [faqs, setFaqs] = useState&lt;FAQ[]&gt;([])
+  const [search, setSearch] = useState("")
+  const [openId, setOpenId] = useState&lt;number | null&gt;(null)
+
+  useEffect(() =&gt; {
+    fetch("/api/faqs").then(r =&gt; r.json()).then(setFaqs)
+  }, [])
+
+  const filtered = faqs.filter(faq =&gt;
+    faq.question.toLowerCase().includes(search.toLowerCase()) ||
+    faq.answer.toLowerCase().includes(search.toLowerCase())
+  )
+
+  return (
+    &lt;div className="py-12"&gt;
+      &lt;div className="max-w-3xl mx-auto px-4"&gt;
+        {/* Header */}
+        &lt;div className="text-center mb-8"&gt;
+          &lt;h1 className="text-3xl font-bold mb-4"&gt;Hvordan kan vi hjelpe?&lt;/h1&gt;
+
+          {/* Sokefelt */}
+          &lt;div className="relative max-w-xl mx-auto"&gt;
+            &lt;Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} /&gt;
+            &lt;input
+              type="text"
+              placeholder="Sok i hjelpesenter..."
+              value={search}
+              onChange={(e) =&gt; setSearch(e.target.value)}
+              className="w-full pl-12 pr-4 py-4 rounded-xl border-2 border-gray-200
+                focus:border-blue-500 focus:outline-none text-lg"
+            /&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+
+        {/* Kategorier (hurtiglenker) */}
+        &lt;div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"&gt;
+          {["Kom i gang", "Betaling", "Konto", "Teknisk"].map((cat) =&gt; (
+            &lt;button
+              key={cat}
+              onClick={() =&gt; setSearch(cat)}
+              className="p-4 bg-white rounded-xl border hover:border-blue-500 transition-colors"
+            &gt;
+              &lt;p className="font-medium"&gt;{cat}&lt;/p&gt;
+            &lt;/button&gt;
+          ))}
+        &lt;/div&gt;
+
+        {/* FAQ-liste */}
+        &lt;div className="space-y-3"&gt;
+          {filtered.map((faq) =&gt; (
+            &lt;div key={faq.id} className="bg-white rounded-xl border overflow-hidden"&gt;
+              &lt;button
+                onClick={() =&gt; setOpenId(openId === faq.id ? null : faq.id)}
+                className="w-full p-4 flex items-center justify-between text-left"
+              &gt;
+                &lt;span className="font-medium pr-4"&gt;{faq.question}&lt;/span&gt;
+                {openId === faq.id ? (
+                  &lt;ChevronUp className="shrink-0 text-gray-400" size={20} /&gt;
+                ) : (
+                  &lt;ChevronDown className="shrink-0 text-gray-400" size={20} /&gt;
+                )}
+              &lt;/button&gt;
+              {openId === faq.id && (
+                &lt;div className="px-4 pb-4 text-gray-600"&gt;
+                  {faq.answer}
+                &lt;/div&gt;
+              )}
+            &lt;/div&gt;
+          ))}
+        &lt;/div&gt;
+
+        {/* Fant du ikke svar? */}
+        &lt;div className="mt-8 text-center bg-blue-50 rounded-xl p-6"&gt;
+          &lt;p className="text-gray-600 mb-4"&gt;Fant du ikke det du lette etter?&lt;/p&gt;
+          &lt;Link
+            href="/kontakt"
+            className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700"
+          &gt;
+            Kontakt oss
+          &lt;/Link&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- TIPS FOR RASK LEVERING -->
+    <h2>Tips for rask levering</h2>
+
+    <div class="tip-card">
+      <strong>⚡ Prioriter:</strong>
+      <ol>
+        <li>Fa noe til a fungere forst, perfeksjoner senere</li>
+        <li>Bruk hardkodede data til design er godkjent</li>
+        <li>Mobil forst - desktop er enklere a legge til</li>
+        <li>Lever MVP - kunden kan alltid be om mer</li>
+      </ol>
+    </div>
+
+    <div class="info-box">
+      <strong>Neste steg:</strong>
+      <ul>
+        <li><a href="cms-guide.html">CMS-guide</a> - Sett opp admin for kunden</li>
+        <li><a href="docker-deploy.html">Deploy</a> - Publiser til internett</li>
+        <li><a href="sjekkliste.html">Sjekkliste</a> - For du leverer</li>
+      </ul>
+    </div>
+
+    <div class="footer">
+      <p>
+        <a href="prosjektstruktur.html">← Struktur</a> |
+        <a href="cms-guide.html">CMS-guide →</a> |
+        <a href="sjekkliste.html">Sjekkliste →</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

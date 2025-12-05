@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TypeScript Grunnleggende</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .comparison > div {
+      padding: 1rem;
+      border-radius: 8px;
+    }
+    .comparison .js { background: #fef3c7; border: 1px solid #f59e0b; }
+    .comparison .ts { background: #dbeafe; border: 1px solid #3b82f6; }
+    .comparison h4 { margin: 0 0 0.5rem 0; font-size: 0.9rem; }
+    @media (max-width: 768px) {
+      .comparison { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html">Grunnleggende</a>
+    <a href="typescript.html"><strong>TypeScript</strong></a>
+    <a href="react.html">React</a>
+    <a href="tailwind.html">Tailwind</a>
+  </nav>
+
+  <div class="container">
+    <h1>TypeScript Grunnleggende</h1>
+
+    <blockquote>
+      <p>TypeScript er JavaScript med typer. Det hjelper deg finne feil før koden kjører.</p>
+    </blockquote>
+
+    <div class="info-box">
+      <strong>For OOP-utviklere:</strong> TypeScript ligner på Java/C#. Du har interfaces, generics og typesikkerhet.
+    </div>
+
+    <!-- BASIC TYPES -->
+    <h2>1. Grunnleggende typer</h2>
+
+    <h3>Primitive typer</h3>
+    <pre><code>// String
+const name: string = "Ola"
+const greeting: string = `Hei, ${name}!`  // Template literal
+
+// Number (ingen forskjell på int/float)
+const age: number = 25
+const price: number = 99.99
+const hex: number = 0xff
+
+// Boolean
+const isActive: boolean = true
+const hasAccess: boolean = false
+
+// null og undefined
+const empty: null = null
+const notDefined: undefined = undefined
+
+// any (unngå hvis mulig!)
+const mystery: any = "kan være hva som helst"</code></pre>
+
+    <h3>Arrays</h3>
+    <pre><code>// Array av strings
+const names: string[] = ["Ola", "Kari", "Per"]
+
+// Array av numbers
+const ages: number[] = [25, 30, 35]
+
+// Alternativ syntaks
+const items: Array&lt;string&gt; = ["a", "b", "c"]
+
+// Mixed array (tuple)
+const pair: [string, number] = ["Ola", 25]</code></pre>
+
+    <h3>Objects</h3>
+    <pre><code>// Inline type
+const user: { name: string; age: number } = {
+  name: "Ola",
+  age: 25
+}
+
+// Med interface (anbefalt)
+interface User {
+  name: string
+  age: number
+}
+const user2: User = { name: "Kari", age: 30 }</code></pre>
+
+    <!-- INTERFACES -->
+    <h2>2. Interfaces</h2>
+    <p>Interfaces definerer "formen" på objekter. Ligner på klasser i OOP.</p>
+
+    <h3>Grunnleggende interface</h3>
+    <pre><code>interface User {
+  id: number
+  name: string
+  email: string
+}
+
+// Bruk
+const user: User = {
+  id: 1,
+  name: "Ola",
+  email: "ola@test.no"
+}</code></pre>
+
+    <h3>Valgfrie felt (optional)</h3>
+    <pre><code>interface User {
+  id: number
+  name: string
+  email: string
+  phone?: string      // ? = valgfritt
+  bio?: string
+}
+
+// Begge er gyldige:
+const user1: User = { id: 1, name: "Ola", email: "ola@test.no" }
+const user2: User = { id: 2, name: "Kari", email: "kari@test.no", phone: "12345678" }</code></pre>
+
+    <h3>Readonly felt</h3>
+    <pre><code>interface User {
+  readonly id: number  // Kan ikke endres
+  name: string
+}
+
+const user: User = { id: 1, name: "Ola" }
+user.name = "Kari"  // OK
+user.id = 2         // FEIL! Readonly</code></pre>
+
+    <h3>Nøstede interfaces</h3>
+    <pre><code>interface Address {
+  street: string
+  city: string
+  zipCode: string
+}
+
+interface User {
+  id: number
+  name: string
+  address: Address    // Nøstet interface
+}
+
+const user: User = {
+  id: 1,
+  name: "Ola",
+  address: {
+    street: "Hovedgata 1",
+    city: "Oslo",
+    zipCode: "0001"
+  }
+}</code></pre>
+
+    <h3>Extending interfaces</h3>
+    <pre><code>interface Person {
+  name: string
+  email: string
+}
+
+interface Employee extends Person {
+  employeeId: number
+  department: string
+}
+
+// Employee har: name, email, employeeId, department
+const emp: Employee = {
+  name: "Ola",
+  email: "ola@firma.no",
+  employeeId: 123,
+  department: "IT"
+}</code></pre>
+
+    <!-- TYPE VS INTERFACE -->
+    <h2>3. Type vs Interface</h2>
+
+    <div class="comparison">
+      <div class="js">
+        <h4>type</h4>
+        <pre><code>type User = {
+  name: string
+  age: number
+}
+
+// Kan lage union types
+type Status = "pending" | "active" | "done"
+
+// Kan lage intersection
+type Admin = User & { isAdmin: boolean }</code></pre>
+      </div>
+      <div class="ts">
+        <h4>interface</h4>
+        <pre><code>interface User {
+  name: string
+  age: number
+}
+
+// Kan extends
+interface Admin extends User {
+  isAdmin: boolean
+}
+
+// Kan "merge" (deklarasjon)
+interface User {
+  email: string  // Legges til
+}</code></pre>
+      </div>
+    </div>
+
+    <div class="tip-card" style="background: #f0fdf4; border: 1px solid #22c55e; padding: 1rem; border-radius: 8px;">
+      <strong>Tommelfingerregel:</strong> Bruk <code>interface</code> for objekter. Bruk <code>type</code> for unions og intersections.
+    </div>
+
+    <!-- FUNCTIONS -->
+    <h2>4. Funksjoner</h2>
+
+    <h3>Grunnleggende funksjon</h3>
+    <pre><code>// Parameter-typer og retur-type
+function greet(name: string): string {
+  return `Hei, ${name}!`
+}
+
+// Arrow function
+const greet2 = (name: string): string => {
+  return `Hei, ${name}!`
+}
+
+// Kortform for enkle funksjoner
+const greet3 = (name: string): string => `Hei, ${name}!`</code></pre>
+
+    <h3>Valgfrie parametere</h3>
+    <pre><code>function greet(name: string, greeting?: string): string {
+  return greeting ? `${greeting}, ${name}!` : `Hei, ${name}!`
+}
+
+greet("Ola")           // "Hei, Ola!"
+greet("Ola", "Hallo")  // "Hallo, Ola!"</code></pre>
+
+    <h3>Default parametere</h3>
+    <pre><code>function greet(name: string, greeting: string = "Hei"): string {
+  return `${greeting}, ${name}!`
+}
+
+greet("Ola")           // "Hei, Ola!"
+greet("Ola", "Hallo")  // "Hallo, Ola!"</code></pre>
+
+    <h3>Funksjoner som returnerer void</h3>
+    <pre><code>function logMessage(message: string): void {
+  console.log(message)
+  // Ingen return
+}
+
+// Async funksjoner
+async function fetchUser(id: number): Promise&lt;User&gt; {
+  const response = await fetch(`/api/users/${id}`)
+  return response.json()
+}</code></pre>
+
+    <!-- GENERICS -->
+    <h2>5. Generics</h2>
+    <p>Generics lar deg skrive gjenbrukbar kode som fungerer med flere typer.</p>
+
+    <h3>Grunnleggende generic</h3>
+    <pre><code>// T er en "type parameter"
+function identity&lt;T&gt;(value: T): T {
+  return value
+}
+
+identity&lt;string&gt;("hei")   // "hei"
+identity&lt;number&gt;(123)     // 123
+identity("hei")           // TypeScript inferrer typen</code></pre>
+
+    <h3>Generic interface</h3>
+    <pre><code>// API-respons som kan inneholde ulike data
+interface ApiResponse&lt;T&gt; {
+  success: boolean
+  message?: string
+  data?: T
+}
+
+// Bruk med User
+const userResponse: ApiResponse&lt;User&gt; = {
+  success: true,
+  data: { id: 1, name: "Ola", email: "ola@test.no" }
+}
+
+// Bruk med array av jobs
+const jobsResponse: ApiResponse&lt;Job[]&gt; = {
+  success: true,
+  data: [{ id: 1, title: "Utvikler" }]
+}</code></pre>
+
+    <h3>Generic med constraints</h3>
+    <pre><code>// T må ha en "id" property
+interface HasId {
+  id: number
+}
+
+function findById&lt;T extends HasId&gt;(items: T[], id: number): T | undefined {
+  return items.find(item => item.id === id)
+}
+
+const users: User[] = [{ id: 1, name: "Ola", email: "..." }]
+const user = findById(users, 1)  // Finner user med id 1</code></pre>
+
+    <!-- UNION & INTERSECTION -->
+    <h2>6. Union & Intersection Types</h2>
+
+    <h3>Union (|) - "enten eller"</h3>
+    <pre><code>// Kan være string ELLER number
+type StringOrNumber = string | number
+
+const value1: StringOrNumber = "hei"
+const value2: StringOrNumber = 123
+
+// Vanlig bruk: Status
+type Status = "pending" | "approved" | "rejected"
+
+function updateStatus(status: Status) {
+  // status kan KUN være en av de tre
+}
+
+updateStatus("approved")  // OK
+updateStatus("invalid")   // FEIL!</code></pre>
+
+    <h3>Intersection (&) - "begge deler"</h3>
+    <pre><code>interface Person {
+  name: string
+  email: string
+}
+
+interface Employee {
+  employeeId: number
+  department: string
+}
+
+// Har ALLE felter fra begge
+type EmployeePerson = Person & Employee
+
+const emp: EmployeePerson = {
+  name: "Ola",
+  email: "ola@firma.no",
+  employeeId: 123,
+  department: "IT"
+}</code></pre>
+
+    <!-- TYPE GUARDS -->
+    <h2>7. Type Guards</h2>
+
+    <h3>typeof</h3>
+    <pre><code>function process(value: string | number) {
+  if (typeof value === "string") {
+    // TypeScript vet at value er string her
+    return value.toUpperCase()
+  } else {
+    // TypeScript vet at value er number her
+    return value * 2
+  }
+}</code></pre>
+
+    <h3>in operator</h3>
+    <pre><code>interface Dog { bark(): void }
+interface Cat { meow(): void }
+
+function makeSound(animal: Dog | Cat) {
+  if ("bark" in animal) {
+    animal.bark()  // TypeScript vet det er Dog
+  } else {
+    animal.meow()  // TypeScript vet det er Cat
+  }
+}</code></pre>
+
+    <!-- COMMON PATTERNS -->
+    <h2>8. Vanlige mønstre</h2>
+
+    <h3>Record type</h3>
+    <pre><code>// Objekt med string-nøkler og number-verdier
+const scores: Record&lt;string, number&gt; = {
+  ola: 100,
+  kari: 95,
+  per: 88
+}
+
+// Objekt med spesifikke nøkler
+type Status = "pending" | "active" | "done"
+const statusColors: Record&lt;Status, string&gt; = {
+  pending: "yellow",
+  active: "green",
+  done: "gray"
+}</code></pre>
+
+    <h3>Partial type</h3>
+    <pre><code>interface User {
+  id: number
+  name: string
+  email: string
+}
+
+// Alle felter blir valgfrie
+type PartialUser = Partial&lt;User&gt;
+
+// Nyttig for oppdateringer
+function updateUser(id: number, updates: Partial&lt;User&gt;) {
+  // updates kan ha noen eller alle felter
+}
+
+updateUser(1, { name: "Nytt navn" })  // Bare oppdater name</code></pre>
+
+    <h3>Pick & Omit</h3>
+    <pre><code>interface User {
+  id: number
+  name: string
+  email: string
+  password: string
+}
+
+// Bare id og name
+type UserPreview = Pick&lt;User, "id" | "name"&gt;
+
+// Alt unntatt password
+type SafeUser = Omit&lt;User, "password"&gt;</code></pre>
+
+    <!-- ERRORS -->
+    <h2>9. Vanlige feil og løsninger</h2>
+
+    <div class="warning-box">
+      <h4>Property 'x' does not exist on type 'y'</h4>
+      <p>Du prøver å bruke en egenskap som ikke er definert i typen.</p>
+      <pre><code>// FEIL
+interface User { name: string }
+const user: User = { name: "Ola" }
+console.log(user.email)  // Error!
+
+// LØSNING: Legg til i interface
+interface User {
+  name: string
+  email?: string  // Legg til
+}</code></pre>
+    </div>
+
+    <div class="warning-box">
+      <h4>Type 'x' is not assignable to type 'y'</h4>
+      <p>Du prøver å tilordne feil type.</p>
+      <pre><code>// FEIL
+const name: string = 123  // Error!
+
+// LØSNING: Bruk riktig type
+const name: string = "123"
+// eller
+const name: number = 123</code></pre>
+    </div>
+
+    <div class="warning-box">
+      <h4>Object is possibly 'undefined'</h4>
+      <p>TypeScript vet ikke om verdien eksisterer.</p>
+      <pre><code>// FEIL
+const user = users.find(u => u.id === 1)
+console.log(user.name)  // Error! user kan være undefined
+
+// LØSNING 1: Optional chaining
+console.log(user?.name)
+
+// LØSNING 2: Guard
+if (user) {
+  console.log(user.name)
+}
+
+// LØSNING 3: Non-null assertion (bare hvis du er sikker!)
+console.log(user!.name)</code></pre>
+    </div>
+
+    <div class="footer">
+      <p><a href="index.html">← Grunnleggende</a> | <a href="react.html">React →</a></p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

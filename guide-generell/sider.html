@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lag Flere Sider - Next.js 15 Guide</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .page-preview {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 1.5rem 0;
+    }
+    .page-preview-header {
+      background: #1e293b;
+      color: white;
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .page-preview-header .dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #ef4444;
+    }
+    .page-preview-header .dot:nth-child(2) { background: #f59e0b; }
+    .page-preview-header .dot:nth-child(3) { background: #22c55e; }
+    .page-preview-content {
+      padding: 1.5rem;
+      background: white;
+    }
+    .file-badge {
+      display: inline-block;
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-family: monospace;
+      margin-bottom: 1rem;
+    }
+    .route-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    .route-table th, .route-table td {
+      padding: 0.75rem;
+      text-align: left;
+      border: 1px solid #e2e8f0;
+    }
+    .route-table th {
+      background: #f8fafc;
+    }
+    .route-table code {
+      background: #f1f5f9;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html">Ny Nettside</a>
+    <a href="manuell-oppsett.html">Manuelt Oppsett</a>
+    <a href="sider.html"><strong>Flere Sider</strong></a>
+    <a href="skjema.html">Kontaktskjema</a>
+    <a href="admin.html">Admin</a>
+  </nav>
+
+  <div class="container">
+    <h1>Lag Flere Sider</h1>
+
+    <blockquote>
+      <p>Lær hvordan du oppretter nye sider i Next.js 15 App Router. Inkluderer komplette eksempler for Om oss, Tjenester og Kontakt.</p>
+    </blockquote>
+
+    <!-- HOW ROUTING WORKS -->
+    <h2>Slik fungerer routing i Next.js</h2>
+
+    <div class="info-box">
+      <strong>App Router regler:</strong>
+      <ul style="margin: 0.5rem 0;">
+        <li>Hver <strong>mappe</strong> i <code>src/app/</code> blir en URL-rute</li>
+        <li>Filen <code>page.tsx</code> i mappen er selve siden</li>
+        <li>Mappenavn = URL-path (f.eks. <code>om-oss/</code> → <code>/om-oss</code>)</li>
+      </ul>
+    </div>
+
+    <table class="route-table">
+      <thead>
+        <tr>
+          <th>Fil</th>
+          <th>URL</th>
+          <th>Beskrivelse</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>src/app/page.tsx</code></td>
+          <td><code>/</code></td>
+          <td>Forsiden</td>
+        </tr>
+        <tr>
+          <td><code>src/app/om-oss/page.tsx</code></td>
+          <td><code>/om-oss</code></td>
+          <td>Om oss-siden</td>
+        </tr>
+        <tr>
+          <td><code>src/app/tjenester/page.tsx</code></td>
+          <td><code>/tjenester</code></td>
+          <td>Tjenester-siden</td>
+        </tr>
+        <tr>
+          <td><code>src/app/kontakt/page.tsx</code></td>
+          <td><code>/kontakt</code></td>
+          <td>Kontakt-siden</td>
+        </tr>
+        <tr>
+          <td><code>src/app/tjenester/[id]/page.tsx</code></td>
+          <td><code>/tjenester/123</code></td>
+          <td>Dynamisk side (f.eks. enkelt tjeneste)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- CREATE FOLDERS -->
+    <h2>Steg 1: Opprett mapper</h2>
+
+    <p>Kjør i terminalen:</p>
+    <pre><code>mkdir -p src/app/om-oss src/app/tjenester src/app/kontakt src/app/personvern</code></pre>
+
+    <!-- OM OSS PAGE -->
+    <h2>Steg 2: Om oss-side</h2>
+
+    <div class="file-badge">src/app/om-oss/page.tsx</div>
+
+    <pre><code>import Image from "next/image"
+
+export const metadata = {
+  title: "Om oss - Firmanavn",
+  description: "Lær mer om hvem vi er og hva vi står for.",
+}
+
+export default function OmOssPage() {
+  return (
+    &lt;&gt;
+      {/* Hero */}
+      &lt;section className="bg-gray-100 py-16"&gt;
+        &lt;div className="max-w-6xl mx-auto px-4 text-center"&gt;
+          &lt;h1 className="text-4xl font-bold mb-4"&gt;Om oss&lt;/h1&gt;
+          &lt;p className="text-xl text-gray-600 max-w-2xl mx-auto"&gt;
+            Vi er et dedikert team som brenner for å levere kvalitet.
+          &lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+
+      {/* Story */}
+      &lt;section className="py-16"&gt;
+        &lt;div className="max-w-6xl mx-auto px-4"&gt;
+          &lt;div className="grid md:grid-cols-2 gap-12 items-center"&gt;
+            &lt;div&gt;
+              &lt;h2 className="text-3xl font-bold mb-4"&gt;Vår historie&lt;/h2&gt;
+              &lt;p className="text-gray-600 mb-4"&gt;
+                Firmanavn ble grunnlagt i 2020 med en enkel visjon:
+                å gjøre [tjeneste/produkt] tilgjengelig for alle.
+              &lt;/p&gt;
+              &lt;p className="text-gray-600 mb-4"&gt;
+                Siden den gang har vi hjulpet over 100 kunder med å
+                oppnå sine mål gjennom våre tjenester.
+              &lt;/p&gt;
+              &lt;p className="text-gray-600"&gt;
+                I dag er vi et team på 5 dedikerte medarbeidere som
+                jobber fra vårt kontor i Oslo.
+              &lt;/p&gt;
+            &lt;/div&gt;
+            &lt;div className="bg-gray-200 rounded-lg aspect-video flex items-center justify-center"&gt;
+              {/* Erstatt med ekte bilde */}
+              &lt;span className="text-gray-400"&gt;Bilde av teamet&lt;/span&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+
+      {/* Values */}
+      &lt;section className="bg-gray-50 py-16"&gt;
+        &lt;div className="max-w-6xl mx-auto px-4"&gt;
+          &lt;h2 className="text-3xl font-bold text-center mb-12"&gt;Våre verdier&lt;/h2&gt;
+          &lt;div className="grid md:grid-cols-3 gap-8"&gt;
+            {[
+              { title: "Kvalitet", desc: "Vi leverer alltid vårt beste arbeid." },
+              { title: "Ærlighet", desc: "Åpen kommunikasjon i alt vi gjør." },
+              { title: "Innovasjon", desc: "Vi holder oss oppdatert på nyeste teknologi." },
+            ].map((value, i) => (
+              &lt;div key={i} className="bg-white p-6 rounded-lg shadow-sm text-center"&gt;
+                &lt;div className="w-16 h-16 bg-blue-100 rounded-full mx-auto mb-4 flex items-center justify-center"&gt;
+                  &lt;span className="text-2xl text-blue-600"&gt;{i + 1}&lt;/span&gt;
+                &lt;/div&gt;
+                &lt;h3 className="text-xl font-semibold mb-2"&gt;{value.title}&lt;/h3&gt;
+                &lt;p className="text-gray-600"&gt;{value.desc}&lt;/p&gt;
+              &lt;/div&gt;
+            ))}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+
+      {/* Team (optional) */}
+      &lt;section className="py-16"&gt;
+        &lt;div className="max-w-6xl mx-auto px-4"&gt;
+          &lt;h2 className="text-3xl font-bold text-center mb-12"&gt;Møt teamet&lt;/h2&gt;
+          &lt;div className="grid md:grid-cols-3 gap-8"&gt;
+            {[
+              { name: "Ola Nordmann", role: "Daglig leder" },
+              { name: "Kari Hansen", role: "Prosjektleder" },
+              { name: "Per Olsen", role: "Utvikler" },
+            ].map((person, i) => (
+              &lt;div key={i} className="text-center"&gt;
+                &lt;div className="w-32 h-32 bg-gray-200 rounded-full mx-auto mb-4"&gt;&lt;/div&gt;
+                &lt;h3 className="font-semibold"&gt;{person.name}&lt;/h3&gt;
+                &lt;p className="text-gray-600"&gt;{person.role}&lt;/p&gt;
+              &lt;/div&gt;
+            ))}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+    &lt;/&gt;
+  )
+}</code></pre>
+
+    <!-- TJENESTER PAGE -->
+    <h2>Steg 3: Tjenester-side</h2>
+
+    <div class="file-badge">src/app/tjenester/page.tsx</div>
+
+    <pre><code>import Link from "next/link"
+
+export const metadata = {
+  title: "Våre Tjenester - Firmanavn",
+  description: "Se alle tjenestene vi tilbyr.",
+}
+
+// Definer tjenestene (kan også hentes fra database)
+const tjenester = [
+  {
+    id: "webutvikling",
+    title: "Webutvikling",
+    description: "Moderne nettsider med React og Next.js.",
+    price: "Fra 15.000 kr",
+    features: ["Responsivt design", "SEO-optimalisert", "CMS-integrasjon"],
+  },
+  {
+    id: "design",
+    title: "Grafisk Design",
+    description: "Logo, merkevare og visuell identitet.",
+    price: "Fra 8.000 kr",
+    features: ["Logo-pakke", "Visittkort", "Sosiale medier-maler"],
+  },
+  {
+    id: "hosting",
+    title: "Hosting & Drift",
+    description: "Sikker og rask hosting med support.",
+    price: "Fra 299 kr/mnd",
+    features: ["SSL-sertifikat", "Daglig backup", "99.9% oppetid"],
+  },
+]
+
+export default function TjenesterPage() {
+  return (
+    &lt;&gt;
+      {/* Hero */}
+      &lt;section className="bg-blue-600 text-white py-16"&gt;
+        &lt;div className="max-w-6xl mx-auto px-4 text-center"&gt;
+          &lt;h1 className="text-4xl font-bold mb-4"&gt;Våre Tjenester&lt;/h1&gt;
+          &lt;p className="text-xl text-blue-100 max-w-2xl mx-auto"&gt;
+            Vi tilbyr et bredt spekter av tjenester for å hjelpe din bedrift å vokse.
+          &lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+
+      {/* Services Grid */}
+      &lt;section className="py-16"&gt;
+        &lt;div className="max-w-6xl mx-auto px-4"&gt;
+          &lt;div className="grid md:grid-cols-3 gap-8"&gt;
+            {tjenester.map((tjeneste) => (
+              &lt;div
+                key={tjeneste.id}
+                className="bg-white border rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
+              &gt;
+                {/* Bilde-placeholder */}
+                &lt;div className="bg-gray-100 h-48 flex items-center justify-center"&gt;
+                  &lt;span className="text-gray-400"&gt;Bilde&lt;/span&gt;
+                &lt;/div&gt;
+
+                &lt;div className="p-6"&gt;
+                  &lt;h3 className="text-xl font-bold mb-2"&gt;{tjeneste.title}&lt;/h3&gt;
+                  &lt;p className="text-gray-600 mb-4"&gt;{tjeneste.description}&lt;/p&gt;
+
+                  &lt;ul className="space-y-2 mb-4"&gt;
+                    {tjeneste.features.map((feature, i) => (
+                      &lt;li key={i} className="flex items-center gap-2 text-sm text-gray-600"&gt;
+                        &lt;span className="text-green-500"&gt;✓&lt;/span&gt;
+                        {feature}
+                      &lt;/li&gt;
+                    ))}
+                  &lt;/ul&gt;
+
+                  &lt;div className="flex items-center justify-between"&gt;
+                    &lt;span className="font-bold text-blue-600"&gt;{tjeneste.price}&lt;/span&gt;
+                    &lt;Link
+                      href="/kontakt"
+                      className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+                    &gt;
+                      Kontakt oss
+                    &lt;/Link&gt;
+                  &lt;/div&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            ))}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+
+      {/* CTA */}
+      &lt;section className="bg-gray-100 py-16"&gt;
+        &lt;div className="max-w-6xl mx-auto px-4 text-center"&gt;
+          &lt;h2 className="text-3xl font-bold mb-4"&gt;Ikke sikker på hva du trenger?&lt;/h2&gt;
+          &lt;p className="text-gray-600 mb-8"&gt;
+            Ta kontakt for en uforpliktende prat, så hjelper vi deg finne riktig løsning.
+          &lt;/p&gt;
+          &lt;Link
+            href="/kontakt"
+            className="bg-blue-600 text-white px-8 py-3 rounded-md font-medium hover:bg-blue-700 transition-colors inline-block"
+          &gt;
+            Få gratis konsultasjon
+          &lt;/Link&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+    &lt;/&gt;
+  )
+}</code></pre>
+
+    <!-- KONTAKT PAGE (basic) -->
+    <h2>Steg 4: Kontakt-side (enkel versjon)</h2>
+
+    <div class="info-box">
+      <strong>Merk:</strong> Dette er en enkel versjon. Se <a href="skjema.html">Kontaktskjema-guiden</a> for fullstendig skjema med validering og database-lagring.
+    </div>
+
+    <div class="file-badge">src/app/kontakt/page.tsx</div>
+
+    <pre><code>export const metadata = {
+  title: "Kontakt oss - Firmanavn",
+  description: "Ta kontakt med oss for spørsmål eller tilbud.",
+}
+
+export default function KontaktPage() {
+  return (
+    &lt;&gt;
+      {/* Hero */}
+      &lt;section className="bg-gray-100 py-16"&gt;
+        &lt;div className="max-w-6xl mx-auto px-4 text-center"&gt;
+          &lt;h1 className="text-4xl font-bold mb-4"&gt;Kontakt oss&lt;/h1&gt;
+          &lt;p className="text-xl text-gray-600"&gt;
+            Vi svarer vanligvis innen 24 timer.
+          &lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+
+      {/* Contact Info + Form */}
+      &lt;section className="py-16"&gt;
+        &lt;div className="max-w-6xl mx-auto px-4"&gt;
+          &lt;div className="grid md:grid-cols-2 gap-12"&gt;
+            {/* Contact Info */}
+            &lt;div&gt;
+              &lt;h2 className="text-2xl font-bold mb-6"&gt;Kontaktinformasjon&lt;/h2&gt;
+
+              &lt;div className="space-y-6"&gt;
+                &lt;div&gt;
+                  &lt;h3 className="font-semibold mb-1"&gt;Adresse&lt;/h3&gt;
+                  &lt;p className="text-gray-600"&gt;
+                    Storgata 1&lt;br /&gt;
+                    0001 Oslo
+                  &lt;/p&gt;
+                &lt;/div&gt;
+
+                &lt;div&gt;
+                  &lt;h3 className="font-semibold mb-1"&gt;E-post&lt;/h3&gt;
+                  &lt;a href="mailto:post@eksempel.no" className="text-blue-600 hover:underline"&gt;
+                    post@eksempel.no
+                  &lt;/a&gt;
+                &lt;/div&gt;
+
+                &lt;div&gt;
+                  &lt;h3 className="font-semibold mb-1"&gt;Telefon&lt;/h3&gt;
+                  &lt;a href="tel:+4712345678" className="text-blue-600 hover:underline"&gt;
+                    +47 123 45 678
+                  &lt;/a&gt;
+                &lt;/div&gt;
+
+                &lt;div&gt;
+                  &lt;h3 className="font-semibold mb-1"&gt;Åpningstider&lt;/h3&gt;
+                  &lt;p className="text-gray-600"&gt;
+                    Man-Fre: 09:00 - 17:00&lt;br /&gt;
+                    Lør-Søn: Stengt
+                  &lt;/p&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+
+            {/* Simple Form - see skjema.html for full version */}
+            &lt;div className="bg-gray-50 p-8 rounded-lg"&gt;
+              &lt;h2 className="text-2xl font-bold mb-6"&gt;Send oss en melding&lt;/h2&gt;
+              &lt;form className="space-y-4"&gt;
+                &lt;div&gt;
+                  &lt;label className="block text-sm font-medium mb-1"&gt;Navn&lt;/label&gt;
+                  &lt;input
+                    type="text"
+                    name="name"
+                    required
+                    className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  /&gt;
+                &lt;/div&gt;
+
+                &lt;div&gt;
+                  &lt;label className="block text-sm font-medium mb-1"&gt;E-post&lt;/label&gt;
+                  &lt;input
+                    type="email"
+                    name="email"
+                    required
+                    className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  /&gt;
+                &lt;/div&gt;
+
+                &lt;div&gt;
+                  &lt;label className="block text-sm font-medium mb-1"&gt;Telefon&lt;/label&gt;
+                  &lt;input
+                    type="tel"
+                    name="phone"
+                    className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  /&gt;
+                &lt;/div&gt;
+
+                &lt;div&gt;
+                  &lt;label className="block text-sm font-medium mb-1"&gt;Melding&lt;/label&gt;
+                  &lt;textarea
+                    name="message"
+                    rows={5}
+                    required
+                    className="w-full px-4 py-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  &gt;&lt;/textarea&gt;
+                &lt;/div&gt;
+
+                &lt;button
+                  type="submit"
+                  className="w-full bg-blue-600 text-white py-3 rounded-md font-medium hover:bg-blue-700 transition-colors"
+                &gt;
+                  Send melding
+                &lt;/button&gt;
+              &lt;/form&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+
+      {/* Map placeholder */}
+      &lt;section className="h-96 bg-gray-200 flex items-center justify-center"&gt;
+        &lt;p className="text-gray-500"&gt;Google Maps her (bruk @react-google-maps/api)&lt;/p&gt;
+      &lt;/section&gt;
+    &lt;/&gt;
+  )
+}</code></pre>
+
+    <!-- PERSONVERN PAGE -->
+    <h2>Steg 5: Personvern-side</h2>
+
+    <div class="file-badge">src/app/personvern/page.tsx</div>
+
+    <pre><code>export const metadata = {
+  title: "Personvernerklæring - Firmanavn",
+  description: "Les om hvordan vi behandler dine personopplysninger.",
+}
+
+export default function PersonvernPage() {
+  return (
+    &lt;div className="max-w-4xl mx-auto px-4 py-16"&gt;
+      &lt;h1 className="text-4xl font-bold mb-8"&gt;Personvernerklæring&lt;/h1&gt;
+
+      &lt;div className="prose prose-lg max-w-none"&gt;
+        &lt;p className="text-gray-600 mb-6"&gt;
+          Sist oppdatert: {new Date().toLocaleDateString("nb-NO")}
+        &lt;/p&gt;
+
+        &lt;h2 className="text-2xl font-bold mt-8 mb-4"&gt;1. Hvem er vi?&lt;/h2&gt;
+        &lt;p className="text-gray-600 mb-4"&gt;
+          Firmanavn AS (org.nr. 123 456 789) er behandlingsansvarlig for
+          personopplysninger som samles inn på denne nettsiden.
+        &lt;/p&gt;
+
+        &lt;h2 className="text-2xl font-bold mt-8 mb-4"&gt;2. Hvilke opplysninger samler vi inn?&lt;/h2&gt;
+        &lt;ul className="list-disc pl-6 text-gray-600 mb-4"&gt;
+          &lt;li&gt;Kontaktinformasjon (navn, e-post, telefon)&lt;/li&gt;
+          &lt;li&gt;Meldinger du sender via kontaktskjema&lt;/li&gt;
+          &lt;li&gt;Teknisk informasjon (IP-adresse, nettleser)&lt;/li&gt;
+        &lt;/ul&gt;
+
+        &lt;h2 className="text-2xl font-bold mt-8 mb-4"&gt;3. Hvorfor samler vi inn opplysninger?&lt;/h2&gt;
+        &lt;p className="text-gray-600 mb-4"&gt;
+          Vi bruker opplysningene til å:
+        &lt;/p&gt;
+        &lt;ul className="list-disc pl-6 text-gray-600 mb-4"&gt;
+          &lt;li&gt;Svare på henvendelser&lt;/li&gt;
+          &lt;li&gt;Forbedre nettsiden&lt;/li&gt;
+          &lt;li&gt;Sende relevant informasjon (med samtykke)&lt;/li&gt;
+        &lt;/ul&gt;
+
+        &lt;h2 className="text-2xl font-bold mt-8 mb-4"&gt;4. Dine rettigheter&lt;/h2&gt;
+        &lt;p className="text-gray-600 mb-4"&gt;
+          Du har rett til å:
+        &lt;/p&gt;
+        &lt;ul className="list-disc pl-6 text-gray-600 mb-4"&gt;
+          &lt;li&gt;Be om innsyn i dine opplysninger&lt;/li&gt;
+          &lt;li&gt;Be om retting eller sletting&lt;/li&gt;
+          &lt;li&gt;Trekke tilbake samtykke&lt;/li&gt;
+          &lt;li&gt;Klage til Datatilsynet&lt;/li&gt;
+        &lt;/ul&gt;
+
+        &lt;h2 className="text-2xl font-bold mt-8 mb-4"&gt;5. Kontakt oss&lt;/h2&gt;
+        &lt;p className="text-gray-600 mb-4"&gt;
+          For spørsmål om personvern, kontakt oss på:&lt;br /&gt;
+          E-post: personvern@eksempel.no&lt;br /&gt;
+          Telefon: +47 123 45 678
+        &lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- UPDATE NAVIGATION -->
+    <h2>Steg 6: Oppdater navigasjonen</h2>
+
+    <p>Legg til lenkene i <code>src/components/layout/header.tsx</code>:</p>
+
+    <pre><code>&lt;nav className="hidden md:flex gap-6"&gt;
+  &lt;Link href="/" className="hover:text-blue-600 transition-colors"&gt;Hjem&lt;/Link&gt;
+  &lt;Link href="/om-oss" className="hover:text-blue-600 transition-colors"&gt;Om oss&lt;/Link&gt;
+  &lt;Link href="/tjenester" className="hover:text-blue-600 transition-colors"&gt;Tjenester&lt;/Link&gt;
+  &lt;Link href="/kontakt" className="hover:text-blue-600 transition-colors"&gt;Kontakt&lt;/Link&gt;
+&lt;/nav&gt;</code></pre>
+
+    <!-- TIPS -->
+    <h2>Tips & Best Practices</h2>
+
+    <div class="info-box">
+      <strong>SEO:</strong> Hver side bør ha unik <code>metadata</code> (title, description).
+    </div>
+
+    <div class="info-box">
+      <strong>Bilder:</strong> Bruk <code>next/image</code> for automatisk optimalisering:
+      <pre><code>import Image from "next/image"
+
+&lt;Image
+  src="/images/team.jpg"
+  alt="Vårt team"
+  width={600}
+  height={400}
+  className="rounded-lg"
+/&gt;</code></pre>
+    </div>
+
+    <div class="info-box">
+      <strong>Loading states:</strong> Opprett <code>loading.tsx</code> i mappen for å vise loading-spinner:
+      <pre><code>// src/app/tjenester/loading.tsx
+export default function Loading() {
+  return &lt;div className="text-center py-20"&gt;Laster...&lt;/div&gt;
+}</code></pre>
+    </div>
+
+    <!-- NEXT STEPS -->
+    <h2>Neste steg</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+      <a href="skjema.html" class="topic-card" style="display: block; padding: 1.5rem; background: white; border: 2px solid #e2e8f0; border-radius: 12px; text-decoration: none; color: inherit;">
+        <h4 style="margin: 0;">Kontaktskjema</h4>
+        <p style="margin: 0.5rem 0 0 0; color: #64748b; font-size: 0.9rem;">Med validering og database-lagring</p>
+      </a>
+      <a href="admin.html" class="topic-card" style="display: block; padding: 1.5rem; background: white; border: 2px solid #e2e8f0; border-radius: 12px; text-decoration: none; color: inherit;">
+        <h4 style="margin: 0;">Admin-panel</h4>
+        <p style="margin: 0.5rem 0 0 0; color: #64748b; font-size: 0.9rem;">Se meldinger, rediger innhold</p>
+      </a>
+    </div>
+
+    <div class="footer">
+      <p>
+        <a href="manuell-oppsett.html">← Manuelt oppsett</a> |
+        <a href="skjema.html">Kontaktskjema →</a>
+      </p>
+      <p style="margin-top: 1rem; color: #64748b; font-size: 0.85rem;">
+        Utviklet av <a href="https://obligarconsulting.no">Obligar Consulting</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

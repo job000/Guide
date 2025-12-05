@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>02. Arkitektur - Next.js 16 Guide</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="../01-kom-i-gang/index.html">Kom i gang</a>
+    <a href="index.html"><strong>Arkitektur</strong></a>
+    <a href="../03-komponenter/index.html">Komponenter</a>
+  </nav>
+
+  <div class="container">
+    <h1>02. Arkitektur</h1>
+
+    <blockquote>
+      <p>Forstå hvordan prosjektet er organisert og hvordan delene henger sammen.</p>
+    </blockquote>
+
+    <h2>Mappestruktur</h2>
+    <pre><code>next-job-board/
+│
+├── src/                          # All kildekode
+│   ├── actions/                  # Server Actions (backend-logikk)
+│   │   ├── applications.ts       # Søknadshåndtering
+│   │   ├── dashboard.ts          # Dashboard-statistikk
+│   │   ├── jobs.ts               # Jobbhåndtering
+│   │   ├── uploads.ts            # Filopplasting
+│   │   └── users.ts              # Bruker/autentisering
+│   │
+│   ├── app/                      # Next.js App Router
+│   │   ├── (public)/             # Offentlige sider
+│   │   │   ├── page.tsx          # Forside (/)
+│   │   │   ├── login/            # Innlogging
+│   │   │   └── register/         # Registrering
+│   │   │
+│   │   ├── (private)/            # Beskyttede sider
+│   │   │   ├── job-seeker/       # Jobbsøker-sider
+│   │   │   └── recruiter/        # Rekrutterer-sider
+│   │   │
+│   │   ├── globals.css           # Global CSS
+│   │   └── layout.tsx            # Rot-layout
+│   │
+│   ├── components/               # React-komponenter
+│   │   ├── functional/           # Funksjonskomponenter
+│   │   └── ui/                   # UI-primitiver (shadcn)
+│   │
+│   ├── config/                   # Konfigurasjon
+│   │   └── supabase-config.ts
+│   │
+│   ├── interfaces/               # TypeScript-typer
+│   │   └── index.ts
+│   │
+│   ├── lib/                      # Hjelpefunksjoner
+│   │   └── utils.ts
+│   │
+│   └── store/                    # State management
+│       └── users-store.ts
+│
+├── .env.local                    # Miljøvariabler
+├── package.json                  # Avhengigheter
+└── tsconfig.json                 # TypeScript-konfig</code></pre>
+
+    <h2>Kjernekonseptr</h2>
+
+    <h3>1. App Router</h3>
+    <p>Next.js 16 bruker <strong>App Router</strong> med Turbopack for lynrask utvikling. Mapper = ruter:</p>
+    <pre><code>src/app/
+├── page.tsx              # vises på /
+├── login/
+│   └── page.tsx          # vises på /login
+└── recruiter/
+    └── jobs/
+        └── page.tsx      # vises på /recruiter/jobs</code></pre>
+
+    <h3>2. Route Groups</h3>
+    <p>Parenteser lager <strong>grupper uten å påvirke URL</strong>:</p>
+    <pre><code>src/app/
+├── (public)/
+│   └── login/page.tsx    # URL: /login (ikke /public/login)
+└── (private)/
+    └── dashboard/page.tsx # URL: /dashboard</code></pre>
+
+    <h3>3. Server vs Client Components</h3>
+    <table>
+      <tr><th>Server Component</th><th>Client Component</th></tr>
+      <tr>
+        <td>Standard i Next.js</td>
+        <td>Krever "use client" øverst</td>
+      </tr>
+      <tr>
+        <td>Kan hente data direkte</td>
+        <td>Kan bruke useState, onClick</td>
+      </tr>
+      <tr>
+        <td>Kjører på server</td>
+        <td>Kjører i nettleser</td>
+      </tr>
+    </table>
+
+    <pre><code>// SERVER COMPONENT (standard)
+async function ProductList() {
+  const products = await getProducts()  // Kjører på server
+  return &lt;ul&gt;{...}&lt;/ul&gt;
+}
+
+// CLIENT COMPONENT
+"use client"
+function Counter() {
+  const [count, setCount] = useState(0)
+  return &lt;button onClick={() =&gt; setCount(c + 1)}&gt;{count}&lt;/button&gt;
+}</code></pre>
+
+    <h3>4. Server Actions</h3>
+    <p>Backend-logikk som kjører på serveren:</p>
+    <pre><code>// src/actions/jobs.ts
+"use server"
+
+import supabase from "@/config/supabase-config"
+
+export async function createJob(data: JobData) {
+  const result = await supabase.from('jobs').insert(data)
+  return { success: true, data: result }
+}</code></pre>
+
+    <h2>Dataflyt</h2>
+    <pre><code>┌─────────────────────────────────────────────────────────────┐
+│                        BRUKER                               │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    NEXT.JS APP ROUTER                       │
+│      Layout  →  Page  →  Components                         │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    SERVER ACTIONS                           │
+│  createJob() │ getJobs() │ updateStatus() │ uploadFile()   │
+└─────────────────────────────────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────┐
+│                        SUPABASE                             │
+│      Database (Postgres)  │  Storage  │  Auth               │
+└─────────────────────────────────────────────────────────────┘</code></pre>
+
+    <h2>Viktige filer forklart</h2>
+
+    <h3>src/app/layout.tsx</h3>
+    <p>Rot-layout som wrapper hele appen. Setter opp fonter og global CSS.</p>
+
+    <h3>src/config/supabase-config.ts</h3>
+    <p>Supabase-klient for databasetilgang.</p>
+
+    <h3>src/store/users-store.ts</h3>
+    <p>Global state for innlogget bruker (Zustand).</p>
+
+    <h3>proxy.ts (Next.js 16+)</h3>
+    <p>Beskytter private ruter og håndterer omdirigeringer.</p>
+
+    <h2>Autentiseringsflyt</h2>
+    <pre><code>1. Bruker registrerer seg
+   └── registerUser() oppretter bruker
+       └── Passord hashes med bcrypt
+
+2. Bruker logger inn
+   └── loginUser() verifiserer passord
+       └── JWT-token genereres
+           └── Token lagres i cookie
+
+3. Bruker besøker beskyttet side
+   └── Proxy (proxy.ts) sjekker token
+       └── OK: Vis side
+       └── Feil: Omdiriger til login</code></pre>
+
+    <div class="footer">
+      <p><a href="../01-kom-i-gang/index.html">← Forrige</a> | <a href="../03-komponenter/index.html">Neste: Komponenter →</a></p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

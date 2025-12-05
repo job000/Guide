@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lag Ny Nettside - Obligar Consulting</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .timeline {
+      position: relative;
+      padding-left: 2rem;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: linear-gradient(to bottom, #22c55e, #3b82f6, #8b5cf6);
+      border-radius: 3px;
+    }
+    .timeline-item {
+      position: relative;
+      margin-bottom: 2rem;
+      padding-left: 1.5rem;
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -2rem;
+      top: 0.5rem;
+      width: 12px;
+      height: 12px;
+      background: white;
+      border: 3px solid #22c55e;
+      border-radius: 50%;
+    }
+    .timeline-item:nth-child(2)::before { border-color: #3b82f6; }
+    .timeline-item:nth-child(3)::before { border-color: #8b5cf6; }
+    .timeline-item:nth-child(4)::before { border-color: #f59e0b; }
+    .timeline-item:nth-child(5)::before { border-color: #ef4444; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html"><strong>Ny Nettside</strong></a>
+    <a href="auto-setup.html">Auto-Setup</a>
+    <a href="tilpasning.html">Tilpasning</a>
+    <a href="komponenter.html">Komponenter</a>
+    <a href="maler.html">Maler</a>
+    <a href="deploy.html">Deploy</a>
+  </nav>
+
+  <div class="container">
+    <h1>Lag Ny Nettside for Kunde</h1>
+
+    <blockquote>
+      <p>Komplett guide for å levere kundeprosjekter raskt. Fra oppsett til deploy på 1 uke.</p>
+    </blockquote>
+
+    <div class="success-box" style="background: linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%); border: 2px solid #22c55e; padding: 1.5rem; border-radius: 12px;">
+      <h3 style="margin-top: 0; color: #166534;">Velg oppsett-metode</h3>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0;">
+        <a href="auto-setup.html" style="background: white; border: 2px solid #22c55e; padding: 1rem; border-radius: 8px; text-decoration: none; color: inherit;">
+          <strong style="color: #166534;">Auto-Setup (~3 min)</strong><br>
+          <span style="font-size: 0.9rem; color: #64748b;">Kjør ett script, får alt ferdig</span>
+        </a>
+        <a href="manuell-oppsett.html" style="background: white; border: 2px solid #3b82f6; padding: 1rem; border-radius: 8px; text-decoration: none; color: inherit;">
+          <strong style="color: #1e40af;">Manuelt Oppsett (~20 min)</strong><br>
+          <span style="font-size: 0.9rem; color: #64748b;">Steg-for-steg, full kontroll</span>
+        </a>
+      </div>
+      <p style="margin: 0; font-size: 0.9rem; color: #64748b;">Begge metoder støtter macOS, Linux og Windows (WSL/Git Bash)</p>
+    </div>
+
+    <h2>Innhold i denne guiden</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Side</th>
+          <th>Beskrivelse</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="auto-setup.html"><strong>Auto-Setup Script</strong></a></td>
+          <td>Opprett komplett prosjekt på 3 minutter (anbefalt)</td>
+        </tr>
+        <tr>
+          <td><a href="manuell-oppsett.html"><strong>Manuelt Oppsett</strong></a></td>
+          <td>Full kontroll, perfekt for læring og feilsøking</td>
+        </tr>
+        <tr>
+          <td><a href="tilpasning.html"><strong>Tilpasningsguide</strong></a></td>
+          <td>Endre farger, logo, navigasjon, fonts - alt om tilpasning</td>
+        </tr>
+        <tr>
+          <td><a href="komponenter.html"><strong>Komponent-bibliotek</strong></a></td>
+          <td>Copy-paste komponenter (buttons, forms, hero, pricing, etc.)</td>
+        </tr>
+        <tr>
+          <td><a href="prosjektmaler.html">Prosjektmaler</a></td>
+          <td>Restaurant, treningssenter, bedrift, etc.</td>
+        </tr>
+        <tr>
+          <td><a href="steg-for-steg.html">Steg-for-steg guide</a></td>
+          <td>Dag 1-5 plan for levering</td>
+        </tr>
+        <tr>
+          <td><a href="prosjektstruktur.html">Prosjektstruktur</a></td>
+          <td>Mappestruktur og filorganisering</td>
+        </tr>
+        <tr>
+          <td><a href="database.html">Database (Supabase)</a></td>
+          <td>Tabeller, SQL, tilkobling</td>
+        </tr>
+        <tr>
+          <td><a href="fullstack-arkitektur.html"><strong>Fullstack Arkitektur</strong></a></td>
+          <td>Komplett guide: Auth, Admin, Route Groups, Middleware (ANBEFALT)</td>
+        </tr>
+        <tr>
+          <td><a href="autentisering.html">Autentisering</a></td>
+          <td>Login, registrering, JWT</td>
+        </tr>
+        <tr>
+          <td><a href="deploy.html">Deploy</a></td>
+          <td>Vercel, Docker, VPS</td>
+        </tr>
+        <tr>
+          <td><a href="sjekkliste.html">Sjekkliste</a></td>
+          <td>Alt du må gjøre før levering</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Utvikling & Funksjonalitet</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Side</th>
+          <th>Beskrivelse</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="sider.html"><strong>Sider</strong></a></td>
+          <td>Om oss, Tjenester, Kontakt, Personvern</td>
+        </tr>
+        <tr>
+          <td><a href="skjema.html"><strong>Skjemaer</strong></a></td>
+          <td>Kontaktskjema med validering og toast</td>
+        </tr>
+        <tr>
+          <td><a href="admin.html"><strong>Admin-panel</strong></a></td>
+          <td>Login, dashboard, meldinger</td>
+        </tr>
+        <tr>
+          <td><a href="seo.html">SEO & Metadata</a></td>
+          <td>Metadata API, sitemap, structured data</td>
+        </tr>
+        <tr>
+          <td><a href="bilder.html">Bildehåndtering</a></td>
+          <td>next/image, Supabase Storage, opplasting</td>
+        </tr>
+        <tr>
+          <td><a href="betaling.html">Betalingsintegrasjon</a></td>
+          <td>Stripe Checkout, webhooks, abonnementer</td>
+        </tr>
+        <tr>
+          <td><a href="booking.html">Booking & Bestilling</a></td>
+          <td>Timebestilling for restaurant, frisør, trening</td>
+        </tr>
+        <tr>
+          <td><a href="maler.html"><strong>Bransjemaler</strong></a></td>
+          <td>Restaurant, treningssenter, nettbutikk, konsulent</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Leveringsplan: 5 dager</h2>
+    <div class="timeline">
+      <div class="timeline-item">
+        <h4>Dag 1: Oppsett</h4>
+        <p>Kjør auto-setup, konfigurer Supabase, test at alt fungerer.</p>
+        <code>curl -fsSL https://obligarconsulting.no/setup.sh | bash -s kundenavn</code>
+      </div>
+      <div class="timeline-item">
+        <h4>Dag 2: Sider & Layout</h4>
+        <p>Opprett alle sider, tilpass header/footer, legg til navigasjon.</p>
+      </div>
+      <div class="timeline-item">
+        <h4>Dag 3: Funksjonalitet</h4>
+        <p>Kontaktskjema, database-integrasjon, eventuelle spesialfunksjoner.</p>
+      </div>
+      <div class="timeline-item">
+        <h4>Dag 4: Styling</h4>
+        <p>Mobile-first design, farger, bilder, finjustering.</p>
+      </div>
+      <div class="timeline-item">
+        <h4>Dag 5: Deploy & Test</h4>
+        <p>Deploy til Vercel, test på mobil, lever til kunde.</p>
+      </div>
+    </div>
+
+    <h2>Teknologistakk</h2>
+    <table>
+      <tr><th>Teknologi</th><th>Versjon</th><th>Formål</th></tr>
+      <tr><td>Next.js</td><td>15.x</td><td>React-rammeverk med App Router</td></tr>
+      <tr><td>React</td><td>19.x</td><td>UI-komponenter</td></tr>
+      <tr><td>TypeScript</td><td>5.x</td><td>Typesikkerhet</td></tr>
+      <tr><td>Tailwind CSS</td><td>3.x / 4.x</td><td>Styling</td></tr>
+      <tr><td>Supabase</td><td>2.x</td><td>Database & Auth</td></tr>
+    </table>
+
+    <h2>Før du begynner</h2>
+    <div class="warning-box">
+      <strong>Krav:</strong>
+      <ul style="margin: 0.5rem 0 0 0;">
+        <li>Node.js 18+ installert (<code>node --version</code>)</li>
+        <li>VS Code med Tailwind IntelliSense</li>
+        <li>Supabase-konto (gratis på supabase.com)</li>
+      </ul>
+    </div>
+
+    <h2>Sliter du?</h2>
+    <p>Sjekk disse ressursene:</p>
+    <ul>
+      <li><a href="../grunnleggende/typescript.html">TypeScript grunnleggende</a> - Forstå typer og interfaces</li>
+      <li><a href="../grunnleggende/react.html">React basics</a> - Komponenter, props, state</li>
+      <li><a href="../grunnleggende/tailwind.html">Tailwind CSS</a> - Alle klasser forklart</li>
+      <li><a href="../feilmeldinger/index.html">Feilmeldinger</a> - Vanlige feil og løsninger</li>
+    </ul>
+
+    <div class="footer">
+      <p><a href="../index.html">← Tilbake til hovedsiden</a></p>
+      <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+        <a href="https://obligarconsulting.no" target="_blank" style="color: #2563eb;">Obligar Consulting</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>03. Komponenter - Next.js Guide</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="../02-arkitektur/index.html">Arkitektur</a>
+    <a href="index.html"><strong>Komponenter</strong></a>
+    <a href="../04-database/index.html">Database</a>
+  </nav>
+
+  <div class="container">
+    <h1>03. Komponenter</h1>
+
+    <blockquote>
+      <p>Gjenbrukbare komponenter du kan kopiere direkte til dine egne prosjekter.</p>
+    </blockquote>
+
+    <h2>Button-komponent</h2>
+    <p class="section-desc">
+      En <strong>fleksibel knapp</strong> med varianter (default, outline, ghost, destructive) og størrelser. Bruker <code>class-variance-authority</code> for å håndtere varianter.
+    </p>
+    <pre><code>// src/components/ui/button.tsx
+import * as React from "react"
+import { cva, type VariantProps } from "class-variance-authority"
+import { cn } from "@/lib/utils"
+
+const buttonVariants = cva(
+  "inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 disabled:pointer-events-none disabled:opacity-50",
+  {
+    variants: {
+      variant: {
+        default: "bg-primary text-white hover:bg-primary/90",
+        outline: "border border-gray-300 bg-white hover:bg-gray-50",
+        ghost: "hover:bg-gray-100",
+        destructive: "bg-red-500 text-white hover:bg-red-600",
+      },
+      size: {
+        default: "h-10 px-4 py-2",
+        sm: "h-8 px-3 text-xs",
+        lg: "h-12 px-6",
+        icon: "h-10 w-10",
+      },
+    },
+    defaultVariants: {
+      variant: "default",
+      size: "default",
+    },
+  }
+)
+
+interface ButtonProps
+  extends React.ButtonHTMLAttributes&lt;HTMLButtonElement&gt;,
+    VariantProps&lt;typeof buttonVariants&gt; {}
+
+const Button = React.forwardRef&lt;HTMLButtonElement, ButtonProps&gt;(
+  ({ className, variant, size, ...props }, ref) =&gt; {
+    return (
+      &lt;button
+        className={cn(buttonVariants({ variant, size, className }))}
+        ref={ref}
+        {...props}
+      /&gt;
+    )
+  }
+)
+Button.displayName = "Button"
+
+export { Button, buttonVariants }</code></pre>
+
+    <h3>Bruk:</h3>
+    <pre><code>&lt;Button&gt;Standard&lt;/Button&gt;
+&lt;Button variant="outline"&gt;Outline&lt;/Button&gt;
+&lt;Button variant="destructive"&gt;Slett&lt;/Button&gt;
+&lt;Button size="lg"&gt;Stor knapp&lt;/Button&gt;
+&lt;Button disabled&gt;Deaktivert&lt;/Button&gt;</code></pre>
+
+    <h2>Input-komponent</h2>
+    <p class="section-desc">
+      Et <strong>stilrent tekstfelt</strong> med fokus-ring og placeholder-styling. Brukes i alle skjemaer.
+    </p>
+    <pre><code>// src/components/ui/input.tsx
+import * as React from "react"
+import { cn } from "@/lib/utils"
+
+const Input = React.forwardRef&lt;
+  HTMLInputElement,
+  React.InputHTMLAttributes&lt;HTMLInputElement&gt;
+&gt;(({ className, type, ...props }, ref) =&gt; {
+  return (
+    &lt;input
+      type={type}
+      className={cn(
+        "flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50",
+        className
+      )}
+      ref={ref}
+      {...props}
+    /&gt;
+  )
+})
+Input.displayName = "Input"
+
+export { Input }</code></pre>
+
+    <h2>Spinner-komponent</h2>
+    <p class="section-desc">
+      En <strong>lasteindikator</strong> som vises mens data hentes. Animert sirkel med Tailwind.
+    </p>
+    <pre><code>// src/components/ui/spinner.tsx
+export default function Spinner({ className = "" }: { className?: string }) {
+  return (
+    &lt;div
+      className={`h-8 w-8 border-4 border-gray-300 border-t-primary rounded-full animate-spin ${className}`}
+    /&gt;
+  )
+}</code></pre>
+
+    <h2>Kort-komponent (Card)</h2>
+    <p class="section-desc">
+      En <strong>generisk boks</strong> for å vise innhold med tittel, beskrivelse og valgfritt barn-innhold. Perfekt for produkter, artikler, etc.
+    </p>
+    <pre><code>// src/components/functional/card.tsx
+interface CardProps {
+  title: string
+  description?: string
+  children?: React.ReactNode
+  className?: string
+}
+
+export default function Card({ title, description, children, className = "" }: CardProps) {
+  return (
+    &lt;div className={`bg-white rounded-lg border border-gray-200 p-5 shadow-sm ${className}`}&gt;
+      &lt;h3 className="text-lg font-semibold"&gt;{title}&lt;/h3&gt;
+      {description && &lt;p className="text-gray-600 mt-2"&gt;{description}&lt;/p&gt;}
+      {children && &lt;div className="mt-4"&gt;{children}&lt;/div&gt;}
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h2>Dashboard-kort</h2>
+    <p class="section-desc">
+      Et <strong>statistikk-kort</strong> for dashboards. Viser tall med ikon og fargetema. Perfekt for "Totale salg", "Nye brukere", etc.
+    </p>
+    <pre><code>// src/components/functional/dashboard-card.tsx
+import React from "react"
+
+interface Props {
+  title: string
+  value: number
+  icon: React.ReactNode
+  className?: string
+  valueClassName?: string
+}
+
+export default function DashboardCard({
+  title,
+  value,
+  icon,
+  className = "",
+  valueClassName = "",
+}: Props) {
+  return (
+    &lt;div className={`p-5 rounded-lg border ${className}`}&gt;
+      &lt;div className="flex items-center justify-between"&gt;
+        &lt;div&gt;
+          &lt;p className="text-gray-600 text-sm font-medium"&gt;{title}&lt;/p&gt;
+          &lt;p className={`text-3xl font-bold mt-1 ${valueClassName}`}&gt;{value}&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div className="p-3 rounded-full bg-white shadow-sm"&gt;
+          {icon}
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h3>Bruk:</h3>
+    <p class="section-desc">
+      Kombiner flere kort i et <strong>responsivt grid</strong>. Bruk forskjellige bakgrunnsfarger for å skille kategorier.
+    </p>
+    <pre><code>import { Briefcase, Users, CheckCircle } from 'lucide-react'
+
+&lt;div className="grid grid-cols-1 md:grid-cols-3 gap-4"&gt;
+  &lt;DashboardCard
+    title="Totale søknader"
+    value={125}
+    icon={&lt;Briefcase className="h-6 w-6 text-blue-600" /&gt;}
+    className="bg-blue-50 border-blue-200"
+    valueClassName="text-blue-600"
+  /&gt;
+  &lt;DashboardCard
+    title="Under behandling"
+    value={45}
+    icon={&lt;Users className="h-6 w-6 text-yellow-600" /&gt;}
+    className="bg-yellow-50 border-yellow-200"
+    valueClassName="text-yellow-600"
+  /&gt;
+  &lt;DashboardCard
+    title="Godkjent"
+    value={20}
+    icon={&lt;CheckCircle className="h-6 w-6 text-green-600" /&gt;}
+    className="bg-green-50 border-green-200"
+    valueClassName="text-green-600"
+  /&gt;
+&lt;/div&gt;</code></pre>
+
+    <h2>Sidetittel</h2>
+    <p class="section-desc">
+      En <strong>konsistent overskrift</strong> for alle sider. Inkluderer tittel og valgfri undertittel.
+    </p>
+    <pre><code>// src/components/functional/page-title.tsx
+interface Props {
+  title: string
+  subtitle?: string
+}
+
+export default function PageTitle({ title, subtitle }: Props) {
+  return (
+    &lt;div className="mb-6"&gt;
+      &lt;h1 className="text-2xl font-bold text-primary"&gt;{title}&lt;/h1&gt;
+      {subtitle && &lt;p className="text-gray-600 mt-1"&gt;{subtitle}&lt;/p&gt;}
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h2>Info-melding</h2>
+    <p class="section-desc">
+      En <strong>tom-tilstand melding</strong> som vises når det ikke er data å vise. Bruk for "Ingen resultater funnet" etc.
+    </p>
+    <pre><code>// src/components/ui/info-message.tsx
+export default function InfoMessage({ message }: { message: string }) {
+  return (
+    &lt;div className="bg-gray-100 p-5 text-center text-gray-700 rounded-md text-sm border border-gray-200"&gt;
+      {message}
+    &lt;/div&gt;
+  )
+}
+
+// Bruk:
+{items.length === 0 && &lt;InfoMessage message="Ingen elementer funnet" /&gt;}</code></pre>
+
+    <h2>Utloggingsknapp</h2>
+    <p class="section-desc">
+      En <strong>ferdig utloggingsknapp</strong> som fjerner token-cookies og omdirigerer til login-siden. Bruker <code>js-cookie</code> og <code>react-hot-toast</code>.
+    </p>
+    <pre><code>// src/components/functional/logout-btn.tsx
+"use client"
+
+import { useRouter } from "next/navigation"
+import Cookies from "js-cookie"
+import toast from "react-hot-toast"
+import { Button } from "@/components/ui/button"
+import { LogOut } from "lucide-react"
+
+export default function LogoutBtn() {
+  const router = useRouter()
+
+  const handleLogout = () =&gt; {
+    Cookies.remove("token")
+    Cookies.remove("role")
+    toast.success("Du er nå logget ut")
+    router.push("/login")
+  }
+
+  return (
+    &lt;Button variant="ghost" onClick={handleLogout}&gt;
+      &lt;LogOut className="h-4 w-4 mr-2" /&gt;
+      Logg ut
+    &lt;/Button&gt;
+  )
+}</code></pre>
+
+    <h2>cn() hjelpefunksjon</h2>
+    <p class="section-desc">
+      En <strong>utility-funksjon</strong> som kombinerer CSS-klasser. Håndterer betinget styling og slår sammen Tailwind-klasser korrekt. <strong>Må-ha</strong> for alle prosjekter!
+    </p>
+    <pre><code>// src/lib/utils.ts
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+
+// Bruk:
+&lt;div className={cn(
+  "px-4 py-2 rounded",
+  isActive && "bg-blue-500 text-white",
+  !isActive && "bg-gray-100",
+  className
+)}&gt;
+  Innhold
+&lt;/div&gt;</code></pre>
+
+    <h2>Avhengigheter for komponenter</h2>
+    <p class="section-desc">
+      Installer disse pakkene for at alle komponentene skal fungere.
+    </p>
+    <pre><code>npm install clsx tailwind-merge class-variance-authority lucide-react @radix-ui/react-slot</code></pre>
+
+    <div class="footer">
+      <p><a href="../02-arkitektur/index.html">← Forrige</a> | <a href="../04-database/index.html">Neste: Database →</a></p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

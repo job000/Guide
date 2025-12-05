@@ -1,0 +1,1073 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React + Next.js + Tailwind - Komplett Guide</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .concept-box {
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+      border: 2px solid #3b82f6;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .concept-box h4 {
+      color: #1e40af;
+      margin-top: 0;
+    }
+    .concept-box h4::before { display: none; }
+    .compare-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    @media (max-width: 768px) {
+      .compare-grid { grid-template-columns: 1fr; }
+    }
+    .compare-box {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .compare-box.wrong {
+      border-color: #ef4444;
+      background: #fef2f2;
+    }
+    .compare-box.right {
+      border-color: #22c55e;
+      background: #f0fdf4;
+    }
+    .compare-box h5 {
+      margin: 0 0 0.5rem 0;
+      font-size: 0.9rem;
+    }
+    .cheat-table {
+      font-size: 0.85rem;
+    }
+    .cheat-table td:first-child {
+      font-family: 'JetBrains Mono', monospace;
+      white-space: nowrap;
+    }
+    .quick-ref {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+    }
+    .quick-ref h3 {
+      margin-top: 0;
+      color: #1e293b;
+    }
+    .quick-ref h3::before { display: none; }
+    .pattern-card {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+    }
+    .pattern-card:hover {
+      border-color: #3b82f6;
+    }
+    .pattern-card h4 {
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .pattern-card h4::before { display: none; }
+    .badge {
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .badge-common { background: #dbeafe; color: #1e40af; }
+    .badge-important { background: #fef3c7; color: #92400e; }
+    .file-path {
+      background: #1e293b;
+      color: #60a5fa;
+      padding: 0.5rem 1rem;
+      border-radius: 8px 8px 0 0;
+      font-family: monospace;
+      font-size: 0.85rem;
+      display: inline-block;
+    }
+    .file-path + pre {
+      margin-top: 0;
+      border-radius: 0 8px 8px 8px;
+    }
+    .nav-section {
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+      border: 2px solid #22c55e;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+    }
+    .nav-section a {
+      display: inline-block;
+      margin: 0.25rem;
+      padding: 0.5rem 1rem;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html">Grunnleggende</a>
+    <a href="react-nextjs-tailwind.html"><strong>React + Next.js</strong></a>
+    <a href="typescript.html">TypeScript</a>
+    <a href="tailwind.html">Tailwind</a>
+  </nav>
+
+  <div class="container">
+    <h1>React + Next.js + Tailwind</h1>
+
+    <blockquote>
+      <p>Alt du trenger for å forstå og bruke React i Next.js 16. Fra grunnleggende konsepter til avanserte mønstre. <strong>Praktisk og copy-paste vennlig.</strong></p>
+    </blockquote>
+
+    <div class="nav-section">
+      <strong>Innhold:</strong><br>
+      <a href="#grunnleggende">Grunnleggende React</a>
+      <a href="#komponenter">Komponenter</a>
+      <a href="#server-client">Server vs Client</a>
+      <a href="#hooks">React Hooks</a>
+      <a href="#state">State Management</a>
+      <a href="#tailwind">Tailwind CSS</a>
+      <a href="#patterns">Vanlige Mønstre</a>
+      <a href="#nextjs">Next.js Spesifikt</a>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- GRUNNLEGGENDE REACT -->
+    <!-- ============================================ -->
+    <h2 id="grunnleggende">Grunnleggende React-konsepter</h2>
+
+    <div class="concept-box">
+      <h4>React i et nøtteskall</h4>
+      <p>React bygger brukergrensesnitt med <strong>komponenter</strong> - gjenbrukbare UI-biter som kan ha sin egen logikk og tilstand. I Next.js 16 har vi to typer:</p>
+      <ul>
+        <li><strong>Server Components</strong> (standard) - Rendres på serveren, raskere, kan hente data direkte</li>
+        <li><strong>Client Components</strong> - Kjører i nettleseren, kan bruke interaktivitet (klikk, input, etc.)</li>
+      </ul>
+    </div>
+
+    <h3>JSX - HTML i JavaScript</h3>
+    <p>JSX lar deg skrive HTML-lignende kode i JavaScript. Noen forskjeller fra vanlig HTML:</p>
+
+    <table class="cheat-table">
+      <tr>
+        <th>HTML</th>
+        <th>JSX (React)</th>
+        <th>Forklaring</th>
+      </tr>
+      <tr>
+        <td><code>class="btn"</code></td>
+        <td><code>className="btn"</code></td>
+        <td>class er reservert ord i JS</td>
+      </tr>
+      <tr>
+        <td><code>for="email"</code></td>
+        <td><code>htmlFor="email"</code></td>
+        <td>for er reservert ord i JS</td>
+      </tr>
+      <tr>
+        <td><code>onclick="fn()"</code></td>
+        <td><code>onClick={fn}</code></td>
+        <td>camelCase + funksjon i {}</td>
+      </tr>
+      <tr>
+        <td><code>style="color: red"</code></td>
+        <td><code>style={{ color: "red" }}</code></td>
+        <td>Objekt med camelCase</td>
+      </tr>
+      <tr>
+        <td><code>&lt;img&gt;</code></td>
+        <td><code>&lt;img /&gt;</code></td>
+        <td>Alle tags må lukkes</td>
+      </tr>
+      <tr>
+        <td><code>&lt;br&gt;</code></td>
+        <td><code>&lt;br /&gt;</code></td>
+        <td>Selvlukkende tags</td>
+      </tr>
+    </table>
+
+    <h3>Variabler i JSX</h3>
+    <pre><code>// Bruk {} for å sette inn JavaScript-verdier
+const name = "Ola"
+const isLoggedIn = true
+const items = ["Eple", "Banan", "Appelsin"]
+
+return (
+  &lt;div&gt;
+    {/* Enkel variabel */}
+    &lt;h1&gt;Hei, {name}!&lt;/h1&gt;
+
+    {/* Betingelse (if/else) */}
+    {isLoggedIn ? &lt;p&gt;Velkommen tilbake&lt;/p&gt; : &lt;p&gt;Logg inn&lt;/p&gt;}
+
+    {/* Vis kun hvis true */}
+    {isLoggedIn && &lt;button&gt;Logg ut&lt;/button&gt;}
+
+    {/* Loop gjennom array */}
+    &lt;ul&gt;
+      {items.map((item, index) =&gt; (
+        &lt;li key={index}&gt;{item}&lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+
+    {/* Beregninger */}
+    &lt;p&gt;2 + 2 = {2 + 2}&lt;/p&gt;
+  &lt;/div&gt;
+)</code></pre>
+
+    <!-- ============================================ -->
+    <!-- KOMPONENTER -->
+    <!-- ============================================ -->
+    <h2 id="komponenter">Komponenter</h2>
+
+    <p class="section-desc">
+      Komponenter er byggeklossene i React. De er funksjoner som returnerer JSX (HTML-lignende kode).
+    </p>
+
+    <h3>Enkel komponent</h3>
+    <pre><code>// Komponent = funksjon som returnerer JSX
+function Greeting() {
+  return &lt;h1&gt;Hei, verden!&lt;/h1&gt;
+}
+
+// Bruk komponenten
+&lt;Greeting /&gt;</code></pre>
+
+    <h3>Props - Send data til komponenter</h3>
+    <pre><code>// Definer props med TypeScript
+interface ButtonProps {
+  text: string           // Påkrevd
+  variant?: "primary" | "secondary"  // Valgfri med default
+  onClick?: () =&gt; void   // Valgfri funksjon
+}
+
+function Button({ text, variant = "primary", onClick }: ButtonProps) {
+  return (
+    &lt;button
+      onClick={onClick}
+      className={variant === "primary" ? "bg-blue-600" : "bg-gray-600"}
+    &gt;
+      {text}
+    &lt;/button&gt;
+  )
+}
+
+// Bruk
+&lt;Button text="Klikk meg" /&gt;
+&lt;Button text="Avbryt" variant="secondary" onClick={() =&gt; alert("Avbrutt")} /&gt;</code></pre>
+
+    <h3>Children - Innhold mellom tags</h3>
+    <pre><code>interface CardProps {
+  title: string
+  children: React.ReactNode  // Alt mellom &lt;Card&gt; og &lt;/Card&gt;
+}
+
+function Card({ title, children }: CardProps) {
+  return (
+    &lt;div className="bg-white rounded-lg shadow p-6"&gt;
+      &lt;h2 className="text-xl font-bold mb-4"&gt;{title}&lt;/h2&gt;
+      {children}
+    &lt;/div&gt;
+  )
+}
+
+// Bruk
+&lt;Card title="Min tittel"&gt;
+  &lt;p&gt;Dette er innholdet i kortet.&lt;/p&gt;
+  &lt;button&gt;En knapp&lt;/button&gt;
+&lt;/Card&gt;</code></pre>
+
+    <!-- ============================================ -->
+    <!-- SERVER VS CLIENT -->
+    <!-- ============================================ -->
+    <h2 id="server-client">Server Components vs Client Components</h2>
+
+    <div class="warning-box">
+      <strong>VIKTIG!</strong> Dette er den største forskjellen i Next.js 16. Forstå dette godt!
+    </div>
+
+    <div class="compare-grid">
+      <div class="compare-box">
+        <h5>Server Component (Standard)</h5>
+        <ul style="font-size: 0.9rem; margin: 0; padding-left: 1.2rem;">
+          <li>Ingen "use client" direktiv</li>
+          <li>Kan være <code>async</code></li>
+          <li>Kan hente data direkte</li>
+          <li>Kan IKKE bruke useState, useEffect</li>
+          <li>Kan IKKE håndtere klikk</li>
+          <li>Raskere, mindre JavaScript</li>
+        </ul>
+      </div>
+      <div class="compare-box">
+        <h5>Client Component</h5>
+        <ul style="font-size: 0.9rem; margin: 0; padding-left: 1.2rem;">
+          <li>Har "use client" øverst</li>
+          <li>Kan IKKE være async</li>
+          <li>Bruker useEffect for data</li>
+          <li>KAN bruke useState, useEffect</li>
+          <li>KAN håndtere klikk, input</li>
+          <li>Mer JavaScript til nettleser</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>Server Component (async, direkte data)</h3>
+    <div class="file-path">src/app/produkter/page.tsx</div>
+    <pre><code>// INGEN "use client" = Server Component
+import supabase from "@/config/supabase-config"
+
+// Kan være async!
+export default async function ProductsPage() {
+  // Hent data direkte - ingen useEffect nødvendig
+  const { data: products } = await supabase
+    .from("products")
+    .select("*")
+    .order("created_at", { ascending: false })
+
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Produkter&lt;/h1&gt;
+      {products?.map(product =&gt; (
+        &lt;div key={product.id}&gt;
+          &lt;h2&gt;{product.name}&lt;/h2&gt;
+          &lt;p&gt;{product.price} kr&lt;/p&gt;
+        &lt;/div&gt;
+      ))}
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h3>Client Component (interaktivitet)</h3>
+    <div class="file-path">src/components/counter.tsx</div>
+    <pre><code>"use client"  // &lt;-- PÅKREVD for interaktivitet
+
+import { useState } from "react"
+
+export default function Counter() {
+  const [count, setCount] = useState(0)
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Teller: {count}&lt;/p&gt;
+      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+        +1
+      &lt;/button&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h3>Når bruker du hva?</h3>
+    <table>
+      <tr>
+        <th>Bruk Server Component når:</th>
+        <th>Bruk Client Component når:</th>
+      </tr>
+      <tr>
+        <td>Vise data fra database</td>
+        <td>Knapper som gjør noe</td>
+      </tr>
+      <tr>
+        <td>Statisk innhold</td>
+        <td>Skjemaer med input</td>
+      </tr>
+      <tr>
+        <td>SEO er viktig</td>
+        <td>Animasjoner/interaksjoner</td>
+      </tr>
+      <tr>
+        <td>Hente data ved sidelast</td>
+        <td>useState, useEffect trengs</td>
+      </tr>
+    </table>
+
+    <div class="concept-box">
+      <h4>Kombinere Server og Client</h4>
+      <p>Du kan ha Client Components inne i Server Components:</p>
+      <pre style="margin: 1rem 0;"><code>// Server Component (page.tsx)
+import ProductList from "./product-list"  // Server
+import AddToCartButton from "./add-to-cart" // Client
+
+export default async function Page() {
+  const products = await getProducts()
+
+  return (
+    &lt;div&gt;
+      &lt;ProductList products={products} /&gt;
+      &lt;AddToCartButton /&gt;  {/* Client component */}
+    &lt;/div&gt;
+  )
+}</code></pre>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- HOOKS -->
+    <!-- ============================================ -->
+    <h2 id="hooks">React Hooks (Client Components)</h2>
+
+    <p class="section-desc">
+      Hooks er funksjoner som lar deg bruke React-features i funksjonskomponenter. Alle hooks starter med <code>use</code>.
+    </p>
+
+    <div class="pattern-card">
+      <h4>useState <span class="badge badge-common">Mest brukt</span></h4>
+      <p>Holder på data som kan endre seg.</p>
+      <pre><code>"use client"
+import { useState } from "react"
+
+function Example() {
+  // [verdi, setterFunksjon] = useState(startverdi)
+  const [name, setName] = useState("")
+  const [count, setCount] = useState(0)
+  const [items, setItems] = useState&lt;string[]&gt;([])
+  const [user, setUser] = useState&lt;User | null&gt;(null)
+
+  return (
+    &lt;div&gt;
+      {/* Input som oppdaterer state */}
+      &lt;input
+        value={name}
+        onChange={(e) =&gt; setName(e.target.value)}
+      /&gt;
+
+      {/* Oppdater basert på forrige verdi */}
+      &lt;button onClick={() =&gt; setCount(prev =&gt; prev + 1)}&gt;
+        Teller: {count}
+      &lt;/button&gt;
+
+      {/* Legg til i array */}
+      &lt;button onClick={() =&gt; setItems([...items, "Ny"])}&gt;
+        Legg til
+      &lt;/button&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+    </div>
+
+    <div class="pattern-card">
+      <h4>useEffect <span class="badge badge-important">Viktig å forstå</span></h4>
+      <p>Kjør kode når komponenten laster eller når verdier endres.</p>
+      <pre><code>"use client"
+import { useState, useEffect } from "react"
+
+function Example() {
+  const [data, setData] = useState(null)
+  const [userId, setUserId] = useState(1)
+
+  // Kjør KUN ved første render (mount)
+  useEffect(() =&gt; {
+    console.log("Komponenten lastet!")
+
+    // Cleanup - kjøres når komponenten fjernes
+    return () =&gt; {
+      console.log("Komponenten fjernes")
+    }
+  }, [])  // &lt;-- Tom array = kun ved mount
+
+  // Kjør når userId endres
+  useEffect(() =&gt; {
+    async function fetchUser() {
+      const res = await fetch(`/api/users/${userId}`)
+      const user = await res.json()
+      setData(user)
+    }
+    fetchUser()
+  }, [userId])  // &lt;-- Kjør når userId endres
+
+  // ALDRI gjør dette (uendelig loop!)
+  // useEffect(() =&gt; {
+  //   setData(something)  // Trigger re-render
+  // })  // Ingen dependency array = kjører HVER render
+
+  return &lt;div&gt;{data?.name}&lt;/div&gt;
+}</code></pre>
+    </div>
+
+    <div class="pattern-card">
+      <h4>useRef</h4>
+      <p>Referanse til DOM-elementer eller verdier som ikke trigger re-render.</p>
+      <pre><code>"use client"
+import { useRef } from "react"
+
+function Example() {
+  const inputRef = useRef&lt;HTMLInputElement&gt;(null)
+
+  const focusInput = () =&gt; {
+    inputRef.current?.focus()
+  }
+
+  return (
+    &lt;div&gt;
+      &lt;input ref={inputRef} /&gt;
+      &lt;button onClick={focusInput}&gt;Fokuser input&lt;/button&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+    </div>
+
+    <div class="pattern-card">
+      <h4>useMemo og useCallback</h4>
+      <p>Optimaliser ytelse ved å huske verdier/funksjoner.</p>
+      <pre><code>"use client"
+import { useState, useMemo, useCallback } from "react"
+
+function Example({ items }: { items: Item[] }) {
+  const [filter, setFilter] = useState("")
+
+  // useMemo: Husk beregnet verdi
+  const filteredItems = useMemo(() =&gt; {
+    return items.filter(item =&gt;
+      item.name.toLowerCase().includes(filter.toLowerCase())
+    )
+  }, [items, filter])  // Beregn på nytt kun når items/filter endres
+
+  // useCallback: Husk funksjon
+  const handleClick = useCallback((id: number) =&gt; {
+    console.log("Klikket:", id)
+  }, [])  // Samme funksjon mellom renders
+
+  return (
+    &lt;div&gt;
+      {filteredItems.map(item =&gt; (
+        &lt;div key={item.id} onClick={() =&gt; handleClick(item.id)}&gt;
+          {item.name}
+        &lt;/div&gt;
+      ))}
+    &lt;/div&gt;
+  )
+}</code></pre>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- STATE MANAGEMENT -->
+    <!-- ============================================ -->
+    <h2 id="state">State Management med Zustand</h2>
+
+    <p class="section-desc">
+      For global state (data som deles mellom komponenter) bruker vi <strong>Zustand</strong> - enkelt og kraftig.
+    </p>
+
+    <h3>Oppsett av Zustand store</h3>
+    <div class="file-path">src/store/user-store.ts</div>
+    <pre><code>import { create } from "zustand"
+
+// Definer typer
+interface User {
+  id: string
+  name: string
+  email: string
+  role: string
+}
+
+interface UserStore {
+  // State
+  user: User | null
+  isLoading: boolean
+
+  // Actions
+  setUser: (user: User) =&gt; void
+  clearUser: () =&gt; void
+  setLoading: (loading: boolean) =&gt; void
+}
+
+// Opprett store
+const useUserStore = create&lt;UserStore&gt;((set) =&gt; ({
+  // Initial state
+  user: null,
+  isLoading: false,
+
+  // Actions - bruk set() for å oppdatere state
+  setUser: (user) =&gt; set({ user }),
+  clearUser: () =&gt; set({ user: null }),
+  setLoading: (isLoading) =&gt; set({ isLoading }),
+}))
+
+export default useUserStore</code></pre>
+
+    <h3>Bruk i komponenter</h3>
+    <pre><code>"use client"
+
+import useUserStore from "@/store/user-store"
+
+function Navbar() {
+  // Hent state og actions fra store
+  const { user, clearUser } = useUserStore()
+
+  if (!user) {
+    return &lt;a href="/login"&gt;Logg inn&lt;/a&gt;
+  }
+
+  return (
+    &lt;div&gt;
+      &lt;span&gt;Hei, {user.name}!&lt;/span&gt;
+      &lt;button onClick={clearUser}&gt;Logg ut&lt;/button&gt;
+    &lt;/div&gt;
+  )
+}
+
+function ProfilePage() {
+  // Samme store - delt state!
+  const user = useUserStore((state) =&gt; state.user)
+
+  return &lt;h1&gt;Profil: {user?.name}&lt;/h1&gt;
+}</code></pre>
+
+    <!-- ============================================ -->
+    <!-- TAILWIND CSS -->
+    <!-- ============================================ -->
+    <h2 id="tailwind">Tailwind CSS - Hurtigreferanse</h2>
+
+    <p class="section-desc">
+      Tailwind bruker utility-klasser direkte i HTML/JSX. Ingen egen CSS-fil nødvendig.
+    </p>
+
+    <div class="quick-ref">
+      <h3>Mest brukte klasser</h3>
+      <table class="cheat-table">
+        <tr><th>Kategori</th><th>Klasser</th><th>Forklaring</th></tr>
+        <tr>
+          <td><strong>Spacing</strong></td>
+          <td><code>p-4 px-6 py-2 m-4 mx-auto</code></td>
+          <td>Padding/margin (4 = 1rem)</td>
+        </tr>
+        <tr>
+          <td><strong>Flex</strong></td>
+          <td><code>flex items-center justify-between gap-4</code></td>
+          <td>Flexbox layout</td>
+        </tr>
+        <tr>
+          <td><strong>Grid</strong></td>
+          <td><code>grid grid-cols-3 gap-4</code></td>
+          <td>CSS Grid</td>
+        </tr>
+        <tr>
+          <td><strong>Tekst</strong></td>
+          <td><code>text-lg font-bold text-gray-600</code></td>
+          <td>Størrelse, vekt, farge</td>
+        </tr>
+        <tr>
+          <td><strong>Bakgrunn</strong></td>
+          <td><code>bg-blue-600 bg-white</code></td>
+          <td>Bakgrunnsfarge</td>
+        </tr>
+        <tr>
+          <td><strong>Border</strong></td>
+          <td><code>border rounded-lg border-gray-300</code></td>
+          <td>Kantlinjer</td>
+        </tr>
+        <tr>
+          <td><strong>Shadow</strong></td>
+          <td><code>shadow-sm shadow-lg</code></td>
+          <td>Skygge</td>
+        </tr>
+        <tr>
+          <td><strong>Bredde</strong></td>
+          <td><code>w-full w-1/2 max-w-md</code></td>
+          <td>Width</td>
+        </tr>
+        <tr>
+          <td><strong>Høyde</strong></td>
+          <td><code>h-screen h-64 min-h-full</code></td>
+          <td>Height</td>
+        </tr>
+      </table>
+    </div>
+
+    <h3>Responsive Design</h3>
+    <pre><code>// Breakpoints: sm(640px) md(768px) lg(1024px) xl(1280px)
+// Skriv mobil først, legg til større skjermer
+
+&lt;div className="
+  grid
+  grid-cols-1        {/* Mobil: 1 kolonne */}
+  md:grid-cols-2     {/* Tablet: 2 kolonner */}
+  lg:grid-cols-3     {/* Desktop: 3 kolonner */}
+  gap-4
+"&gt;
+
+&lt;div className="
+  text-sm            {/* Mobil: liten tekst */}
+  md:text-base       {/* Tablet: normal */}
+  lg:text-lg         {/* Desktop: stor */}
+"&gt;
+
+&lt;div className="
+  hidden             {/* Skjult på mobil */}
+  md:block           {/* Vis på tablet+ */}
+"&gt;
+
+&lt;div className="
+  md:hidden          {/* Skjul på tablet+ (kun mobil) */}
+"&gt;</code></pre>
+
+    <h3>Hover, Focus, Active</h3>
+    <pre><code>&lt;button className="
+  bg-blue-600
+  hover:bg-blue-700      {/* Ved hover */}
+  active:bg-blue-800     {/* Ved klikk */}
+  focus:ring-2           {/* Ved fokus */}
+  focus:ring-blue-500
+  disabled:opacity-50    {/* Når disabled */}
+  disabled:cursor-not-allowed
+  transition-colors      {/* Smooth overgang */}
+"&gt;
+  Klikk meg
+&lt;/button&gt;</code></pre>
+
+    <h3>Vanlige komponent-mønstre</h3>
+    <pre><code>// Knapp
+&lt;button className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"&gt;
+  Primærknapp
+&lt;/button&gt;
+
+// Kort
+&lt;div className="bg-white rounded-xl shadow-lg p-6 border border-gray-100"&gt;
+  Kortinnhold
+&lt;/div&gt;
+
+// Input
+&lt;input className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent" /&gt;
+
+// Centered container
+&lt;div className="max-w-4xl mx-auto px-4"&gt;
+  Innhold
+&lt;/div&gt;
+
+// Sticky header
+&lt;header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b"&gt;
+  Header
+&lt;/header&gt;
+
+// Full-height layout
+&lt;div className="min-h-screen flex flex-col"&gt;
+  &lt;header&gt;...&lt;/header&gt;
+  &lt;main className="flex-1"&gt;...&lt;/main&gt;
+  &lt;footer&gt;...&lt;/footer&gt;
+&lt;/div&gt;</code></pre>
+
+    <!-- ============================================ -->
+    <!-- VANLIGE MØNSTRE -->
+    <!-- ============================================ -->
+    <h2 id="patterns">Vanlige Mønstre (Copy-Paste)</h2>
+
+    <div class="pattern-card">
+      <h4>Skjema med validering</h4>
+      <pre><code>"use client"
+
+import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+import toast from "react-hot-toast"
+
+const schema = z.object({
+  name: z.string().min(2, "Navn må være minst 2 tegn"),
+  email: z.string().email("Ugyldig e-post"),
+})
+
+type FormData = z.infer&lt;typeof schema&gt;
+
+export default function ContactForm() {
+  const [loading, setLoading] = useState(false)
+
+  const { register, handleSubmit, formState: { errors }, reset } = useForm&lt;FormData&gt;({
+    resolver: zodResolver(schema)
+  })
+
+  const onSubmit = async (data: FormData) =&gt; {
+    setLoading(true)
+    try {
+      // Kall server action eller API
+      await submitForm(data)
+      toast.success("Sendt!")
+      reset()
+    } catch {
+      toast.error("Noe gikk galt")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit(onSubmit)} className="space-y-4"&gt;
+      &lt;div&gt;
+        &lt;label className="block text-sm font-medium mb-1"&gt;Navn&lt;/label&gt;
+        &lt;input {...register("name")} className="w-full px-4 py-2 border rounded-lg" /&gt;
+        {errors.name && &lt;p className="text-red-500 text-sm mt-1"&gt;{errors.name.message}&lt;/p&gt;}
+      &lt;/div&gt;
+
+      &lt;div&gt;
+        &lt;label className="block text-sm font-medium mb-1"&gt;E-post&lt;/label&gt;
+        &lt;input {...register("email")} type="email" className="w-full px-4 py-2 border rounded-lg" /&gt;
+        {errors.email && &lt;p className="text-red-500 text-sm mt-1"&gt;{errors.email.message}&lt;/p&gt;}
+      &lt;/div&gt;
+
+      &lt;button type="submit" disabled={loading} className="w-full py-3 bg-blue-600 text-white rounded-lg disabled:opacity-50"&gt;
+        {loading ? "Sender..." : "Send"}
+      &lt;/button&gt;
+    &lt;/form&gt;
+  )
+}</code></pre>
+    </div>
+
+    <div class="pattern-card">
+      <h4>Data-henting med loading state</h4>
+      <pre><code>"use client"
+
+import { useState, useEffect } from "react"
+
+interface Product {
+  id: number
+  name: string
+  price: number
+}
+
+export default function ProductList() {
+  const [products, setProducts] = useState&lt;Product[]&gt;([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState&lt;string | null&gt;(null)
+
+  useEffect(() =&gt; {
+    async function fetchProducts() {
+      try {
+        const res = await fetch("/api/products")
+        if (!res.ok) throw new Error("Kunne ikke hente produkter")
+        const data = await res.json()
+        setProducts(data)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Ukjent feil")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProducts()
+  }, [])
+
+  if (loading) return &lt;div&gt;Laster...&lt;/div&gt;
+  if (error) return &lt;div className="text-red-500"&gt;Feil: {error}&lt;/div&gt;
+  if (products.length === 0) return &lt;div&gt;Ingen produkter funnet&lt;/div&gt;
+
+  return (
+    &lt;div className="grid grid-cols-1 md:grid-cols-3 gap-4"&gt;
+      {products.map(product =&gt; (
+        &lt;div key={product.id} className="p-4 border rounded-lg"&gt;
+          &lt;h3&gt;{product.name}&lt;/h3&gt;
+          &lt;p&gt;{product.price} kr&lt;/p&gt;
+        &lt;/div&gt;
+      ))}
+    &lt;/div&gt;
+  )
+}</code></pre>
+    </div>
+
+    <div class="pattern-card">
+      <h4>Modal/Dialog</h4>
+      <pre><code>"use client"
+
+import { useState } from "react"
+import { X } from "lucide-react"
+
+interface ModalProps {
+  isOpen: boolean
+  onClose: () =&gt; void
+  title: string
+  children: React.ReactNode
+}
+
+function Modal({ isOpen, onClose, title, children }: ModalProps) {
+  if (!isOpen) return null
+
+  return (
+    &lt;div className="fixed inset-0 z-50 flex items-center justify-center"&gt;
+      {/* Backdrop */}
+      &lt;div className="absolute inset-0 bg-black/50" onClick={onClose} /&gt;
+
+      {/* Modal */}
+      &lt;div className="relative bg-white rounded-xl shadow-xl max-w-md w-full mx-4 p-6"&gt;
+        &lt;div className="flex items-center justify-between mb-4"&gt;
+          &lt;h2 className="text-xl font-bold"&gt;{title}&lt;/h2&gt;
+          &lt;button onClick={onClose} className="p-1 hover:bg-gray-100 rounded"&gt;
+            &lt;X size={20} /&gt;
+          &lt;/button&gt;
+        &lt;/div&gt;
+        {children}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}
+
+// Bruk
+function Example() {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    &lt;&gt;
+      &lt;button onClick={() =&gt; setIsOpen(true)}&gt;Åpne modal&lt;/button&gt;
+      &lt;Modal isOpen={isOpen} onClose={() =&gt; setIsOpen(false)} title="Min modal"&gt;
+        &lt;p&gt;Innhold her&lt;/p&gt;
+      &lt;/Modal&gt;
+    &lt;/&gt;
+  )
+}</code></pre>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- NEXT.JS SPESIFIKT -->
+    <!-- ============================================ -->
+    <h2 id="nextjs">Next.js 16 Spesifikt</h2>
+
+    <h3>App Router - Mappestruktur = Ruter</h3>
+    <pre><code>src/app/
+├── page.tsx              → /
+├── om-oss/
+│   └── page.tsx          → /om-oss
+├── produkter/
+│   ├── page.tsx          → /produkter
+│   └── [id]/
+│       └── page.tsx      → /produkter/123
+├── (auth)/               → Route group (ikke i URL)
+│   ├── login/
+│   │   └── page.tsx      → /login
+│   └── register/
+│       └── page.tsx      → /register
+└── layout.tsx            → Wrapper for alle sider</code></pre>
+
+    <h3>Server Actions - Backend i frontend</h3>
+    <div class="file-path">src/actions/products.ts</div>
+    <pre><code>"use server"
+
+import supabase from "@/config/supabase-config"
+import { revalidatePath } from "next/cache"
+
+export async function createProduct(formData: FormData) {
+  const name = formData.get("name") as string
+  const price = Number(formData.get("price"))
+
+  const { error } = await supabase
+    .from("products")
+    .insert({ name, price })
+
+  if (error) {
+    return { success: false, message: error.message }
+  }
+
+  revalidatePath("/produkter")  // Oppdater cache
+  return { success: true, message: "Produkt opprettet!" }
+}</code></pre>
+
+    <h3>Bruk Server Action i skjema</h3>
+    <pre><code>// Kan brukes direkte i form action!
+import { createProduct } from "@/actions/products"
+
+export default function NewProductPage() {
+  return (
+    &lt;form action={createProduct}&gt;
+      &lt;input name="name" placeholder="Produktnavn" required /&gt;
+      &lt;input name="price" type="number" placeholder="Pris" required /&gt;
+      &lt;button type="submit"&gt;Opprett&lt;/button&gt;
+    &lt;/form&gt;
+  )
+}</code></pre>
+
+    <h3>Proxy (rutebeskyttelse) - Next.js 16</h3>
+    <div class="file-path">src/proxy.ts</div>
+    <pre><code>import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
+
+export default function proxy(request: NextRequest) {
+  const token = request.cookies.get("token")?.value
+  const path = request.nextUrl.pathname
+
+  // Beskytt admin-ruter
+  if (path.startsWith("/admin") && !token) {
+    return NextResponse.redirect(new URL("/login", request.url))
+  }
+
+  return NextResponse.next()
+}
+
+export const config = {
+  matcher: ["/admin/:path*", "/dashboard/:path*"]
+}</code></pre>
+
+    <h3>Metadata og SEO</h3>
+    <pre><code>// I layout.tsx eller page.tsx
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Min Nettside",
+  description: "Beskrivelse for søkemotorer",
+  openGraph: {
+    title: "Min Nettside",
+    description: "For deling på sosiale medier",
+    images: ["/og-image.jpg"],
+  },
+}
+
+// Dynamisk metadata
+export async function generateMetadata({ params }: { params: { id: string } }): Promise&lt;Metadata&gt; {
+  const product = await getProduct(params.id)
+  return {
+    title: product.name,
+    description: product.description,
+  }
+}</code></pre>
+
+    <!-- ============================================ -->
+    <!-- OPPSUMMERING -->
+    <!-- ============================================ -->
+    <h2>Oppsummering</h2>
+
+    <div class="success-box">
+      <strong>Huskeliste:</strong>
+      <ul>
+        <li><strong>Server Components</strong> = ingen "use client", kan være async, hent data direkte</li>
+        <li><strong>Client Components</strong> = "use client" øverst, kan bruke hooks og interaktivitet</li>
+        <li><strong>useState</strong> = lokal state som endrer seg</li>
+        <li><strong>useEffect</strong> = kjør kode ved mount eller når verdier endres</li>
+        <li><strong>Zustand</strong> = global state delt mellom komponenter</li>
+        <li><strong>Tailwind</strong> = utility-first CSS med responsive breakpoints</li>
+        <li><strong>Server Actions</strong> = backend-logikk som kan kalles fra frontend</li>
+        <li><strong>proxy.ts</strong> = rutebeskyttelse i Next.js 16</li>
+      </ul>
+    </div>
+
+    <div class="info-box">
+      <strong>Videre lesing:</strong>
+      <ul>
+        <li><a href="../guide-generell/fullstack-arkitektur.html">Fullstack Arkitektur</a> - Komplett prosjektoppsett</li>
+        <li><a href="../guide-generell/komponenter.html">Komponentbibliotek</a> - Ferdige UI-komponenter</a></li>
+        <li><a href="typescript.html">TypeScript Guide</a> - Typer og interfaces</li>
+        <li><a href="tailwind.html">Tailwind CSS</a> - Mer om styling</li>
+      </ul>
+    </div>
+
+    <div class="footer">
+      <p>
+        <a href="index.html">← Grunnleggende</a> |
+        <a href="typescript.html">TypeScript →</a> |
+        <a href="../guide-generell/fullstack-arkitektur.html">Fullstack Guide →</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SEO og Metadata - Next.js 15 Guide</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .seo-score {
+      display: flex;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .seo-item {
+      flex: 1;
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1rem;
+      text-align: center;
+    }
+    .seo-item.good { border-color: #22c55e; background: #f0fdf4; }
+    .seo-item.warning { border-color: #f59e0b; background: #fffbeb; }
+    .seo-item.bad { border-color: #ef4444; background: #fef2f2; }
+    .preview-box {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem 0;
+      max-width: 600px;
+    }
+    .preview-box .title {
+      color: #1a0dab;
+      font-size: 1.1rem;
+      margin-bottom: 0.25rem;
+    }
+    .preview-box .url {
+      color: #006621;
+      font-size: 0.85rem;
+      margin-bottom: 0.25rem;
+    }
+    .preview-box .desc {
+      color: #545454;
+      font-size: 0.9rem;
+    }
+    .og-preview {
+      background: #f0f2f5;
+      border-radius: 8px;
+      overflow: hidden;
+      max-width: 500px;
+      margin: 1rem 0;
+    }
+    .og-preview-image {
+      background: #ddd;
+      height: 260px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #666;
+    }
+    .og-preview-content {
+      padding: 1rem;
+      background: white;
+    }
+    .og-preview-content .site {
+      color: #65676b;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+    }
+    .og-preview-content .title {
+      font-weight: 600;
+      margin: 0.25rem 0;
+    }
+    .og-preview-content .desc {
+      color: #65676b;
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html">Ny Nettside</a>
+    <a href="deploy.html">Deploy</a>
+    <a href="seo.html"><strong>SEO</strong></a>
+    <a href="bilder.html">Bilder</a>
+  </nav>
+
+  <div class="container">
+    <h1>SEO og Metadata</h1>
+
+    <blockquote>
+      <p>Optimaliser nettsiden for søkemotorer. Alt fra metadata til strukturerte data og sitemap.</p>
+    </blockquote>
+
+    <!-- WHY SEO MATTERS -->
+    <h2>Hvorfor SEO er viktig</h2>
+    <div class="seo-score">
+      <div class="seo-item good">
+        <strong>Synlighet</strong>
+        <p style="font-size: 0.85rem; margin: 0;">Kunder finner deg på Google</p>
+      </div>
+      <div class="seo-item good">
+        <strong>Troverdighet</strong>
+        <p style="font-size: 0.85rem; margin: 0;">Høy ranking = tillit</p>
+      </div>
+      <div class="seo-item good">
+        <strong>Gratis trafikk</strong>
+        <p style="font-size: 0.85rem; margin: 0;">Organisk vs betalt</p>
+      </div>
+    </div>
+
+    <!-- METADATA API -->
+    <h2>Next.js Metadata API</h2>
+
+    <p>Next.js 15 har innebygd metadata-støtte. Definer i <code>layout.tsx</code> eller <code>page.tsx</code>:</p>
+
+    <h3>Global metadata (layout.tsx)</h3>
+    <pre><code>// src/app/layout.tsx
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  // Basis
+  title: {
+    default: "Firmanavn - Kort beskrivelse",
+    template: "%s | Firmanavn", // Brukes av undersider
+  },
+  description: "Kort beskrivelse av bedriften (150-160 tegn for Google)",
+
+  // Søkemotor-innstillinger
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+
+  // Open Graph (Facebook, LinkedIn)
+  openGraph: {
+    type: "website",
+    locale: "nb_NO",
+    url: "https://firmanavn.no",
+    siteName: "Firmanavn",
+    title: "Firmanavn - Kort beskrivelse",
+    description: "Beskrivelse for sosiale medier",
+    images: [
+      {
+        url: "https://firmanavn.no/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Firmanavn",
+      },
+    ],
+  },
+
+  // Twitter
+  twitter: {
+    card: "summary_large_image",
+    title: "Firmanavn",
+    description: "Beskrivelse for Twitter",
+    images: ["https://firmanavn.no/twitter-image.jpg"],
+  },
+
+  // Ikoner
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon-16x16.png",
+    apple: "/apple-touch-icon.png",
+  },
+
+  // Verifisering
+  verification: {
+    google: "din-google-verification-kode",
+  },
+}</code></pre>
+
+    <h3>Side-spesifikk metadata</h3>
+    <pre><code>// src/app/tjenester/page.tsx
+import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Våre Tjenester", // Blir "Våre Tjenester | Firmanavn"
+  description: "Se alle tjenestene vi tilbyr. Webutvikling, design og hosting.",
+  openGraph: {
+    title: "Våre Tjenester - Firmanavn",
+    description: "Se alle tjenestene vi tilbyr.",
+    images: ["/images/tjenester-og.jpg"],
+  },
+}
+
+export default function TjenesterPage() {
+  // ...
+}</code></pre>
+
+    <h3>Dynamisk metadata</h3>
+    <pre><code>// src/app/blogg/[slug]/page.tsx
+import type { Metadata } from "next"
+
+interface Props {
+  params: { slug: string }
+}
+
+export async function generateMetadata({ params }: Props): Promise&lt;Metadata&gt; {
+  // Hent data fra database
+  const post = await getPost(params.slug)
+
+  return {
+    title: post.title,
+    description: post.excerpt,
+    openGraph: {
+      title: post.title,
+      description: post.excerpt,
+      images: [post.image],
+      type: "article",
+      publishedTime: post.publishedAt,
+      authors: [post.author],
+    },
+  }
+}</code></pre>
+
+    <!-- GOOGLE PREVIEW -->
+    <h2>Slik vises det i Google</h2>
+
+    <div class="preview-box">
+      <div class="title">Firmanavn - Webutvikling og Design i Oslo</div>
+      <div class="url">https://firmanavn.no</div>
+      <div class="desc">Vi hjelper bedrifter med moderne nettsider, design og digital markedsføring. Kontakt oss for gratis konsultasjon.</div>
+    </div>
+
+    <div class="info-box">
+      <strong>Tips for gode titler:</strong>
+      <ul style="margin: 0.5rem 0;">
+        <li>Maks 60 tegn (ellers kuttes den)</li>
+        <li>Inkluder viktigste søkeord først</li>
+        <li>Vær beskrivende og unik per side</li>
+      </ul>
+    </div>
+
+    <!-- OPEN GRAPH PREVIEW -->
+    <h2>Slik vises det på sosiale medier</h2>
+
+    <div class="og-preview">
+      <div class="og-preview-image">1200 x 630 px bilde</div>
+      <div class="og-preview-content">
+        <div class="site">FIRMANAVN.NO</div>
+        <div class="title">Firmanavn - Webutvikling og Design</div>
+        <div class="desc">Vi hjelper bedrifter med moderne nettsider og digital markedsføring.</div>
+      </div>
+    </div>
+
+    <p>Lag OG-bilder:</p>
+    <pre><code>// Bildeformat og størrelse
+- Facebook/LinkedIn: 1200 x 630 px
+- Twitter: 1200 x 600 px
+- Filformat: JPG eller PNG
+- Filstørrelse: &lt; 1MB</code></pre>
+
+    <!-- SITEMAP -->
+    <h2>Sitemap</h2>
+
+    <p>Next.js 15 kan generere sitemap automatisk:</p>
+
+    <pre><code>// src/app/sitemap.ts
+import { MetadataRoute } from "next"
+
+export default function sitemap(): MetadataRoute.Sitemap {
+  const baseUrl = "https://firmanavn.no"
+
+  // Statiske sider
+  const staticPages = [
+    "",
+    "/om-oss",
+    "/tjenester",
+    "/kontakt",
+    "/personvern",
+  ].map((route) => ({
+    url: `${baseUrl}${route}`,
+    lastModified: new Date(),
+    changeFrequency: "monthly" as const,
+    priority: route === "" ? 1 : 0.8,
+  }))
+
+  // Dynamiske sider (f.eks. blogginnlegg)
+  // const posts = await getPosts()
+  // const postPages = posts.map((post) => ({
+  //   url: `${baseUrl}/blogg/${post.slug}`,
+  //   lastModified: new Date(post.updatedAt),
+  //   changeFrequency: "weekly" as const,
+  //   priority: 0.6,
+  // }))
+
+  return [...staticPages]
+}</code></pre>
+
+    <p>Sitemap blir tilgjengelig på: <code>https://firmanavn.no/sitemap.xml</code></p>
+
+    <!-- ROBOTS.TXT -->
+    <h2>robots.txt</h2>
+
+    <pre><code>// src/app/robots.ts
+import { MetadataRoute } from "next"
+
+export default function robots(): MetadataRoute.Robots {
+  return {
+    rules: {
+      userAgent: "*",
+      allow: "/",
+      disallow: ["/admin/", "/api/"],
+    },
+    sitemap: "https://firmanavn.no/sitemap.xml",
+  }
+}</code></pre>
+
+    <!-- STRUCTURED DATA -->
+    <h2>Strukturerte data (Schema.org)</h2>
+
+    <p>Hjelper Google forstå innholdet bedre og kan gi "rich snippets":</p>
+
+    <h3>LocalBusiness (for lokale bedrifter)</h3>
+    <pre><code>// src/app/layout.tsx
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name: "Firmanavn AS",
+    description: "Webutvikling og digital markedsføring",
+    url: "https://firmanavn.no",
+    telephone: "+47 123 45 678",
+    email: "post@firmanavn.no",
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: "Storgata 1",
+      addressLocality: "Oslo",
+      postalCode: "0001",
+      addressCountry: "NO",
+    },
+    geo: {
+      "@type": "GeoCoordinates",
+      latitude: 59.9139,
+      longitude: 10.7522,
+    },
+    openingHoursSpecification: [
+      {
+        "@type": "OpeningHoursSpecification",
+        dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        opens: "09:00",
+        closes: "17:00",
+      },
+    ],
+    priceRange: "$$",
+  }
+
+  return (
+    &lt;html lang="no"&gt;
+      &lt;head&gt;
+        &lt;script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        /&gt;
+      &lt;/head&gt;
+      &lt;body&gt;{children}&lt;/body&gt;
+    &lt;/html&gt;
+  )
+}</code></pre>
+
+    <h3>Restaurant</h3>
+    <pre><code>const restaurantSchema = {
+  "@context": "https://schema.org",
+  "@type": "Restaurant",
+  name: "Restaurant Navnet",
+  servesCuisine: "Italiensk",
+  priceRange: "$$",
+  menu: "https://restaurant.no/meny",
+  acceptsReservations: "True",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "Matgata 5",
+    addressLocality: "Oslo",
+    postalCode: "0001",
+  },
+}</code></pre>
+
+    <h3>Produkt (for nettbutikk)</h3>
+    <pre><code>const productSchema = {
+  "@context": "https://schema.org",
+  "@type": "Product",
+  name: "Produktnavn",
+  description: "Produktbeskrivelse",
+  image: "https://butikk.no/produkt.jpg",
+  brand: {
+    "@type": "Brand",
+    name: "Merkenavn",
+  },
+  offers: {
+    "@type": "Offer",
+    price: "299.00",
+    priceCurrency: "NOK",
+    availability: "https://schema.org/InStock",
+    url: "https://butikk.no/produkt",
+  },
+  aggregateRating: {
+    "@type": "AggregateRating",
+    ratingValue: "4.5",
+    reviewCount: "89",
+  },
+}</code></pre>
+
+    <!-- FAVICON -->
+    <h2>Favicon og ikoner</h2>
+
+    <p>Legg disse filene i <code>/public</code>:</p>
+
+    <pre><code>public/
+├── favicon.ico           (32x32)
+├── favicon-16x16.png     (16x16)
+├── favicon-32x32.png     (32x32)
+├── apple-touch-icon.png  (180x180)
+├── android-chrome-192x192.png
+├── android-chrome-512x512.png
+└── site.webmanifest</code></pre>
+
+    <p>Bruk <a href="https://realfavicongenerator.net" target="_blank">realfavicongenerator.net</a> for å lage alle størrelser.</p>
+
+    <h3>site.webmanifest</h3>
+    <pre><code>{
+  "name": "Firmanavn",
+  "short_name": "Firma",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "theme_color": "#3b82f6",
+  "background_color": "#ffffff",
+  "display": "standalone"
+}</code></pre>
+
+    <!-- SEO CHECKLIST -->
+    <h2>SEO-sjekkliste</h2>
+
+    <div class="checklist" style="background: #f8fafc; border-radius: 12px; padding: 1.5rem;">
+      <div style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0;">
+        <input type="checkbox">
+        <div>
+          <strong>Unik title per side</strong>
+          <p style="margin: 0; color: #64748b; font-size: 0.9rem;">Maks 60 tegn, inkluder hovedsøkeord</p>
+        </div>
+      </div>
+      <div style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0;">
+        <input type="checkbox">
+        <div>
+          <strong>Meta description per side</strong>
+          <p style="margin: 0; color: #64748b; font-size: 0.9rem;">150-160 tegn, handlingsorientert</p>
+        </div>
+      </div>
+      <div style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0;">
+        <input type="checkbox">
+        <div>
+          <strong>Open Graph-bilder</strong>
+          <p style="margin: 0; color: #64748b; font-size: 0.9rem;">1200x630px for deling på sosiale medier</p>
+        </div>
+      </div>
+      <div style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0;">
+        <input type="checkbox">
+        <div>
+          <strong>Sitemap generert</strong>
+          <p style="margin: 0; color: #64748b; font-size: 0.9rem;">Automatisk via sitemap.ts</p>
+        </div>
+      </div>
+      <div style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0;">
+        <input type="checkbox">
+        <div>
+          <strong>robots.txt konfigurert</strong>
+          <p style="margin: 0; color: #64748b; font-size: 0.9rem;">Blokker /admin og /api</p>
+        </div>
+      </div>
+      <div style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0;">
+        <input type="checkbox">
+        <div>
+          <strong>Strukturerte data</strong>
+          <p style="margin: 0; color: #64748b; font-size: 0.9rem;">LocalBusiness, Product, etc.</p>
+        </div>
+      </div>
+      <div style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0;">
+        <input type="checkbox">
+        <div>
+          <strong>Favicon og app-ikoner</strong>
+          <p style="margin: 0; color: #64748b; font-size: 0.9rem;">Alle størrelser generert</p>
+        </div>
+      </div>
+      <div style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.5rem 0;">
+        <input type="checkbox">
+        <div>
+          <strong>Google Search Console</strong>
+          <p style="margin: 0; color: #64748b; font-size: 0.9rem;">Verifiser domenet og send inn sitemap</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- GOOGLE SEARCH CONSOLE -->
+    <h2>Google Search Console</h2>
+
+    <ol>
+      <li>Gå til <a href="https://search.google.com/search-console" target="_blank">search.google.com/search-console</a></li>
+      <li>Legg til property (domenet ditt)</li>
+      <li>Verifiser med DNS TXT-record eller HTML-tag</li>
+      <li>Send inn sitemap: <code>https://firmanavn.no/sitemap.xml</code></li>
+      <li>Overvåk indeksering og feil</li>
+    </ol>
+
+    <!-- PERFORMANCE -->
+    <h2>Ytelse påvirker SEO</h2>
+
+    <p>Google bruker Core Web Vitals som ranking-faktor:</p>
+
+    <div class="seo-score">
+      <div class="seo-item">
+        <strong>LCP</strong>
+        <p style="font-size: 0.85rem; margin: 0;">Largest Contentful Paint<br>&lt; 2.5s</p>
+      </div>
+      <div class="seo-item">
+        <strong>FID</strong>
+        <p style="font-size: 0.85rem; margin: 0;">First Input Delay<br>&lt; 100ms</p>
+      </div>
+      <div class="seo-item">
+        <strong>CLS</strong>
+        <p style="font-size: 0.85rem; margin: 0;">Cumulative Layout Shift<br>&lt; 0.1</p>
+      </div>
+    </div>
+
+    <p>Test ytelse med:</p>
+    <ul>
+      <li><a href="https://pagespeed.web.dev" target="_blank">PageSpeed Insights</a></li>
+      <li><a href="https://web.dev/measure" target="_blank">web.dev/measure</a></li>
+      <li>Chrome DevTools → Lighthouse</li>
+    </ul>
+
+    <div class="footer">
+      <p>
+        <a href="deploy.html">← Deploy</a> |
+        <a href="bilder.html">Bilder →</a>
+      </p>
+      <p style="margin-top: 1rem; color: #64748b; font-size: 0.85rem;">
+        Utviklet av <a href="https://obligarconsulting.no">Obligar Consulting</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

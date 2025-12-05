@@ -1,0 +1,2577 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bransjemaler Ekstra - Next.js 15 Guide</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    @media (max-width: 1024px) {
+      .template-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 640px) {
+      .template-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .template-card {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .template-card:hover {
+      border-color: #3b82f6;
+      transform: translateY(-4px);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+    .template-card .icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+    .template-card h3 {
+      margin: 0 0 0.5rem;
+    }
+    .feature-list {
+      text-align: left;
+      font-size: 0.9rem;
+      color: #64748b;
+    }
+    .feature-list li {
+      margin: 0.25rem 0;
+    }
+    .file-tree {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 1.25rem 1.5rem;
+      border-radius: 12px;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.9rem;
+      margin: 1.5rem 0;
+      line-height: 1.8;
+      white-space: pre;
+      overflow-x: auto;
+      border: 1px solid #334155;
+    }
+    .file-tree .folder { color: #60a5fa; font-weight: 600; }
+    .file-tree .file { color: #a5b4fc; }
+    .file-tree .comment { color: #94a3b8; font-style: italic; }
+    .checklist {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+    }
+    .checklist h4 {
+      margin-top: 0;
+    }
+    .checklist li {
+      margin: 0.5rem 0;
+    }
+    .highlight-box {
+      background: #eff6ff;
+      border-left: 4px solid #3b82f6;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html">Ny Nettside</a>
+    <a href="booking.html">Booking</a>
+    <a href="maler.html">Bransjemaler</a>
+    <a href="maler-ekstra.html"><strong>Maler Ekstra</strong></a>
+  </nav>
+
+  <div class="container">
+    <h1>Bransjemaler - Ekstra</h1>
+
+    <blockquote>
+      <p>Ferdiglagde maler for tannlege, advokat, frisør og eiendomsmegler. Komplett med database-skjema, komponenter og sjekklister.</p>
+    </blockquote>
+
+    <!-- TEMPLATE OVERVIEW -->
+    <div class="template-grid">
+      <div class="template-card">
+        <div class="icon">🦷</div>
+        <h3>Tannlege</h3>
+        <ul class="feature-list">
+          <li>Behandlinger</li>
+          <li>Timebestilling</li>
+          <li>Tannlegeteam</li>
+          <li>Prisliste</li>
+        </ul>
+      </div>
+      <div class="template-card">
+        <div class="icon">⚖️</div>
+        <h3>Advokat</h3>
+        <ul class="feature-list">
+          <li>Fagområder</li>
+          <li>Advokater</li>
+          <li>Sakstyper</li>
+          <li>Kontaktskjema</li>
+        </ul>
+      </div>
+      <div class="template-card">
+        <div class="icon">💇</div>
+        <h3>Frisør/Salong</h3>
+        <ul class="feature-list">
+          <li>Behandlinger</li>
+          <li>Online booking</li>
+          <li>Stylister</li>
+          <li>Priser & varighet</li>
+        </ul>
+      </div>
+      <div class="template-card">
+        <div class="icon">🏘️</div>
+        <h3>Eiendomsmegler</h3>
+        <ul class="feature-list">
+          <li>Boligliste</li>
+          <li>Filtrering</li>
+          <li>Visning</li>
+          <li>Meglere</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- TANNLEGE -->
+    <h2 id="tannlege">🦷 Tannlege-mal</h2>
+
+    <div class="highlight-box">
+      <strong>Viktige funksjoner:</strong> Timebestilling med valgfri tannlege, behandlingsoversikt med priser, team-presentasjon, og kontakt/akuttinformasjon.
+    </div>
+
+    <div class="file-tree">
+<span class="folder">src/app/</span>
+├── <span class="file">page.tsx</span>                    <span class="comment"># Forside med hero, akuttinfo, tjenester</span>
+├── <span class="folder">behandlinger/</span>
+│   ├── <span class="file">page.tsx</span>                <span class="comment"># Oversikt over alle behandlinger</span>
+│   └── <span class="folder">[slug]/</span>
+│       └── <span class="file">page.tsx</span>            <span class="comment"># Detaljer om én behandling</span>
+├── <span class="folder">timebestilling/</span>
+│   └── <span class="file">page.tsx</span>                <span class="comment"># Book time med valg av tannlege</span>
+├── <span class="folder">om-oss/</span>
+│   └── <span class="file">page.tsx</span>                <span class="comment"># Klinikken, teamet, fasiliteter</span>
+├── <span class="folder">priser/</span>
+│   └── <span class="file">page.tsx</span>                <span class="comment"># Prisliste for behandlinger</span>
+└── <span class="folder">kontakt/</span>
+    └── <span class="file">page.tsx</span>                <span class="comment"># Åpningstider, kart, kontaktinfo</span>
+    </div>
+
+    <h3>Database-skjema</h3>
+    <pre><code>-- Tannlege-spesifikt skjema
+
+-- Behandlingskategorier (f.eks. "Forebygging", "Tannbehandlinger", "Kosmetisk")
+CREATE TABLE treatment_categories (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  description TEXT,
+  icon TEXT, -- emoji eller ikon-navn
+  sort_order INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Behandlinger
+CREATE TABLE treatments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  category_id UUID REFERENCES treatment_categories(id) ON DELETE SET NULL,
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  description TEXT,
+  duration_minutes INTEGER DEFAULT 30, -- Estimert varighet
+  price_from INTEGER, -- Startpris i øre (kan være "fra 500 kr")
+  price_to INTEGER,   -- Sluttpriser i øre (intervall)
+  image_url TEXT,
+  is_popular BOOLEAN DEFAULT false, -- Fremhev populære behandlinger
+  is_active BOOLEAN DEFAULT true,
+  sort_order INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Tannleger/Ansatte
+CREATE TABLE dentists (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  title TEXT NOT NULL, -- "Tannlege", "Spesialist i kjeveortopedi", "Tannpleier"
+  bio TEXT,
+  qualifications TEXT[], -- ["Autorisert tannlege", "Spesialist i endodonti"]
+  specialties TEXT[],    -- ["Rotfylling", "Kosmetisk tannpleie"]
+  avatar_url TEXT,
+  email TEXT,
+  phone TEXT,
+  is_active BOOLEAN DEFAULT true,
+  accepts_new_patients BOOLEAN DEFAULT true,
+  sort_order INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Timebestillinger
+CREATE TABLE appointments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  dentist_id UUID REFERENCES dentists(id),
+  treatment_id UUID REFERENCES treatments(id),
+  patient_name TEXT NOT NULL,
+  patient_email TEXT NOT NULL,
+  patient_phone TEXT NOT NULL,
+  patient_birth_date DATE, -- For journalsystem
+  date DATE NOT NULL,
+  time TIME NOT NULL,
+  duration_minutes INTEGER DEFAULT 30,
+  notes TEXT, -- Pasientens kommentarer
+  status TEXT DEFAULT 'pending', -- pending, confirmed, completed, cancelled, no_show
+  is_first_visit BOOLEAN DEFAULT false,
+  reminder_sent BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Åpningstider for klinikken
+CREATE TABLE clinic_hours (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  day_of_week INTEGER NOT NULL, -- 0=søndag, 1=mandag, osv.
+  open_time TIME,
+  close_time TIME,
+  is_closed BOOLEAN DEFAULT false, -- For å markere stengt dag
+  notes TEXT -- F.eks. "Kun akutt etter kl 16:00"
+);
+
+-- Prisliste (hvis du vil ha mer detaljert oversikt enn i treatments)
+CREATE TABLE price_list (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  category TEXT NOT NULL,
+  item_name TEXT NOT NULL,
+  price INTEGER NOT NULL, -- i øre
+  duration_minutes INTEGER,
+  description TEXT,
+  sort_order INTEGER DEFAULT 0
+);
+
+-- Indekser for ytelse
+CREATE INDEX idx_treatments_category ON treatments(category_id);
+CREATE INDEX idx_treatments_active ON treatments(is_active);
+CREATE INDEX idx_appointments_date ON appointments(date);
+CREATE INDEX idx_appointments_dentist ON appointments(dentist_id);
+CREATE INDEX idx_appointments_status ON appointments(status);
+
+-- Eksempeldata for åpningstider
+INSERT INTO clinic_hours (day_of_week, open_time, close_time) VALUES
+(1, '08:00', '17:00'), -- Mandag
+(2, '08:00', '17:00'), -- Tirsdag
+(3, '08:00', '17:00'), -- Onsdag
+(4, '08:00', '19:00'), -- Torsdag (kveldstimer)
+(5, '08:00', '15:00'), -- Fredag
+(6, NULL, NULL, true), -- Lørdag stengt
+(0, NULL, NULL, true); -- Søndag stengt
+
+-- Eksempeldata for behandlingskategorier
+INSERT INTO treatment_categories (name, description, icon, sort_order) VALUES
+('Forebygging', 'Regelmessig kontroll og tannpleie', '🛡️', 1),
+('Tannbehandlinger', 'Plomber, rotfyllinger og reparasjoner', '🦷', 2),
+('Kosmetisk tannpleie', 'Tannbleking og estetiske behandlinger', '✨', 3),
+('Kjeveortopedi', 'Tannregulering og kjevebehandling', '🦷', 4);
+
+-- Eksempeldata for behandlinger
+INSERT INTO treatments (category_id, name, slug, description, duration_minutes, price_from, price_to, is_popular) VALUES
+(
+  (SELECT id FROM treatment_categories WHERE name = 'Forebygging'),
+  'Tannlegetime',
+  'tannlegetime',
+  'Grundig undersøkelse av tenner og tannkjøtt. Inkluderer røntgen ved behov.',
+  45,
+  80000,  -- 800 kr
+  120000, -- 1200 kr
+  true
+),
+(
+  (SELECT id FROM treatment_categories WHERE name = 'Kosmetisk tannpleie'),
+  'Tannbleking',
+  'tannbleking',
+  'Profesjonell tannbleking for et strålende smil.',
+  60,
+  250000,  -- 2500 kr
+  400000,  -- 4000 kr
+  true
+);</code></pre>
+
+    <h3>Behandlingsoversikt-side</h3>
+    <pre><code>// src/app/behandlinger/page.tsx
+import supabase from "@/config/supabase-config"
+import Link from "next/link"
+import Image from "next/image"
+
+interface Treatment {
+  id: string
+  name: string
+  slug: string
+  description: string
+  duration_minutes: number
+  price_from: number
+  price_to: number | null
+  image_url: string | null
+  is_popular: boolean
+}
+
+interface Category {
+  id: string
+  name: string
+  description: string
+  icon: string
+  treatments: Treatment[]
+}
+
+export default async function BehandlingerPage() {
+  // Hent alle kategorier med tilhørende behandlinger
+  const { data: categories } = await supabase
+    .from("treatment_categories")
+    .select(`
+      *,
+      treatments(*)
+    `)
+    .eq("treatments.is_active", true)
+    .order("sort_order")
+
+  return (
+    &lt;div className="max-w-6xl mx-auto py-12 px-4"&gt;
+      {/* Header */}
+      &lt;div className="text-center mb-12"&gt;
+        &lt;h1 className="text-4xl font-bold mb-4"&gt;Våre Behandlinger&lt;/h1&gt;
+        &lt;p className="text-lg text-gray-600 max-w-2xl mx-auto"&gt;
+          Vi tilbyr et bredt spekter av tannbehandlinger for hele familien.
+          Alle priser er veiledende – kontakt oss for en nøyaktig prisberegning.
+        &lt;/p&gt;
+      &lt;/div&gt;
+
+      {/* Behandlinger gruppert etter kategori */}
+      {categories?.map((category: Category) => (
+        &lt;section key={category.id} className="mb-16"&gt;
+          &lt;div className="flex items-center gap-3 mb-6"&gt;
+            &lt;span className="text-4xl"&gt;{category.icon}&lt;/span&gt;
+            &lt;div&gt;
+              &lt;h2 className="text-3xl font-bold"&gt;{category.name}&lt;/h2&gt;
+              &lt;p className="text-gray-600"&gt;{category.description}&lt;/p&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+
+          &lt;div className="grid md:grid-cols-2 gap-6"&gt;
+            {category.treatments?.map((treatment: Treatment) => (
+              &lt;div
+                key={treatment.id}
+                className="bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow overflow-hidden"
+              &gt;
+                {treatment.image_url && (
+                  &lt;div className="relative h-48 w-full"&gt;
+                    &lt;Image
+                      src={treatment.image_url}
+                      alt={treatment.name}
+                      fill
+                      className="object-cover"
+                    /&gt;
+                    {treatment.is_popular && (
+                      &lt;div className="absolute top-3 right-3 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium"&gt;
+                        Populær
+                      &lt;/div&gt;
+                    )}
+                  &lt;/div&gt;
+                )}
+
+                &lt;div className="p-6"&gt;
+                  &lt;h3 className="text-xl font-bold mb-2"&gt;{treatment.name}&lt;/h3&gt;
+                  &lt;p className="text-gray-600 mb-4"&gt;{treatment.description}&lt;/p&gt;
+
+                  &lt;div className="flex items-center justify-between text-sm text-gray-500 mb-4"&gt;
+                    &lt;span&gt;⏱️ Ca. {treatment.duration_minutes} min&lt;/span&gt;
+                    &lt;span className="font-semibold text-gray-900"&gt;
+                      {treatment.price_to ? (
+                        `${(treatment.price_from / 100).toFixed(0)} - ${(treatment.price_to / 100).toFixed(0)} kr`
+                      ) : (
+                        `Fra ${(treatment.price_from / 100).toFixed(0)} kr`
+                      )}
+                    &lt;/span&gt;
+                  &lt;/div&gt;
+
+                  &lt;div className="flex gap-3"&gt;
+                    &lt;Link
+                      href={`/behandlinger/${treatment.slug}`}
+                      className="flex-1 text-center px-4 py-2 border border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+                    &gt;
+                      Les mer
+                    &lt;/Link&gt;
+                    &lt;Link
+                      href="/timebestilling"
+                      className="flex-1 text-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                    &gt;
+                      Book time
+                    &lt;/Link&gt;
+                  &lt;/div&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            ))}
+          &lt;/div&gt;
+        &lt;/section&gt;
+      ))}
+
+      {/* CTA-seksjon */}
+      &lt;div className="mt-16 bg-blue-50 rounded-2xl p-8 text-center"&gt;
+        &lt;h2 className="text-2xl font-bold mb-3"&gt;Usikker på hvilken behandling du trenger?&lt;/h2&gt;
+        &lt;p className="text-gray-600 mb-6"&gt;
+          Kontakt oss for en uforpliktende konsultasjon. Vi hjelper deg gjerne!
+        &lt;/p&gt;
+        &lt;Link
+          href="/kontakt"
+          className="inline-block px-8 py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+        &gt;
+          Kontakt oss
+        &lt;/Link&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h3>Timebestilling-komponent</h3>
+    <pre><code>// src/app/timebestilling/page.tsx
+import supabase from "@/config/supabase-config"
+import AppointmentForm from "@/components/functional/appointment-form"
+
+export default async function TimebestillingPage() {
+  // Hent aktive tannleger og behandlinger
+  const { data: dentists } = await supabase
+    .from("dentists")
+    .select("*")
+    .eq("is_active", true)
+    .eq("accepts_new_patients", true)
+    .order("sort_order")
+
+  const { data: treatments } = await supabase
+    .from("treatments")
+    .select("id, name, duration_minutes")
+    .eq("is_active", true)
+    .order("name")
+
+  return (
+    &lt;div className="max-w-3xl mx-auto py-12 px-4"&gt;
+      &lt;h1 className="text-4xl font-bold text-center mb-4"&gt;Bestill Time&lt;/h1&gt;
+      &lt;p className="text-center text-gray-600 mb-8"&gt;
+        Fyll ut skjemaet nedenfor så kontakter vi deg for å bekrefte timeavtalen.
+      &lt;/p&gt;
+
+      &lt;div className="bg-blue-50 border-l-4 border-blue-600 p-4 mb-8"&gt;
+        &lt;h3 className="font-semibold mb-2"&gt;⚕️ Akutt tannlegetime&lt;/h3&gt;
+        &lt;p className="text-sm text-gray-700"&gt;
+          Ved akutte tannplager, ring oss direkte på{" "}
+          &lt;a href="tel:+4712345678" className="text-blue-600 font-medium"&gt;
+            12 34 56 78
+          &lt;/a&gt;
+        &lt;/p&gt;
+      &lt;/div&gt;
+
+      {/* Timebestillingsskjema */}
+      &lt;AppointmentForm dentists={dentists || []} treatments={treatments || []} /&gt;
+    &lt;/div&gt;
+  )
+}
+
+// src/components/functional/appointment-form.tsx
+"use client"
+
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+
+interface Dentist {
+  id: string
+  name: string
+  title: string
+}
+
+interface Treatment {
+  id: string
+  name: string
+  duration_minutes: number
+}
+
+interface AppointmentFormProps {
+  dentists: Dentist[]
+  treatments: Treatment[]
+}
+
+export default function AppointmentForm({ dentists, treatments }: AppointmentFormProps) {
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
+  const [formData, setFormData] = useState({
+    dentist_id: "",
+    treatment_id: "",
+    patient_name: "",
+    patient_email: "",
+    patient_phone: "",
+    date: "",
+    time: "",
+    is_first_visit: false,
+    notes: "",
+  })
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+
+    try {
+      // Hent varighet fra valgt behandling
+      const selectedTreatment = treatments.find((t) => t.id === formData.treatment_id)
+      const duration = selectedTreatment?.duration_minutes || 30
+
+      const response = await fetch("/api/appointments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          duration_minutes: duration,
+        }),
+      })
+
+      if (response.ok) {
+        alert("Timebestilling mottatt! Vi kontakter deg snart for bekreftelse.")
+        router.push("/")
+      } else {
+        alert("Noe gikk galt. Vennligst prøv igjen.")
+      }
+    } catch (error) {
+      console.error("Feil ved bestilling:", error)
+      alert("Noe gikk galt. Vennligst prøv igjen.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-8 space-y-6"&gt;
+      {/* Velg behandling */}
+      &lt;div&gt;
+        &lt;label className="block font-medium mb-2"&gt;
+          Ønsket behandling &lt;span className="text-red-500"&gt;*&lt;/span&gt;
+        &lt;/label&gt;
+        &lt;select
+          required
+          value={formData.treatment_id}
+          onChange={(e) => setFormData({ ...formData, treatment_id: e.target.value })}
+          className="w-full p-3 border rounded-lg"
+        &gt;
+          &lt;option value=""&gt;Velg behandling&lt;/option&gt;
+          {treatments.map((treatment) => (
+            &lt;option key={treatment.id} value={treatment.id}&gt;
+              {treatment.name} (ca. {treatment.duration_minutes} min)
+            &lt;/option&gt;
+          ))}
+        &lt;/select&gt;
+      &lt;/div&gt;
+
+      {/* Velg tannlege */}
+      &lt;div&gt;
+        &lt;label className="block font-medium mb-2"&gt;Ønsket tannlege (valgfritt)&lt;/label&gt;
+        &lt;select
+          value={formData.dentist_id}
+          onChange={(e) => setFormData({ ...formData, dentist_id: e.target.value })}
+          className="w-full p-3 border rounded-lg"
+        &gt;
+          &lt;option value=""&gt;Ingen preferanse&lt;/option&gt;
+          {dentists.map((dentist) => (
+            &lt;option key={dentist.id} value={dentist.id}&gt;
+              {dentist.name} - {dentist.title}
+            &lt;/option&gt;
+          ))}
+        &lt;/select&gt;
+      &lt;/div&gt;
+
+      {/* Personalia */}
+      &lt;div className="grid md:grid-cols-2 gap-4"&gt;
+        &lt;div&gt;
+          &lt;label className="block font-medium mb-2"&gt;
+            Fullt navn &lt;span className="text-red-500"&gt;*&lt;/span&gt;
+          &lt;/label&gt;
+          &lt;input
+            type="text"
+            required
+            value={formData.patient_name}
+            onChange={(e) => setFormData({ ...formData, patient_name: e.target.value })}
+            className="w-full p-3 border rounded-lg"
+          /&gt;
+        &lt;/div&gt;
+        &lt;div&gt;
+          &lt;label className="block font-medium mb-2"&gt;
+            Telefon &lt;span className="text-red-500"&gt;*&lt;/span&gt;
+          &lt;/label&gt;
+          &lt;input
+            type="tel"
+            required
+            value={formData.patient_phone}
+            onChange={(e) => setFormData({ ...formData, patient_phone: e.target.value })}
+            className="w-full p-3 border rounded-lg"
+          /&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;div&gt;
+        &lt;label className="block font-medium mb-2"&gt;
+          E-post &lt;span className="text-red-500"&gt;*&lt;/span&gt;
+        &lt;/label&gt;
+        &lt;input
+          type="email"
+          required
+          value={formData.patient_email}
+          onChange={(e) => setFormData({ ...formData, patient_email: e.target.value })}
+          className="w-full p-3 border rounded-lg"
+        /&gt;
+      &lt;/div&gt;
+
+      {/* Dato og tid */}
+      &lt;div className="grid md:grid-cols-2 gap-4"&gt;
+        &lt;div&gt;
+          &lt;label className="block font-medium mb-2"&gt;
+            Ønsket dato &lt;span className="text-red-500"&gt;*&lt;/span&gt;
+          &lt;/label&gt;
+          &lt;input
+            type="date"
+            required
+            min={new Date().toISOString().split("T")[0]}
+            value={formData.date}
+            onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+            className="w-full p-3 border rounded-lg"
+          /&gt;
+        &lt;/div&gt;
+        &lt;div&gt;
+          &lt;label className="block font-medium mb-2"&gt;
+            Ønsket tid &lt;span className="text-red-500"&gt;*&lt;/span&gt;
+          &lt;/label&gt;
+          &lt;input
+            type="time"
+            required
+            value={formData.time}
+            onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+            className="w-full p-3 border rounded-lg"
+          /&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      {/* Checkbox for førstegangsbesøk */}
+      &lt;div className="flex items-center gap-2"&gt;
+        &lt;input
+          type="checkbox"
+          id="first-visit"
+          checked={formData.is_first_visit}
+          onChange={(e) => setFormData({ ...formData, is_first_visit: e.target.checked })}
+          className="w-4 h-4"
+        /&gt;
+        &lt;label htmlFor="first-visit" className="text-sm"&gt;
+          Dette er mitt første besøk hos denne tannlegen
+        &lt;/label&gt;
+      &lt;/div&gt;
+
+      {/* Tilleggskommentarer */}
+      &lt;div&gt;
+        &lt;label className="block font-medium mb-2"&gt;Kommentarer/spørsmål (valgfritt)&lt;/label&gt;
+        &lt;textarea
+          rows={4}
+          value={formData.notes}
+          onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+          className="w-full p-3 border rounded-lg"
+          placeholder="F.eks. tannpine, ønsker tannbleking, o.l."
+        /&gt;
+      &lt;/div&gt;
+
+      {/* Submit-knapp */}
+      &lt;button
+        type="submit"
+        disabled={isLoading}
+        className="w-full py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      &gt;
+        {isLoading ? "Sender..." : "Send timeforespørsel"}
+      &lt;/button&gt;
+
+      &lt;p className="text-sm text-gray-500 text-center"&gt;
+        Vi kontakter deg innen 24 timer for å bekrefte timeavtalen.
+      &lt;/p&gt;
+    &lt;/form&gt;
+  )
+}</code></pre>
+
+    <div class="checklist">
+      <h4>✅ Sjekkliste: Tannlege</h4>
+      <ul>
+        <li>☐ Behandlingsoversikt med kategorier og priser</li>
+        <li>☐ Timebestilling med valg av tannlege og behandling</li>
+        <li>☐ Team-presentasjon med bilder og kvalifikasjoner</li>
+        <li>☐ Prisliste (kan være del av behandlinger)</li>
+        <li>☐ Åpningstider og kontaktinfo</li>
+        <li>☐ Akuttinformasjon synlig på alle sider</li>
+        <li>☐ Google Maps med klinikklokasjon</li>
+        <li>☐ E-post bekreftelse ved timebestilling</li>
+        <li>☐ Admin-panel for å se og administrere timer</li>
+        <li>☐ SEO: LocalBusiness + Dentist schema markup</li>
+      </ul>
+    </div>
+
+    <!-- ADVOKAT -->
+    <h2 id="advokat">⚖️ Advokat-mal</h2>
+
+    <div class="highlight-box">
+      <strong>Viktige funksjoner:</strong> Fagområder med dybdeinformasjon, advokat-profiler, kontaktskjema med sakstype, og sikker kommunikasjon.
+    </div>
+
+    <div class="file-tree">
+<span class="folder">src/app/</span>
+├── <span class="file">page.tsx</span>                    <span class="comment"># Forside med hero, tillit, fagområder</span>
+├── <span class="folder">fagomrader/</span>
+│   ├── <span class="file">page.tsx</span>                <span class="comment"># Oversikt over fagområder</span>
+│   └── <span class="folder">[slug]/</span>
+│       └── <span class="file">page.tsx</span>            <span class="comment"># Detaljer om fagområde</span>
+├── <span class="folder">advokater/</span>
+│   ├── <span class="file">page.tsx</span>                <span class="comment"># Alle advokater</span>
+│   └── <span class="folder">[slug]/</span>
+│       └── <span class="file">page.tsx</span>            <span class="comment"># Advokatprofil</span>
+├── <span class="folder">blogg/</span>
+│   ├── <span class="file">page.tsx</span>                <span class="comment"># Juridiske artikler (SEO)</span>
+│   └── <span class="folder">[slug]/</span>
+│       └── <span class="file">page.tsx</span>            <span class="comment"># Enkeltartikkel</span>
+├── <span class="folder">om-oss/</span>
+│   └── <span class="file">page.tsx</span>                <span class="comment"># Historie, verdier, team</span>
+└── <span class="folder">kontakt/</span>
+    └── <span class="file">page.tsx</span>                <span class="comment"># Kontakt med sakstype</span>
+    </div>
+
+    <h3>Database-skjema</h3>
+    <pre><code>-- Advokat-spesifikt skjema
+
+-- Fagområder (f.eks. "Arverett", "Familierett", "Eiendomsrett")
+CREATE TABLE practice_areas (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  description TEXT,
+  long_description TEXT, -- Utdypende info for dedikert side
+  icon TEXT, -- emoji eller ikon
+  image_url TEXT,
+  is_featured BOOLEAN DEFAULT false, -- Fremhev viktigste områder
+  sort_order INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Advokater
+CREATE TABLE lawyers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  title TEXT, -- "Partner", "Senioradvokat", "Advokatfullmektig"
+  bio TEXT,
+  education TEXT[], -- ["Cand.jur fra UiO (2010)", "Advokat 2012"]
+  specializations TEXT[], -- Referanser til practice_areas.name
+  avatar_url TEXT,
+  email TEXT,
+  phone TEXT,
+  linkedin_url TEXT,
+  is_partner BOOLEAN DEFAULT false,
+  is_active BOOLEAN DEFAULT true,
+  accepts_new_clients BOOLEAN DEFAULT true,
+  sort_order INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Kobling mellom advokater og fagområder (mange-til-mange)
+CREATE TABLE lawyer_practice_areas (
+  lawyer_id UUID REFERENCES lawyers(id) ON DELETE CASCADE,
+  practice_area_id UUID REFERENCES practice_areas(id) ON DELETE CASCADE,
+  PRIMARY KEY (lawyer_id, practice_area_id)
+);
+
+-- Henvendelser fra kontaktskjema
+CREATE TABLE inquiries (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  practice_area_id UUID REFERENCES practice_areas(id) ON DELETE SET NULL,
+  preferred_lawyer_id UUID REFERENCES lawyers(id) ON DELETE SET NULL,
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  company TEXT, -- Valgfritt, for bedriftskunder
+  case_type TEXT NOT NULL, -- "Konsultasjon", "Representasjon", "Juridisk rådgivning"
+  message TEXT NOT NULL,
+  urgency TEXT DEFAULT 'normal', -- low, normal, high
+  status TEXT DEFAULT 'new', -- new, contacted, in_progress, closed
+  assigned_to UUID REFERENCES lawyers(id), -- Hvem som skal følge opp
+  notes TEXT, -- Interne notater
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Bloggartikler / Juridiske artikler (for SEO og ekspertise)
+CREATE TABLE blog_posts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  excerpt TEXT,
+  content TEXT NOT NULL,
+  author_id UUID REFERENCES lawyers(id),
+  practice_area_id UUID REFERENCES practice_areas(id),
+  image_url TEXT,
+  is_published BOOLEAN DEFAULT false,
+  published_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Indekser
+CREATE INDEX idx_lawyers_active ON lawyers(is_active);
+CREATE INDEX idx_inquiries_status ON inquiries(status);
+CREATE INDEX idx_inquiries_created ON inquiries(created_at);
+CREATE INDEX idx_blog_published ON blog_posts(is_published);
+
+-- Eksempeldata for fagområder
+INSERT INTO practice_areas (name, slug, description, icon, is_featured, sort_order) VALUES
+('Arverett', 'arverett', 'Bistand ved arveoppgjør, testament, uskifte og arveavgift', '📜', true, 1),
+('Familierett', 'familierett', 'Skilsmisse, samlivsbrudd, barnefordeling og foreldreansvar', '👨‍👩‍👧', true, 2),
+('Eiendomsrett', 'eiendomsrett', 'Kjøp og salg av eiendom, tvister og kontrakter', '🏡', true, 3),
+('Arbeidsrett', 'arbeidsrett', 'Oppsigelse, permittering, arbeidsavtaler og tvister', '💼', false, 4),
+('Selskapsrett', 'selskapsrett', 'Etablering, aksjonæravtaler, fusjoner og oppkjøp', '🏢', false, 5);</code></pre>
+
+    <h3>Fagområde-oversikt</h3>
+    <pre><code>// src/app/fagomrader/page.tsx
+import supabase from "@/config/supabase-config"
+import Link from "next/link"
+import Image from "next/image"
+
+interface PracticeArea {
+  id: string
+  name: string
+  slug: string
+  description: string
+  icon: string
+  image_url: string | null
+  is_featured: boolean
+}
+
+export default async function FagomraderPage() {
+  // Hent alle fagområder, sortert etter featured først
+  const { data: practiceAreas } = await supabase
+    .from("practice_areas")
+    .select("*")
+    .order("is_featured", { ascending: false })
+    .order("sort_order")
+
+  return (
+    &lt;div className="max-w-6xl mx-auto py-12 px-4"&gt;
+      &lt;h1 className="text-4xl font-bold text-center mb-4"&gt;Våre Fagområder&lt;/h1&gt;
+      &lt;p className="text-center text-lg text-gray-600 mb-12 max-w-3xl mx-auto"&gt;
+        Vi har bred kompetanse innen flere juridiske fagområder og bistår både
+        privatpersoner og bedrifter med profesjonell juridisk rådgivning.
+      &lt;/p&gt;
+
+      {/* Fremhevede fagområder */}
+      &lt;div className="grid md:grid-cols-3 gap-8 mb-12"&gt;
+        {practiceAreas
+          ?.filter((area: PracticeArea) => area.is_featured)
+          .map((area: PracticeArea) => (
+            &lt;Link
+              key={area.id}
+              href={`/fagomrader/${area.slug}`}
+              className="group bg-white rounded-xl shadow-lg hover:shadow-xl transition-all overflow-hidden"
+            &gt;
+              {area.image_url && (
+                &lt;div className="relative h-48 w-full overflow-hidden"&gt;
+                  &lt;Image
+                    src={area.image_url}
+                    alt={area.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform"
+                  /&gt;
+                &lt;/div&gt;
+              )}
+              &lt;div className="p-6"&gt;
+                &lt;div className="flex items-center gap-3 mb-3"&gt;
+                  &lt;span className="text-3xl"&gt;{area.icon}&lt;/span&gt;
+                  &lt;h3 className="text-xl font-bold group-hover:text-blue-600 transition-colors"&gt;
+                    {area.name}
+                  &lt;/h3&gt;
+                &lt;/div&gt;
+                &lt;p className="text-gray-600"&gt;{area.description}&lt;/p&gt;
+                &lt;div className="mt-4 text-blue-600 font-medium flex items-center gap-1 group-hover:gap-2 transition-all"&gt;
+                  Les mer →
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/Link&gt;
+          ))}
+      &lt;/div&gt;
+
+      {/* Andre fagområder */}
+      &lt;h2 className="text-2xl font-bold mb-6"&gt;Andre fagområder&lt;/h2&gt;
+      &lt;div className="grid md:grid-cols-2 gap-6"&gt;
+        {practiceAreas
+          ?.filter((area: PracticeArea) => !area.is_featured)
+          .map((area: PracticeArea) => (
+            &lt;Link
+              key={area.id}
+              href={`/fagomrader/${area.slug}`}
+              className="flex items-start gap-4 p-4 bg-white rounded-lg shadow hover:shadow-md transition-shadow"
+            &gt;
+              &lt;span className="text-3xl"&gt;{area.icon}&lt;/span&gt;
+              &lt;div&gt;
+                &lt;h3 className="font-bold text-lg hover:text-blue-600 transition-colors"&gt;
+                  {area.name}
+                &lt;/h3&gt;
+                &lt;p className="text-gray-600 text-sm"&gt;{area.description}&lt;/p&gt;
+              &lt;/div&gt;
+            &lt;/Link&gt;
+          ))}
+      &lt;/div&gt;
+
+      {/* CTA */}
+      &lt;div className="mt-16 bg-gradient-to-r from-blue-600 to-blue-800 text-white rounded-2xl p-8 text-center"&gt;
+        &lt;h2 className="text-2xl font-bold mb-3"&gt;Trenger du juridisk bistand?&lt;/h2&gt;
+        &lt;p className="mb-6 opacity-90"&gt;
+          Kontakt oss for en uforpliktende samtale om din sak.
+        &lt;/p&gt;
+        &lt;Link
+          href="/kontakt"
+          className="inline-block px-8 py-3 bg-white text-blue-600 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+        &gt;
+          Ta kontakt
+        &lt;/Link&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h3>Kontaktskjema med sakstype</h3>
+    <pre><code>// src/components/functional/inquiry-form.tsx
+"use client"
+
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+
+interface PracticeArea {
+  id: string
+  name: string
+}
+
+interface Lawyer {
+  id: string
+  name: string
+  title: string
+}
+
+interface InquiryFormProps {
+  practiceAreas: PracticeArea[]
+  lawyers: Lawyer[]
+}
+
+export default function InquiryForm({ practiceAreas, lawyers }: InquiryFormProps) {
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
+  const [formData, setFormData] = useState({
+    practice_area_id: "",
+    preferred_lawyer_id: "",
+    name: "",
+    email: "",
+    phone: "",
+    company: "",
+    case_type: "",
+    urgency: "normal",
+    message: "",
+  })
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+
+    try {
+      const response = await fetch("/api/inquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      })
+
+      if (response.ok) {
+        alert("Takk for henvendelsen! Vi kontakter deg så snart som mulig.")
+        router.push("/")
+      } else {
+        alert("Noe gikk galt. Vennligst prøv igjen.")
+      }
+    } catch (error) {
+      console.error("Feil ved innsending:", error)
+      alert("Noe gikk galt. Vennligst prøv igjen.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-8 space-y-6"&gt;
+      {/* Fagområde */}
+      &lt;div&gt;
+        &lt;label className="block font-medium mb-2"&gt;
+          Hvilket fagområde gjelder saken? &lt;span className="text-red-500"&gt;*&lt;/span&gt;
+        &lt;/label&gt;
+        &lt;select
+          required
+          value={formData.practice_area_id}
+          onChange={(e) => setFormData({ ...formData, practice_area_id: e.target.value })}
+          className="w-full p-3 border rounded-lg"
+        &gt;
+          &lt;option value=""&gt;Velg fagområde&lt;/option&gt;
+          {practiceAreas.map((area) => (
+            &lt;option key={area.id} value={area.id}&gt;
+              {area.name}
+            &lt;/option&gt;
+          ))}
+        &lt;/select&gt;
+      &lt;/div&gt;
+
+      {/* Sakstype */}
+      &lt;div&gt;
+        &lt;label className="block font-medium mb-2"&gt;
+          Type bistand &lt;span className="text-red-500"&gt;*&lt;/span&gt;
+        &lt;/label&gt;
+        &lt;select
+          required
+          value={formData.case_type}
+          onChange={(e) => setFormData({ ...formData, case_type: e.target.value })}
+          className="w-full p-3 border rounded-lg"
+        &gt;
+          &lt;option value=""&gt;Velg type&lt;/option&gt;
+          &lt;option value="Konsultasjon"&gt;Juridisk konsultasjon&lt;/option&gt;
+          &lt;option value="Representasjon"&gt;Rettslig representasjon&lt;/option&gt;
+          &lt;option value="Rådgivning"&gt;Juridisk rådgivning&lt;/option&gt;
+          &lt;option value="Kontraktsgjennomgang"&gt;Kontraktsgjennomgang&lt;/option&gt;
+          &lt;option value="Annet"&gt;Annet&lt;/option&gt;
+        &lt;/select&gt;
+      &lt;/div&gt;
+
+      {/* Hastegrad */}
+      &lt;div&gt;
+        &lt;label className="block font-medium mb-2"&gt;Hastegrad&lt;/label&gt;
+        &lt;div className="flex gap-4"&gt;
+          {[
+            { value: "low", label: "Lav" },
+            { value: "normal", label: "Normal" },
+            { value: "high", label: "Høy" },
+          ].map((option) => (
+            &lt;label key={option.value} className="flex items-center gap-2 cursor-pointer"&gt;
+              &lt;input
+                type="radio"
+                name="urgency"
+                value={option.value}
+                checked={formData.urgency === option.value}
+                onChange={(e) => setFormData({ ...formData, urgency: e.target.value })}
+                className="w-4 h-4"
+              /&gt;
+              &lt;span&gt;{option.label}&lt;/span&gt;
+            &lt;/label&gt;
+          ))}
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      {/* Personalia */}
+      &lt;div className="grid md:grid-cols-2 gap-4"&gt;
+        &lt;div&gt;
+          &lt;label className="block font-medium mb-2"&gt;
+            Navn &lt;span className="text-red-500"&gt;*&lt;/span&gt;
+          &lt;/label&gt;
+          &lt;input
+            type="text"
+            required
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            className="w-full p-3 border rounded-lg"
+          /&gt;
+        &lt;/div&gt;
+        &lt;div&gt;
+          &lt;label className="block font-medium mb-2"&gt;Bedrift (valgfritt)&lt;/label&gt;
+          &lt;input
+            type="text"
+            value={formData.company}
+            onChange={(e) => setFormData({ ...formData, company: e.target.value })}
+            className="w-full p-3 border rounded-lg"
+          /&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;div className="grid md:grid-cols-2 gap-4"&gt;
+        &lt;div&gt;
+          &lt;label className="block font-medium mb-2"&gt;
+            E-post &lt;span className="text-red-500"&gt;*&lt;/span&gt;
+          &lt;/label&gt;
+          &lt;input
+            type="email"
+            required
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            className="w-full p-3 border rounded-lg"
+          /&gt;
+        &lt;/div&gt;
+        &lt;div&gt;
+          &lt;label className="block font-medium mb-2"&gt;
+            Telefon &lt;span className="text-red-500"&gt;*&lt;/span&gt;
+          &lt;/label&gt;
+          &lt;input
+            type="tel"
+            required
+            value={formData.phone}
+            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            className="w-full p-3 border rounded-lg"
+          /&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      {/* Ønsket advokat */}
+      &lt;div&gt;
+        &lt;label className="block font-medium mb-2"&gt;Ønsket advokat (valgfritt)&lt;/label&gt;
+        &lt;select
+          value={formData.preferred_lawyer_id}
+          onChange={(e) => setFormData({ ...formData, preferred_lawyer_id: e.target.value })}
+          className="w-full p-3 border rounded-lg"
+        &gt;
+          &lt;option value=""&gt;Ingen preferanse&lt;/option&gt;
+          {lawyers.map((lawyer) => (
+            &lt;option key={lawyer.id} value={lawyer.id}&gt;
+              {lawyer.name} - {lawyer.title}
+            &lt;/option&gt;
+          ))}
+        &lt;/select&gt;
+      &lt;/div&gt;
+
+      {/* Beskrivelse av sak */}
+      &lt;div&gt;
+        &lt;label className="block font-medium mb-2"&gt;
+          Beskrivelse av saken &lt;span className="text-red-500"&gt;*&lt;/span&gt;
+        &lt;/label&gt;
+        &lt;textarea
+          required
+          rows={6}
+          value={formData.message}
+          onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+          className="w-full p-3 border rounded-lg"
+          placeholder="Beskriv din sak så detaljert som mulig..."
+        /&gt;
+      &lt;/div&gt;
+
+      {/* Personvernerklæring */}
+      &lt;div className="bg-gray-50 p-4 rounded-lg text-sm text-gray-600"&gt;
+        🔒 All kommunikasjon behandles konfidensielt i henhold til advokatforskriften og GDPR.
+      &lt;/div&gt;
+
+      {/* Submit */}
+      &lt;button
+        type="submit"
+        disabled={isLoading}
+        className="w-full py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
+      &gt;
+        {isLoading ? "Sender..." : "Send henvendelse"}
+      &lt;/button&gt;
+
+      &lt;p className="text-sm text-gray-500 text-center"&gt;
+        Vi svarer normalt innen 24 timer på hverdager.
+      &lt;/p&gt;
+    &lt;/form&gt;
+  )
+}</code></pre>
+
+    <div class="checklist">
+      <h4>✅ Sjekkliste: Advokat</h4>
+      <ul>
+        <li>☐ Fagområder med dedikerte sider og utdypende informasjon</li>
+        <li>☐ Advokatprofiler med utdanning, spesialiseringer og kontaktinfo</li>
+        <li>☐ Kontaktskjema med sakstype og hastegrad</li>
+        <li>☐ Blogg med juridiske artikler (viktig for SEO)</li>
+        <li>☐ Sikker kommunikasjon og GDPR-informasjon</li>
+        <li>☐ Kundeomtaler / testimonials</li>
+        <li>☐ E-post bekreftelse ved henvendelse</li>
+        <li>☐ Admin-panel for å administrere henvendelser</li>
+        <li>☐ SEO: LegalService + Attorney schema markup</li>
+        <li>☐ Sikre at all kommunikasjon er profesjonell og tillitvekkende</li>
+      </ul>
+    </div>
+
+    <!-- FRISØR/SALONG -->
+    <h2 id="frisor">💇 Frisør/Salong-mal</h2>
+
+    <div class="highlight-box">
+      <strong>Viktige funksjoner:</strong> Behandlinger med varighet og pris, online booking med valg av stylist, galleri med før/etter-bilder, og produktsalg.
+    </div>
+
+    <div class="file-tree">
+<span class="folder">src/app/</span>
+├── <span class="file">page.tsx</span>                    <span class="comment"># Forside med hero, featured services</span>
+├── <span class="folder">behandlinger/</span>
+│   └── <span class="file">page.tsx</span>                <span class="comment"># Alle behandlinger med priser</span>
+├── <span class="folder">book/</span>
+│   └── <span class="file">page.tsx</span>                <span class="comment"># Online timebestilling</span>
+├── <span class="folder">stylister/</span>
+│   ├── <span class="file">page.tsx</span>                <span class="comment"># Våre stylister</span>
+│   └── <span class="folder">[slug]/</span>
+│       └── <span class="file">page.tsx</span>            <span class="comment"># Stylistprofil</span>
+├── <span class="folder">galleri/</span>
+│   └── <span class="file">page.tsx</span>                <span class="comment"># Før/etter bilder</span>
+├── <span class="folder">produkter/</span>
+│   └── <span class="file">page.tsx</span>                <span class="comment"># Hårprodukter til salg (valgfritt)</span>
+└── <span class="folder">kontakt/</span>
+    └── <span class="file">page.tsx</span>                <span class="comment"># Kontakt og åpningstider</span>
+    </div>
+
+    <h3>Database-skjema</h3>
+    <pre><code>-- Frisør/Salong-spesifikt skjema
+
+-- Behandlingskategorier (f.eks. "Klipp", "Farge", "Styling")
+CREATE TABLE service_categories (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  description TEXT,
+  icon TEXT,
+  sort_order INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Behandlinger
+CREATE TABLE salon_services (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  category_id UUID REFERENCES service_categories(id) ON DELETE SET NULL,
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  description TEXT,
+  duration_minutes INTEGER NOT NULL, -- Viktig for booking
+  price INTEGER NOT NULL, -- Fast pris i øre
+  price_from INTEGER,     -- Eller "fra-pris"
+  price_to INTEGER,       -- Og "til-pris" for intervall
+  image_url TEXT,
+  is_popular BOOLEAN DEFAULT false,
+  is_active BOOLEAN DEFAULT true,
+  sort_order INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Stylister/Frisører
+CREATE TABLE stylists (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  title TEXT, -- "Stylist", "Seniorstylister", "Lærling"
+  bio TEXT,
+  specialties TEXT[], -- ["Klipp", "Farge", "Bryllupsstyling"]
+  avatar_url TEXT,
+  instagram_url TEXT, -- Viktig for frisører å vise arbeid
+  is_active BOOLEAN DEFAULT true,
+  accepts_bookings BOOLEAN DEFAULT true,
+  sort_order INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Kobling mellom stylister og tjenester de tilbyr
+CREATE TABLE stylist_services (
+  stylist_id UUID REFERENCES stylists(id) ON DELETE CASCADE,
+  service_id UUID REFERENCES salon_services(id) ON DELETE CASCADE,
+  PRIMARY KEY (stylist_id, service_id)
+);
+
+-- Timebestillinger
+CREATE TABLE salon_bookings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  stylist_id UUID REFERENCES stylists(id),
+  service_id UUID REFERENCES salon_services(id),
+  customer_name TEXT NOT NULL,
+  customer_email TEXT NOT NULL,
+  customer_phone TEXT NOT NULL,
+  date DATE NOT NULL,
+  time TIME NOT NULL,
+  duration_minutes INTEGER NOT NULL,
+  notes TEXT, -- Kundens kommentarer eller ønsker
+  status TEXT DEFAULT 'pending', -- pending, confirmed, completed, cancelled, no_show
+  reminder_sent BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Galleri (før/etter bilder)
+CREATE TABLE gallery_images (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title TEXT,
+  description TEXT,
+  image_url TEXT NOT NULL,
+  before_image_url TEXT, -- For før/etter-transformasjoner
+  after_image_url TEXT,
+  stylist_id UUID REFERENCES stylists(id),
+  service_id UUID REFERENCES salon_services(id),
+  is_featured BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Produkter (hvis salongen selger hårprodukter)
+CREATE TABLE salon_products (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  brand TEXT,
+  description TEXT,
+  price INTEGER NOT NULL,
+  image_url TEXT,
+  stock_quantity INTEGER DEFAULT 0,
+  category TEXT, -- "Shampoo", "Balsam", "Styling"
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Indekser
+CREATE INDEX idx_bookings_date ON salon_bookings(date);
+CREATE INDEX idx_bookings_stylist ON salon_bookings(stylist_id);
+CREATE INDEX idx_bookings_status ON salon_bookings(status);
+CREATE INDEX idx_services_category ON salon_services(category_id);
+
+-- Eksempeldata for kategorier
+INSERT INTO service_categories (name, description, icon, sort_order) VALUES
+('Klipp', 'Klipping for dame, herre og barn', '✂️', 1),
+('Farge', 'Fargelegging og fargebehandlinger', '🎨', 2),
+('Styling', 'Føning, styling og oppsett', '💆', 3),
+('Behandlinger', 'Hårkurer og spesialbehandlinger', '✨', 4);
+
+-- Eksempeldata for tjenester
+INSERT INTO salon_services (category_id, name, slug, description, duration_minutes, price, is_popular) VALUES
+(
+  (SELECT id FROM service_categories WHERE name = 'Klipp'),
+  'Dame klipp',
+  'dame-klipp',
+  'Klipping, vask og føning inkludert',
+  60,
+  65000, -- 650 kr
+  true
+),
+(
+  (SELECT id FROM service_categories WHERE name = 'Farge'),
+  'Heldekkende farge',
+  'heldekkende-farge',
+  'Komplett fargelegging av hele håret',
+  120,
+  125000, -- 1250 kr
+  true
+),
+(
+  (SELECT id FROM service_categories WHERE name = 'Styling'),
+  'Bryllupsstyling',
+  'bryllupsstyling',
+  'Profesjonell styling for bryllup eller fest',
+  90,
+  95000, -- 950 kr
+  false
+);</code></pre>
+
+    <h3>Behandlingsoversikt</h3>
+    <pre><code>// src/app/behandlinger/page.tsx
+import supabase from "@/config/supabase-config"
+import Link from "next/link"
+import Image from "next/image"
+
+interface SalonService {
+  id: string
+  name: string
+  slug: string
+  description: string
+  duration_minutes: number
+  price: number
+  price_from: number | null
+  price_to: number | null
+  image_url: string | null
+  is_popular: boolean
+}
+
+interface Category {
+  id: string
+  name: string
+  description: string
+  icon: string
+  salon_services: SalonService[]
+}
+
+export default async function BehandlingerPage() {
+  const { data: categories } = await supabase
+    .from("service_categories")
+    .select(`
+      *,
+      salon_services(*)
+    `)
+    .eq("salon_services.is_active", true)
+    .order("sort_order")
+
+  return (
+    &lt;div className="max-w-6xl mx-auto py-12 px-4"&gt;
+      &lt;h1 className="text-4xl font-bold text-center mb-4"&gt;Våre Behandlinger&lt;/h1&gt;
+      &lt;p className="text-center text-gray-600 mb-12 max-w-2xl mx-auto"&gt;
+        Vi tilbyr et bredt utvalg av frisørtjenester for alle hår og anledninger.
+        Alle priser inkluderer vask og føning der det er aktuelt.
+      &lt;/p&gt;
+
+      {categories?.map((category: Category) => (
+        &lt;section key={category.id} className="mb-12"&gt;
+          &lt;div className="flex items-center gap-3 mb-6"&gt;
+            &lt;span className="text-3xl"&gt;{category.icon}&lt;/span&gt;
+            &lt;div&gt;
+              &lt;h2 className="text-2xl font-bold"&gt;{category.name}&lt;/h2&gt;
+              &lt;p className="text-gray-600"&gt;{category.description}&lt;/p&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+
+          &lt;div className="grid md:grid-cols-3 gap-6"&gt;
+            {category.salon_services?.map((service: SalonService) => (
+              &lt;div
+                key={service.id}
+                className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow p-6 relative"
+              &gt;
+                {service.is_popular && (
+                  &lt;div className="absolute -top-3 -right-3 bg-pink-500 text-white px-3 py-1 rounded-full text-sm font-medium"&gt;
+                    Populær
+                  &lt;/div&gt;
+                )}
+
+                &lt;h3 className="text-xl font-bold mb-2"&gt;{service.name}&lt;/h3&gt;
+                &lt;p className="text-gray-600 text-sm mb-4"&gt;{service.description}&lt;/p&gt;
+
+                &lt;div className="flex items-center justify-between text-sm text-gray-500 mb-4 pb-4 border-b"&gt;
+                  &lt;span&gt;⏱️ {service.duration_minutes} min&lt;/span&gt;
+                &lt;/div&gt;
+
+                &lt;div className="flex items-center justify-between"&gt;
+                  &lt;span className="text-2xl font-bold"&gt;
+                    {service.price_from && service.price_to ? (
+                      `${(service.price_from / 100).toFixed(0)} - ${(service.price_to / 100).toFixed(0)} kr`
+                    ) : service.price_from ? (
+                      `Fra ${(service.price_from / 100).toFixed(0)} kr`
+                    ) : (
+                      `${(service.price / 100).toFixed(0)} kr`
+                    )}
+                  &lt;/span&gt;
+                &lt;/div&gt;
+
+                &lt;Link
+                  href="/book"
+                  className="block mt-4 w-full text-center py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors"
+                &gt;
+                  Book nå
+                &lt;/Link&gt;
+              &lt;/div&gt;
+            ))}
+          &lt;/div&gt;
+        &lt;/section&gt;
+      ))}
+
+      {/* Tilleggsinfo */}
+      &lt;div className="mt-12 bg-gradient-to-r from-pink-50 to-purple-50 rounded-xl p-6"&gt;
+        &lt;h3 className="font-bold text-lg mb-2"&gt;💡 Usikker på hva du trenger?&lt;/h3&gt;
+        &lt;p className="text-gray-600 mb-4"&gt;
+          Book en gratis konsultasjon med en av våre erfarne stylister. Vi hjelper deg
+          med å finne den perfekte behandlingen for ditt hår!
+        &lt;/p&gt;
+        &lt;Link
+          href="/kontakt"
+          className="inline-block px-6 py-2 bg-pink-500 text-white rounded-lg hover:bg-pink-600 transition-colors"
+        &gt;
+          Kontakt oss
+        &lt;/Link&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h3>Booking-komponent med stylistvalg</h3>
+    <pre><code>// src/app/book/page.tsx
+import supabase from "@/config/supabase-config"
+import BookingForm from "@/components/functional/booking-form"
+
+export default async function BookPage() {
+  // Hent aktive stylister og tjenester
+  const { data: stylists } = await supabase
+    .from("stylists")
+    .select("*")
+    .eq("is_active", true)
+    .eq("accepts_bookings", true)
+    .order("sort_order")
+
+  const { data: services } = await supabase
+    .from("salon_services")
+    .select("id, name, duration_minutes, price, price_from, category_id, service_categories(name)")
+    .eq("is_active", true)
+    .order("name")
+
+  return (
+    &lt;div className="max-w-3xl mx-auto py-12 px-4"&gt;
+      &lt;h1 className="text-4xl font-bold text-center mb-4"&gt;Book Time&lt;/h1&gt;
+      &lt;p className="text-center text-gray-600 mb-8"&gt;
+        Velg behandling og ønsket stylist. Vi bekrefter timeavtalen din via e-post.
+      &lt;/p&gt;
+
+      &lt;BookingForm stylists={stylists || []} services={services || []} /&gt;
+    &lt;/div&gt;
+  )
+}
+
+// src/components/functional/booking-form.tsx
+"use client"
+
+import { useState } from "react"
+import Image from "next/image"
+
+interface Stylist {
+  id: string
+  name: string
+  avatar_url: string | null
+  title: string
+}
+
+interface Service {
+  id: string
+  name: string
+  duration_minutes: number
+  price: number
+  price_from: number | null
+  service_categories: { name: string }
+}
+
+interface BookingFormProps {
+  stylists: Stylist[]
+  services: Service[]
+}
+
+export default function BookingForm({ stylists, services }: BookingFormProps) {
+  const [isLoading, setIsLoading] = useState(false)
+  const [selectedService, setSelectedService] = useState&lt;Service | null&gt;(null)
+  const [formData, setFormData] = useState({
+    stylist_id: "",
+    service_id: "",
+    customer_name: "",
+    customer_email: "",
+    customer_phone: "",
+    date: "",
+    time: "",
+    notes: "",
+  })
+
+  const handleServiceChange = (serviceId: string) => {
+    const service = services.find((s) => s.id === serviceId)
+    setSelectedService(service || null)
+    setFormData({ ...formData, service_id: serviceId })
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+
+    try {
+      const response = await fetch("/api/bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          duration_minutes: selectedService?.duration_minutes || 60,
+        }),
+      })
+
+      if (response.ok) {
+        alert("Timebestilling mottatt! Vi sender bekreftelse på e-post.")
+        window.location.href = "/"
+      } else {
+        alert("Noe gikk galt. Vennligst prøv igjen.")
+      }
+    } catch (error) {
+      console.error("Feil:", error)
+      alert("Noe gikk galt. Vennligst prøv igjen.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  // Grupper tjenester etter kategori
+  const groupedServices = services.reduce((acc, service) => {
+    const categoryName = service.service_categories?.name || "Annet"
+    if (!acc[categoryName]) acc[categoryName] = []
+    acc[categoryName].push(service)
+    return acc
+  }, {} as Record&lt;string, Service[]&gt;)
+
+  return (
+    &lt;form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-8 space-y-6"&gt;
+      {/* Velg behandling */}
+      &lt;div&gt;
+        &lt;label className="block font-medium mb-2"&gt;
+          Velg behandling &lt;span className="text-red-500"&gt;*&lt;/span&gt;
+        &lt;/label&gt;
+        &lt;select
+          required
+          value={formData.service_id}
+          onChange={(e) => handleServiceChange(e.target.value)}
+          className="w-full p-3 border rounded-lg"
+        &gt;
+          &lt;option value=""&gt;Velg behandling&lt;/option&gt;
+          {Object.entries(groupedServices).map(([category, categoryServices]) => (
+            &lt;optgroup key={category} label={category}&gt;
+              {categoryServices.map((service) => (
+                &lt;option key={service.id} value={service.id}&gt;
+                  {service.name} - {service.duration_minutes} min -
+                  {service.price_from
+                    ? ` Fra ${(service.price_from / 100).toFixed(0)} kr`
+                    : ` ${(service.price / 100).toFixed(0)} kr`
+                  }
+                &lt;/option&gt;
+              ))}
+            &lt;/optgroup&gt;
+          ))}
+        &lt;/select&gt;
+      &lt;/div&gt;
+
+      {/* Velg stylist */}
+      &lt;div&gt;
+        &lt;label className="block font-medium mb-3"&gt;Velg stylist (valgfritt)&lt;/label&gt;
+        &lt;div className="grid grid-cols-2 md:grid-cols-4 gap-4"&gt;
+          &lt;button
+            type="button"
+            onClick={() => setFormData({ ...formData, stylist_id: "" })}
+            className={`p-4 border-2 rounded-lg transition-all ${
+              formData.stylist_id === ""
+                ? "border-pink-500 bg-pink-50"
+                : "border-gray-200 hover:border-gray-300"
+            }`}
+          &gt;
+            &lt;div className="text-center"&gt;
+              &lt;div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-2 flex items-center justify-center text-2xl"&gt;
+                ✨
+              &lt;/div&gt;
+              &lt;p className="text-sm font-medium"&gt;Ingen preferanse&lt;/p&gt;
+            &lt;/div&gt;
+          &lt;/button&gt;
+
+          {stylists.map((stylist) => (
+            &lt;button
+              key={stylist.id}
+              type="button"
+              onClick={() => setFormData({ ...formData, stylist_id: stylist.id })}
+              className={`p-4 border-2 rounded-lg transition-all ${
+                formData.stylist_id === stylist.id
+                  ? "border-pink-500 bg-pink-50"
+                  : "border-gray-200 hover:border-gray-300"
+              }`}
+            &gt;
+              &lt;div className="text-center"&gt;
+                {stylist.avatar_url ? (
+                  &lt;div className="relative w-16 h-16 mx-auto mb-2"&gt;
+                    &lt;Image
+                      src={stylist.avatar_url}
+                      alt={stylist.name}
+                      fill
+                      className="rounded-full object-cover"
+                    /&gt;
+                  &lt;/div&gt;
+                ) : (
+                  &lt;div className="w-16 h-16 bg-gray-200 rounded-full mx-auto mb-2 flex items-center justify-center text-2xl"&gt;
+                    👤
+                  &lt;/div&gt;
+                )}
+                &lt;p className="text-sm font-medium"&gt;{stylist.name}&lt;/p&gt;
+                &lt;p className="text-xs text-gray-500"&gt;{stylist.title}&lt;/p&gt;
+              &lt;/div&gt;
+            &lt;/button&gt;
+          ))}
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      {/* Dato og tid */}
+      &lt;div className="grid md:grid-cols-2 gap-4"&gt;
+        &lt;div&gt;
+          &lt;label className="block font-medium mb-2"&gt;
+            Ønsket dato &lt;span className="text-red-500"&gt;*&lt;/span&gt;
+          &lt;/label&gt;
+          &lt;input
+            type="date"
+            required
+            min={new Date().toISOString().split("T")[0]}
+            value={formData.date}
+            onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+            className="w-full p-3 border rounded-lg"
+          /&gt;
+        &lt;/div&gt;
+        &lt;div&gt;
+          &lt;label className="block font-medium mb-2"&gt;
+            Ønsket tid &lt;span className="text-red-500"&gt;*&lt;/span&gt;
+          &lt;/label&gt;
+          &lt;input
+            type="time"
+            required
+            value={formData.time}
+            onChange={(e) => setFormData({ ...formData, time: e.target.value })}
+            className="w-full p-3 border rounded-lg"
+          /&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      {/* Kontaktinfo */}
+      &lt;div className="space-y-4"&gt;
+        &lt;div&gt;
+          &lt;label className="block font-medium mb-2"&gt;
+            Fullt navn &lt;span className="text-red-500"&gt;*&lt;/span&gt;
+          &lt;/label&gt;
+          &lt;input
+            type="text"
+            required
+            value={formData.customer_name}
+            onChange={(e) => setFormData({ ...formData, customer_name: e.target.value })}
+            className="w-full p-3 border rounded-lg"
+          /&gt;
+        &lt;/div&gt;
+        &lt;div className="grid md:grid-cols-2 gap-4"&gt;
+          &lt;div&gt;
+            &lt;label className="block font-medium mb-2"&gt;
+              E-post &lt;span className="text-red-500"&gt;*&lt;/span&gt;
+            &lt;/label&gt;
+            &lt;input
+              type="email"
+              required
+              value={formData.customer_email}
+              onChange={(e) => setFormData({ ...formData, customer_email: e.target.value })}
+              className="w-full p-3 border rounded-lg"
+            /&gt;
+          &lt;/div&gt;
+          &lt;div&gt;
+            &lt;label className="block font-medium mb-2"&gt;
+              Telefon &lt;span className="text-red-500"&gt;*&lt;/span&gt;
+            &lt;/label&gt;
+            &lt;input
+              type="tel"
+              required
+              value={formData.customer_phone}
+              onChange={(e) => setFormData({ ...formData, customer_phone: e.target.value })}
+              className="w-full p-3 border rounded-lg"
+            /&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      {/* Kommentarer */}
+      &lt;div&gt;
+        &lt;label className="block font-medium mb-2"&gt;Kommentarer eller ønsker (valgfritt)&lt;/label&gt;
+        &lt;textarea
+          rows={3}
+          value={formData.notes}
+          onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+          className="w-full p-3 border rounded-lg"
+          placeholder="F.eks. ønsker om farge, lengde, stil..."
+        /&gt;
+      &lt;/div&gt;
+
+      {/* Vis estimert pris og varighet */}
+      {selectedService && (
+        &lt;div className="bg-pink-50 p-4 rounded-lg"&gt;
+          &lt;p className="text-sm"&gt;
+            &lt;strong&gt;Estimert varighet:&lt;/strong&gt; {selectedService.duration_minutes} minutter
+          &lt;/p&gt;
+          &lt;p className="text-sm"&gt;
+            &lt;strong&gt;Pris:&lt;/strong&gt;{" "}
+            {selectedService.price_from
+              ? `Fra ${(selectedService.price_from / 100).toFixed(0)} kr`
+              : `${(selectedService.price / 100).toFixed(0)} kr`}
+          &lt;/p&gt;
+        &lt;/div&gt;
+      )}
+
+      {/* Submit */}
+      &lt;button
+        type="submit"
+        disabled={isLoading}
+        className="w-full py-3 bg-pink-500 text-white rounded-lg font-medium hover:bg-pink-600 disabled:opacity-50 transition-colors"
+      &gt;
+        {isLoading ? "Sender..." : "Bekreft booking"}
+      &lt;/button&gt;
+
+      &lt;p className="text-sm text-gray-500 text-center"&gt;
+        Vi bekrefter timeavtalen din innen 24 timer.
+      &lt;/p&gt;
+    &lt;/form&gt;
+  )
+}</code></pre>
+
+    <div class="checklist">
+      <h4>✅ Sjekkliste: Frisør/Salong</h4>
+      <ul>
+        <li>☐ Behandlingsoversikt med priser og varighet</li>
+        <li>☐ Online booking med valg av stylist og behandling</li>
+        <li>☐ Stylistprofiler med bilder og spesialiteter</li>
+        <li>☐ Galleri med før/etter-bilder</li>
+        <li>☐ Instagram-integrasjon (viktig for visuell bransje)</li>
+        <li>☐ Produktsalg (hvis aktuelt)</li>
+        <li>☐ E-post/SMS bekreftelse ved booking</li>
+        <li>☐ Åpningstider og kontaktinfo</li>
+        <li>☐ Google Maps med salonglokasjon</li>
+        <li>☐ SEO: LocalBusiness + BeautySalon schema markup</li>
+      </ul>
+    </div>
+
+    <!-- EIENDOMSMEGLER -->
+    <h2 id="eiendom">🏘️ Eiendomsmegler-mal</h2>
+
+    <div class="highlight-box">
+      <strong>Viktige funksjoner:</strong> Boligliste med avansert filtrering, detaljert eiendomsvisning, visningsforespørsel, meglerprofiler, og kart-integrasjon.
+    </div>
+
+    <div class="file-tree">
+<span class="folder">src/app/</span>
+├── <span class="file">page.tsx</span>                    <span class="comment"># Forside med søk og featured boliger</span>
+├── <span class="folder">boliger/</span>
+│   ├── <span class="file">page.tsx</span>                <span class="comment"># Boligliste med filter</span>
+│   └── <span class="folder">[id]/</span>
+│       └── <span class="file">page.tsx</span>            <span class="comment"># Detaljert boligvisning</span>
+├── <span class="folder">meglere/</span>
+│   ├── <span class="file">page.tsx</span>                <span class="comment"># Alle meglere</span>
+│   └── <span class="folder">[slug]/</span>
+│       └── <span class="file">page.tsx</span>            <span class="comment"># Meglerprofil</span>
+├── <span class="folder">selg-bolig/</span>
+│   └── <span class="file">page.tsx</span>                <span class="comment"># Skjema for å selge bolig</span>
+├── <span class="folder">kjop-bolig/</span>
+│   └── <span class="file">page.tsx</span>                <span class="comment"># Guide til boligkjøp</span>
+└── <span class="folder">kontakt/</span>
+    └── <span class="file">page.tsx</span>                <span class="comment"># Kontakt</span>
+    </div>
+
+    <h3>Database-skjema</h3>
+    <pre><code>-- Eiendomsmegler-spesifikt skjema
+
+-- Meglere
+CREATE TABLE real_estate_agents (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  title TEXT, -- "Partner", "Eiendomsmegler", "Meglerassistent"
+  bio TEXT,
+  avatar_url TEXT,
+  email TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  linkedin_url TEXT,
+  is_active BOOLEAN DEFAULT true,
+  total_sales INTEGER DEFAULT 0, -- Antall solgte boliger
+  rating DECIMAL(2,1), -- Vurdering 0.0-5.0
+  specialties TEXT[], -- ["Leiligheter", "Eneboliger", "Oslo sentrum"]
+  sort_order INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Eiendommer/Boliger
+CREATE TABLE properties (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  agent_id UUID REFERENCES real_estate_agents(id),
+  title TEXT NOT NULL, -- "Lys og luftig leilighet med balkong"
+  description TEXT,
+  property_type TEXT NOT NULL, -- "Leilighet", "Enebolig", "Rekkehus", "Hytte"
+  status TEXT DEFAULT 'for_sale', -- for_sale, sold, off_market, under_offer
+
+  -- Adresse
+  address_street TEXT NOT NULL,
+  address_postal_code TEXT NOT NULL,
+  address_city TEXT NOT NULL,
+  address_municipality TEXT,
+  latitude DECIMAL(10, 8), -- For kart
+  longitude DECIMAL(11, 8),
+
+  -- Pris og kostnader
+  asking_price INTEGER NOT NULL, -- i øre
+  total_price INTEGER, -- Totalpris inkl felleskostnader
+  monthly_cost INTEGER, -- Felleskostnader per måned
+
+  -- Eiendomsdetaljer
+  bedrooms INTEGER,
+  bathrooms INTEGER,
+  square_meters INTEGER,
+  plot_size INTEGER, -- For eneboliger/hytter (tomt)
+  build_year INTEGER,
+  floor_number INTEGER,
+  total_floors INTEGER,
+
+  -- Fasiliteter (boolean-flagg)
+  has_balcony BOOLEAN DEFAULT false,
+  has_parking BOOLEAN DEFAULT false,
+  has_elevator BOOLEAN DEFAULT false,
+  has_fireplace BOOLEAN DEFAULT false,
+
+  -- Bilder og media
+  images TEXT[], -- Array av bilde-URL-er
+  floor_plan_url TEXT, -- Plantegning
+  video_url TEXT, -- 3D-visning eller video
+
+  -- Visning
+  viewing_date TIMESTAMPTZ,
+  viewing_details TEXT,
+  open_house BOOLEAN DEFAULT false,
+
+  -- Metadata
+  is_featured BOOLEAN DEFAULT false,
+  views_count INTEGER DEFAULT 0,
+  published_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Visningsforespørsler
+CREATE TABLE viewing_requests (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
+  agent_id UUID REFERENCES real_estate_agents(id),
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  preferred_date DATE,
+  preferred_time TEXT, -- "Formiddag", "Ettermiddag", "Kveld"
+  message TEXT,
+  is_pre_approved BOOLEAN DEFAULT false, -- Har forhåndsgodkjent lån?
+  status TEXT DEFAULT 'pending', -- pending, confirmed, completed, cancelled
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Henvendelser om å selge bolig
+CREATE TABLE sell_inquiries (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  address TEXT NOT NULL,
+  property_type TEXT,
+  estimated_value INTEGER, -- Estimert verdi
+  preferred_agent_id UUID REFERENCES real_estate_agents(id),
+  message TEXT,
+  status TEXT DEFAULT 'new',
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Favoritter (krever innlogging)
+CREATE TABLE property_favorites (
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
+  property_id UUID REFERENCES properties(id) ON DELETE CASCADE,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  PRIMARY KEY (user_id, property_id)
+);
+
+-- Indekser for ytelse
+CREATE INDEX idx_properties_status ON properties(status);
+CREATE INDEX idx_properties_type ON properties(property_type);
+CREATE INDEX idx_properties_city ON properties(address_city);
+CREATE INDEX idx_properties_price ON properties(asking_price);
+CREATE INDEX idx_properties_bedrooms ON properties(bedrooms);
+CREATE INDEX idx_properties_square_meters ON properties(square_meters);
+CREATE INDEX idx_viewing_requests_property ON viewing_requests(property_id);
+
+-- Funksjon for å oppdatere updated_at automatisk
+CREATE OR REPLACE FUNCTION update_updated_at_column()
+RETURNS TRIGGER AS $$
+BEGIN
+   NEW.updated_at = NOW();
+   RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_properties_updated_at
+BEFORE UPDATE ON properties
+FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+-- Eksempeldata for boliger
+INSERT INTO properties (
+  agent_id, title, description, property_type, status,
+  address_street, address_postal_code, address_city,
+  asking_price, monthly_cost, bedrooms, bathrooms, square_meters,
+  build_year, has_balcony, has_parking, images, is_featured
+) VALUES (
+  (SELECT id FROM real_estate_agents LIMIT 1),
+  'Moderne leilighet med utsikt',
+  'Flott 3-roms leilighet i populært område med fantastisk utsikt over byen.',
+  'Leilighet',
+  'for_sale',
+  'Eksempelveien 42',
+  '0123',
+  'Oslo',
+  450000000, -- 4 500 000 kr
+  500000,    -- 5000 kr/mnd
+  2,
+  1,
+  75,
+  2018,
+  true,
+  true,
+  ARRAY['/images/property1.jpg', '/images/property2.jpg'],
+  true
+);</code></pre>
+
+    <h3>Boligliste med filter</h3>
+    <pre><code>// src/app/boliger/page.tsx
+import supabase from "@/config/supabase-config"
+import PropertyCard from "@/components/functional/property-card"
+import PropertyFilter from "@/components/functional/property-filter"
+
+interface SearchParams {
+  type?: string
+  minPrice?: string
+  maxPrice?: string
+  minRooms?: string
+  city?: string
+  sort?: string
+}
+
+interface PageProps {
+  searchParams: SearchParams
+}
+
+export default async function BoligerPage({ searchParams }: PageProps) {
+  // Bygg query basert på filtre
+  let query = supabase
+    .from("properties")
+    .select(`
+      *,
+      real_estate_agents(name, phone, email, avatar_url)
+    `)
+    .eq("status", "for_sale")
+
+  // Filtrer basert på søkeparametere
+  if (searchParams.type) {
+    query = query.eq("property_type", searchParams.type)
+  }
+  if (searchParams.minPrice) {
+    query = query.gte("asking_price", parseInt(searchParams.minPrice) * 100)
+  }
+  if (searchParams.maxPrice) {
+    query = query.lte("asking_price", parseInt(searchParams.maxPrice) * 100)
+  }
+  if (searchParams.minRooms) {
+    query = query.gte("bedrooms", parseInt(searchParams.minRooms))
+  }
+  if (searchParams.city) {
+    query = query.ilike("address_city", `%${searchParams.city}%`)
+  }
+
+  // Sortering
+  switch (searchParams.sort) {
+    case "price-asc":
+      query = query.order("asking_price", { ascending: true })
+      break
+    case "price-desc":
+      query = query.order("asking_price", { ascending: false })
+      break
+    case "newest":
+      query = query.order("created_at", { ascending: false })
+      break
+    default:
+      query = query.order("is_featured", { ascending: false })
+        .order("created_at", { ascending: false })
+  }
+
+  const { data: properties } = await query
+
+  return (
+    &lt;div className="max-w-7xl mx-auto py-8 px-4"&gt;
+      &lt;h1 className="text-4xl font-bold mb-8"&gt;Boliger til salgs&lt;/h1&gt;
+
+      &lt;div className="grid lg:grid-cols-4 gap-8"&gt;
+        {/* Filter sidebar */}
+        &lt;aside className="lg:col-span-1"&gt;
+          &lt;PropertyFilter /&gt;
+        &lt;/aside&gt;
+
+        {/* Boligliste */}
+        &lt;main className="lg:col-span-3"&gt;
+          &lt;div className="mb-4 text-gray-600"&gt;
+            {properties?.length || 0} boliger funnet
+          &lt;/div&gt;
+
+          {properties && properties.length > 0 ? (
+            &lt;div className="grid md:grid-cols-2 xl:grid-cols-3 gap-6"&gt;
+              {properties.map((property) => (
+                &lt;PropertyCard key={property.id} property={property} /&gt;
+              ))}
+            &lt;/div&gt;
+          ) : (
+            &lt;div className="text-center py-12"&gt;
+              &lt;p className="text-gray-500 text-lg"&gt;
+                Ingen boliger matcher dine søkekriterier.
+              &lt;/p&gt;
+            &lt;/div&gt;
+          )}
+        &lt;/main&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}
+
+// src/components/functional/property-card.tsx
+import Link from "next/link"
+import Image from "next/image"
+
+interface Property {
+  id: string
+  title: string
+  property_type: string
+  asking_price: number
+  address_street: string
+  address_city: string
+  bedrooms: number
+  bathrooms: number
+  square_meters: number
+  images: string[]
+  is_featured: boolean
+  real_estate_agents: {
+    name: string
+    avatar_url: string | null
+  }
+}
+
+interface PropertyCardProps {
+  property: Property
+}
+
+export default function PropertyCard({ property }: PropertyCardProps) {
+  return (
+    &lt;Link
+      href={`/boliger/${property.id}`}
+      className="group bg-white rounded-xl shadow-md hover:shadow-xl transition-all overflow-hidden"
+    &gt;
+      {/* Bilde */}
+      &lt;div className="relative h-56 overflow-hidden"&gt;
+        &lt;Image
+          src={property.images[0] || "/placeholder-property.jpg"}
+          alt={property.title}
+          fill
+          className="object-cover group-hover:scale-105 transition-transform"
+        /&gt;
+        {property.is_featured && (
+          &lt;div className="absolute top-3 left-3 bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-medium"&gt;
+            Anbefalt
+          &lt;/div&gt;
+        )}
+        &lt;div className="absolute bottom-3 left-3 bg-white px-3 py-1 rounded-full text-sm font-medium"&gt;
+          {property.property_type}
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      {/* Innhold */}
+      &lt;div className="p-5"&gt;
+        &lt;h3 className="text-xl font-bold mb-2 group-hover:text-blue-600 transition-colors"&gt;
+          {property.title}
+        &lt;/h3&gt;
+        &lt;p className="text-gray-600 text-sm mb-3"&gt;
+          {property.address_street}, {property.address_city}
+        &lt;/p&gt;
+
+        {/* Pris */}
+        &lt;p className="text-2xl font-bold text-blue-600 mb-3"&gt;
+          {(property.asking_price / 100).toLocaleString("no-NO")} kr
+        &lt;/p&gt;
+
+        {/* Detaljer */}
+        &lt;div className="flex items-center gap-4 text-sm text-gray-600 border-t pt-3"&gt;
+          &lt;span&gt;🛏️ {property.bedrooms} sov&lt;/span&gt;
+          &lt;span&gt;🚿 {property.bathrooms} bad&lt;/span&gt;
+          &lt;span&gt;📏 {property.square_meters} m²&lt;/span&gt;
+        &lt;/div&gt;
+
+        {/* Megler */}
+        &lt;div className="flex items-center gap-2 mt-4 pt-3 border-t"&gt;
+          {property.real_estate_agents.avatar_url ? (
+            &lt;div className="relative w-8 h-8"&gt;
+              &lt;Image
+                src={property.real_estate_agents.avatar_url}
+                alt={property.real_estate_agents.name}
+                fill
+                className="rounded-full object-cover"
+              /&gt;
+            &lt;/div&gt;
+          ) : (
+            &lt;div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center text-sm"&gt;
+              👤
+            &lt;/div&gt;
+          )}
+          &lt;span className="text-sm text-gray-600"&gt;
+            {property.real_estate_agents.name}
+          &lt;/span&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/Link&gt;
+  )
+}</code></pre>
+
+    <h3>Visningsforespørsel</h3>
+    <pre><code>// src/components/functional/viewing-request-form.tsx
+"use client"
+
+import { useState } from "react"
+
+interface ViewingRequestFormProps {
+  propertyId: string
+  agentId: string
+  propertyTitle: string
+}
+
+export default function ViewingRequestForm({
+  propertyId,
+  agentId,
+  propertyTitle,
+}: ViewingRequestFormProps) {
+  const [isLoading, setIsLoading] = useState(false)
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    preferred_date: "",
+    preferred_time: "",
+    message: "",
+    is_pre_approved: false,
+  })
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+
+    try {
+      const response = await fetch("/api/viewing-requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          property_id: propertyId,
+          agent_id: agentId,
+        }),
+      })
+
+      if (response.ok) {
+        alert("Visningsforespørsel sendt! Vi kontakter deg snart.")
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          preferred_date: "",
+          preferred_time: "",
+          message: "",
+          is_pre_approved: false,
+        })
+      } else {
+        alert("Noe gikk galt. Vennligst prøv igjen.")
+      }
+    } catch (error) {
+      console.error("Feil:", error)
+      alert("Noe gikk galt. Vennligst prøv igjen.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit} className="bg-white rounded-xl shadow-lg p-6 space-y-4"&gt;
+      &lt;h3 className="text-xl font-bold mb-2"&gt;Bestill visning&lt;/h3&gt;
+      &lt;p className="text-sm text-gray-600 mb-4"&gt;{propertyTitle}&lt;/p&gt;
+
+      &lt;div&gt;
+        &lt;label className="block font-medium mb-1 text-sm"&gt;
+          Navn &lt;span className="text-red-500"&gt;*&lt;/span&gt;
+        &lt;/label&gt;
+        &lt;input
+          type="text"
+          required
+          value={formData.name}
+          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          className="w-full p-2 border rounded-lg text-sm"
+        /&gt;
+      &lt;/div&gt;
+
+      &lt;div className="grid grid-cols-2 gap-3"&gt;
+        &lt;div&gt;
+          &lt;label className="block font-medium mb-1 text-sm"&gt;
+            E-post &lt;span className="text-red-500"&gt;*&lt;/span&gt;
+          &lt;/label&gt;
+          &lt;input
+            type="email"
+            required
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            className="w-full p-2 border rounded-lg text-sm"
+          /&gt;
+        &lt;/div&gt;
+        &lt;div&gt;
+          &lt;label className="block font-medium mb-1 text-sm"&gt;
+            Telefon &lt;span className="text-red-500"&gt;*&lt;/span&gt;
+          &lt;/label&gt;
+          &lt;input
+            type="tel"
+            required
+            value={formData.phone}
+            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+            className="w-full p-2 border rounded-lg text-sm"
+          /&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;div className="grid grid-cols-2 gap-3"&gt;
+        &lt;div&gt;
+          &lt;label className="block font-medium mb-1 text-sm"&gt;Ønsket dato&lt;/label&gt;
+          &lt;input
+            type="date"
+            min={new Date().toISOString().split("T")[0]}
+            value={formData.preferred_date}
+            onChange={(e) => setFormData({ ...formData, preferred_date: e.target.value })}
+            className="w-full p-2 border rounded-lg text-sm"
+          /&gt;
+        &lt;/div&gt;
+        &lt;div&gt;
+          &lt;label className="block font-medium mb-1 text-sm"&gt;Tidspunkt&lt;/label&gt;
+          &lt;select
+            value={formData.preferred_time}
+            onChange={(e) => setFormData({ ...formData, preferred_time: e.target.value })}
+            className="w-full p-2 border rounded-lg text-sm"
+          &gt;
+            &lt;option value=""&gt;Velg tidspunkt&lt;/option&gt;
+            &lt;option value="Formiddag"&gt;Formiddag&lt;/option&gt;
+            &lt;option value="Ettermiddag"&gt;Ettermiddag&lt;/option&gt;
+            &lt;option value="Kveld"&gt;Kveld&lt;/option&gt;
+          &lt;/select&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;div&gt;
+        &lt;label className="block font-medium mb-1 text-sm"&gt;Melding (valgfritt)&lt;/label&gt;
+        &lt;textarea
+          rows={3}
+          value={formData.message}
+          onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+          className="w-full p-2 border rounded-lg text-sm"
+          placeholder="Evt. spørsmål eller kommentarer..."
+        /&gt;
+      &lt;/div&gt;
+
+      &lt;div className="flex items-start gap-2"&gt;
+        &lt;input
+          type="checkbox"
+          id="pre-approved"
+          checked={formData.is_pre_approved}
+          onChange={(e) => setFormData({ ...formData, is_pre_approved: e.target.checked })}
+          className="mt-1"
+        /&gt;
+        &lt;label htmlFor="pre-approved" className="text-sm text-gray-600"&gt;
+          Jeg har forhåndsgodkjent lån
+        &lt;/label&gt;
+      &lt;/div&gt;
+
+      &lt;button
+        type="submit"
+        disabled={isLoading}
+        className="w-full py-3 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:opacity-50 transition-colors"
+      &gt;
+        {isLoading ? "Sender..." : "Send forespørsel"}
+      &lt;/button&gt;
+    &lt;/form&gt;
+  )
+}</code></pre>
+
+    <div class="checklist">
+      <h4>✅ Sjekkliste: Eiendomsmegler</h4>
+      <ul>
+        <li>☐ Boligliste med avansert filtrering (pris, type, rom, sted)</li>
+        <li>☐ Detaljert boligvisning med bildegalleri og plantegning</li>
+        <li>☐ Google Maps-integrasjon for hver bolig</li>
+        <li>☐ Visningsforespørsel med dato/tid-valg</li>
+        <li>☐ Meglerprofiler med solgte boliger og vurderinger</li>
+        <li>☐ Favoritter-funksjon (krever innlogging)</li>
+        <li>☐ "Selg bolig"-skjema</li>
+        <li>☐ E-post varsling ved nye boliger i ønsket område</li>
+        <li>☐ Boligkalkulator (lånekalkulator)</li>
+        <li>☐ SEO: RealEstateAgent + Place schema markup for hver bolig</li>
+        <li>☐ Admin-panel for å administrere boliger og forespørsler</li>
+      </ul>
+    </div>
+
+    <!-- EKSTRA KOMPONENTER -->
+    <h2>Nyttige ekstrakomponenter</h2>
+
+    <h3>Kart-visning for eiendom</h3>
+    <pre><code>// src/components/functional/property-map.tsx
+"use client"
+
+import { useEffect, useRef } from "react"
+
+interface PropertyMapProps {
+  latitude: number
+  longitude: number
+  address: string
+}
+
+export default function PropertyMap({ latitude, longitude, address }: PropertyMapProps) {
+  const mapRef = useRef&lt;HTMLDivElement&gt;(null)
+
+  useEffect(() => {
+    // Dette krever Google Maps API
+    // Installer med: npm install @googlemaps/js-api-loader
+    const loadMap = async () => {
+      const { Loader } = await import("@googlemaps/js-api-loader")
+
+      const loader = new Loader({
+        apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY!,
+        version: "weekly",
+      })
+
+      const google = await loader.load()
+
+      if (mapRef.current) {
+        const map = new google.maps.Map(mapRef.current, {
+          center: { lat: latitude, lng: longitude },
+          zoom: 15,
+        })
+
+        new google.maps.Marker({
+          position: { lat: latitude, lng: longitude },
+          map,
+          title: address,
+        })
+      }
+    }
+
+    loadMap()
+  }, [latitude, longitude, address])
+
+  return &lt;div ref={mapRef} className="w-full h-96 rounded-lg" /&gt;
+}
+
+// Alternativ: Enklere Google Maps embed (uten JS API)
+interface SimpleMapProps {
+  address: string
+}
+
+export function SimplePropertyMap({ address }: SimpleMapProps) {
+  const encodedAddress = encodeURIComponent(address)
+
+  return (
+    &lt;iframe
+      src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}&q=${encodedAddress}`}
+      className="w-full h-96 rounded-lg border-0"
+      allowFullScreen
+      loading="lazy"
+    /&gt;
+  )
+}</code></pre>
+
+    <h3>Bildegalleri med lightbox</h3>
+    <pre><code>// src/components/functional/image-gallery.tsx
+"use client"
+
+import { useState } from "react"
+import Image from "next/image"
+
+interface ImageGalleryProps {
+  images: string[]
+  altText: string
+}
+
+export default function ImageGallery({ images, altText }: ImageGalleryProps) {
+  const [selectedIndex, setSelectedIndex] = useState(0)
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false)
+
+  if (!images || images.length === 0) {
+    return &lt;div className="bg-gray-200 h-96 rounded-lg flex items-center justify-center"&gt;
+      Ingen bilder tilgjengelig
+    &lt;/div&gt;
+  }
+
+  return (
+    &lt;div&gt;
+      {/* Hovedbilde */}
+      &lt;div
+        className="relative h-96 w-full cursor-pointer overflow-hidden rounded-lg"
+        onClick={() => setIsLightboxOpen(true)}
+      &gt;
+        &lt;Image
+          src={images[selectedIndex]}
+          alt={`${altText} - Bilde ${selectedIndex + 1}`}
+          fill
+          className="object-cover hover:scale-105 transition-transform"
+        /&gt;
+        &lt;div className="absolute top-4 right-4 bg-black/50 text-white px-3 py-1 rounded-full text-sm"&gt;
+          {selectedIndex + 1} / {images.length}
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      {/* Thumbnail-grid */}
+      &lt;div className="grid grid-cols-6 gap-2 mt-4"&gt;
+        {images.map((image, index) => (
+          &lt;button
+            key={index}
+            onClick={() => setSelectedIndex(index)}
+            className={`relative h-20 rounded overflow-hidden border-2 transition-all ${
+              index === selectedIndex ? "border-blue-500" : "border-transparent"
+            }`}
+          &gt;
+            &lt;Image
+              src={image}
+              alt={`Thumbnail ${index + 1}`}
+              fill
+              className="object-cover"
+            /&gt;
+          &lt;/button&gt;
+        ))}
+      &lt;/div&gt;
+
+      {/* Lightbox (modal) */}
+      {isLightboxOpen && (
+        &lt;div
+          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+          onClick={() => setIsLightboxOpen(false)}
+        &gt;
+          &lt;button
+            className="absolute top-4 right-4 text-white text-4xl hover:text-gray-300"
+            onClick={() => setIsLightboxOpen(false)}
+          &gt;
+            ×
+          &lt;/button&gt;
+
+          &lt;button
+            className="absolute left-4 text-white text-4xl hover:text-gray-300"
+            onClick={(e) => {
+              e.stopPropagation()
+              setSelectedIndex((selectedIndex - 1 + images.length) % images.length)
+            }}
+          &gt;
+            ‹
+          &lt;/button&gt;
+
+          &lt;div className="relative max-w-5xl max-h-[80vh] w-full h-full"&gt;
+            &lt;Image
+              src={images[selectedIndex]}
+              alt={`${altText} - Bilde ${selectedIndex + 1}`}
+              fill
+              className="object-contain"
+              onClick={(e) => e.stopPropagation()}
+            /&gt;
+          &lt;/div&gt;
+
+          &lt;button
+            className="absolute right-4 text-white text-4xl hover:text-gray-300"
+            onClick={(e) => {
+              e.stopPropagation()
+              setSelectedIndex((selectedIndex + 1) % images.length)
+            }}
+          &gt;
+            ›
+          &lt;/button&gt;
+        &lt;/div&gt;
+      )}
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <div class="footer">
+      <p>
+        <a href="maler.html">← Bransjemaler</a> |
+        <a href="index.html">Tilbake til start →</a>
+      </p>
+      <p style="margin-top: 1rem; color: #64748b; font-size: 0.85rem;">
+        Utviklet av <a href="https://obligarconsulting.no">Obligar Consulting</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

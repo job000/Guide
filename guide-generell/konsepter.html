@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Next.js Konsepter for RPA-utviklere</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .comparison-table {
+      width: 100%;
+      margin: 2rem 0;
+    }
+    .comparison-table th {
+      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    }
+    .comparison-table td:first-child {
+      font-weight: 600;
+      background: #f8fafc;
+    }
+    .concept-box {
+      background: linear-gradient(135deg, #f0f9ff 0%, #fff 100%);
+      border: 2px solid #3b82f6;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .concept-box h4 {
+      color: #1e40af;
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .analogy {
+      background: #fef3c7;
+      border-left: 4px solid #f59e0b;
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .analogy strong {
+      color: #92400e;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html">Hurtigstart</a>
+    <a href="konsepter.html"><strong>Konsepter</strong></a>
+    <a href="typescript-intro.html">TypeScript</a>
+    <a href="tailwind-intro.html">Tailwind</a>
+  </nav>
+
+  <div class="container">
+    <h1>Next.js for RPA-utviklere</h1>
+
+    <blockquote>
+      <p>Har du erfaring med UiPath eller BluePrism? Da kan du mye allerede!
+      Her forklarer vi Next.js-konsepter ved å sammenligne med RPA.</p>
+    </blockquote>
+
+    <!-- SAMMENLIGNING -->
+    <h2>RPA vs Web-utvikling: Oversikt</h2>
+
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>RPA-konsept</th>
+          <th>Web-ekvivalent</th>
+          <th>Forklaring</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Workflow/Sequence</td>
+          <td>Komponent</td>
+          <td>En gjenbrukbar enhet som gjør én ting</td>
+        </tr>
+        <tr>
+          <td>Variable</td>
+          <td>State / Props</td>
+          <td>Data som komponenten bruker</td>
+        </tr>
+        <tr>
+          <td>Arguments (In/Out)</td>
+          <td>Props</td>
+          <td>Data som sendes inn til en komponent</td>
+        </tr>
+        <tr>
+          <td>Invoke Workflow</td>
+          <td>Import + bruk komponent</td>
+          <td>Gjenbruke en annen komponent</td>
+        </tr>
+        <tr>
+          <td>Queue Item</td>
+          <td>API Request / Database</td>
+          <td>Data fra ekstern kilde</td>
+        </tr>
+        <tr>
+          <td>Try-Catch</td>
+          <td>try-catch / Error Boundary</td>
+          <td>Feilhåndtering</td>
+        </tr>
+        <tr>
+          <td>Config File</td>
+          <td>.env.local</td>
+          <td>Innstillinger og hemmeligheter</td>
+        </tr>
+        <tr>
+          <td>Object Repository</td>
+          <td>interfaces/types</td>
+          <td>Definisjoner av datastrukturer</td>
+        </tr>
+        <tr>
+          <td>Library</td>
+          <td>components/</td>
+          <td>Samling av gjenbrukbare deler</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- KOMPONENTER -->
+    <h2>Komponenter = Workflows</h2>
+
+    <div class="concept-box">
+      <h4>Hva er en komponent?</h4>
+      <p>En komponent er som en <strong>Workflow/Sequence i UiPath</strong> - en gjenbrukbar
+      enhet som gjør én spesifikk ting. Den kan ta inn data (Arguments/Props) og
+      returnere noe visuelt (UI).</p>
+    </div>
+
+    <div class="analogy">
+      <strong>RPA-analogi:</strong> Tenk på en "SendEmail"-workflow. Den tar inn
+      mottaker, emne og innhold som arguments, og utfører én oppgave. En Button-komponent
+      i React gjør det samme - tar inn tekst og handling, og viser en knapp.
+    </div>
+
+    <h3>UiPath Workflow vs React Komponent</h3>
+
+    <pre><code>// UiPath-tankegang (pseudokode):
+// SendEmail(mottaker, emne, innhold)
+//   - Valider input
+//   - Koble til mailserver
+//   - Send mail
+//   - Returner status
+
+// React-komponent (ekte kode):
+interface ButtonProps {        // ← Arguments/Properties
+  children: string             // ← In-argument: teksten
+  onClick: () => void          // ← In-argument: hva som skjer ved klikk
+}
+
+function Button({ children, onClick }: ButtonProps) {
+  return (
+    &lt;button onClick={onClick}&gt;
+      {children}
+    &lt;/button&gt;
+  )
+}
+
+// Bruk (som Invoke Workflow):
+&lt;Button onClick={() => alert("Hei!")}&gt;Klikk meg&lt;/Button&gt;</code></pre>
+
+    <!-- INTERFACES -->
+    <h2>Interfaces = Object Repository</h2>
+
+    <div class="concept-box">
+      <h4>Hva er et Interface?</h4>
+      <p>Et interface definerer <strong>formen på data</strong> - akkurat som
+      Object Repository i BluePrism definerer hvilke felt et objekt har.</p>
+    </div>
+
+    <div class="analogy">
+      <strong>RPA-analogi:</strong> I BluePrism lager du en "Customer" data item
+      med felt som Name (Text), Age (Number), Email (Text). I TypeScript gjør du
+      det samme med et interface.
+    </div>
+
+    <pre><code>// TypeScript Interface = BluePrism Data Item Definition
+
+// I BluePrism ville du definert:
+// Customer:
+//   - Name: Text
+//   - Age: Number
+//   - Email: Text
+//   - IsActive: Flag
+
+// I TypeScript:
+interface Customer {
+  name: string       // Text
+  age: number        // Number
+  email: string      // Text
+  isActive: boolean  // Flag (true/false)
+}
+
+// Bruk:
+const kunde: Customer = {
+  name: "Ola Nordmann",
+  age: 35,
+  email: "ola@test.no",
+  isActive: true
+}
+
+// TypeScript VIL KLAGE hvis du glemmer et felt:
+const feilKunde: Customer = {
+  name: "Kari"
+  // FEIL! Mangler age, email, isActive
+}</code></pre>
+
+    <!-- STATE -->
+    <h2>State = Variable</h2>
+
+    <div class="concept-box">
+      <h4>Hva er State?</h4>
+      <p>State er <strong>data som kan endre seg</strong> mens komponenten kjører.
+      Akkurat som en Variable i UiPath som oppdateres underveis i en workflow.</p>
+    </div>
+
+    <div class="analogy">
+      <strong>RPA-analogi:</strong> I en loop i UiPath har du en "counter"-variabel
+      som øker for hver iterasjon. I React bruker du useState for samme formål.
+    </div>
+
+    <pre><code>// UiPath-tankegang:
+// counter = 0
+// For Each item in collection:
+//   counter = counter + 1
+//   Log: "Behandlet " + counter + " elementer"
+
+// React med useState:
+"use client"  // Kreves for interaktive komponenter
+
+import { useState } from "react"
+
+function Counter() {
+  // useState returnerer [nåværendeVerdi, funksjontForÅOppdatere]
+  const [counter, setCounter] = useState(0)  // Starverdi = 0
+
+  function handleClick() {
+    setCounter(counter + 1)  // Oppdater verdien
+  }
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Teller: {counter}&lt;/p&gt;
+      &lt;button onClick={handleClick}&gt;Øk med 1&lt;/button&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- PROPS -->
+    <h2>Props = In Arguments</h2>
+
+    <div class="concept-box">
+      <h4>Hva er Props?</h4>
+      <p>Props er data som <strong>sendes inn til en komponent</strong> fra utsiden.
+      Akkurat som In Arguments i UiPath Invoke Workflow.</p>
+    </div>
+
+    <pre><code>// UiPath-tankegang:
+// Main Workflow:
+//   Invoke "GreetUser" med:
+//     - in_UserName = "Ola"
+//     - in_Greeting = "Hei"
+
+// React:
+// Definér hva komponenten tar imot
+interface GreetUserProps {
+  userName: string   // in_UserName
+  greeting: string   // in_Greeting
+}
+
+// Komponenten tar imot props
+function GreetUser({ userName, greeting }: GreetUserProps) {
+  return &lt;p&gt;{greeting}, {userName}!&lt;/p&gt;
+}
+
+// Bruk (som Invoke Workflow):
+&lt;GreetUser userName="Ola" greeting="Hei" /&gt;
+// Resultat: "Hei, Ola!"</code></pre>
+
+    <!-- SERVER ACTIONS -->
+    <h2>Server Actions = Attended Robot</h2>
+
+    <div class="concept-box">
+      <h4>Hva er en Server Action?</h4>
+      <p>En Server Action kjører <strong>på serveren, ikke i nettleseren</strong>.
+      Perfekt for database-kall og sensitive operasjoner. Tenk på det som en
+      Attended Robot som kjører på en sikker server.</p>
+    </div>
+
+    <div class="analogy">
+      <strong>RPA-analogi:</strong> Når en bruker klikker en knapp i en Attended
+      Robot, utfører roboten handlingen på maskinen (ikke i brukerens hode).
+      Server Actions fungerer likt - brukeren trigger handlingen, men den kjøres
+      på serveren.
+    </div>
+
+    <pre><code>// Server Action (kjører på server) - src/actions/contact.ts
+"use server"  // ← Viktig! Forteller at dette kjører på server
+
+import supabase from "@/config/supabase-config"
+
+export async function submitContactForm(formData: FormData) {
+  // Dette kjører på serveren - trygt for database-kall
+  const name = formData.get("name") as string
+  const email = formData.get("email") as string
+
+  // Lagre i database (ingen kan se denne koden i nettleseren)
+  const { error } = await supabase
+    .from("contact_messages")
+    .insert({ name, email })
+
+  if (error) {
+    return { success: false, message: "Feil ved lagring" }
+  }
+
+  return { success: true, message: "Melding sendt!" }
+}</code></pre>
+
+    <!-- MAPPESTRUKTUR -->
+    <h2>Mappestruktur = Prosjektorganisering</h2>
+
+    <div class="concept-box">
+      <h4>Hvorfor struktur?</h4>
+      <p>Akkurat som du organiserer workflows i mapper i UiPath (Main, Framework,
+      Components), organiserer vi Next.js-kode i mapper.</p>
+    </div>
+
+    <pre><code>src/
+├── actions/          # Server Actions (som Orchestrator-jobber)
+│   └── contact.ts    # Håndterer kontaktskjema
+│
+├── app/              # Sider/ruter (som "Main"-mappen)
+│   ├── page.tsx      # Forsiden (localhost:3000/)
+│   ├── layout.tsx    # Felles layout for alle sider
+│   └── kontakt/
+│       └── page.tsx  # Kontaktside (localhost:3000/kontakt)
+│
+├── components/       # Gjenbrukbare komponenter (som "Library")
+│   ├── ui/           # Basis-komponenter (Button, Input)
+│   └── layout/       # Layout-komponenter (Header, Footer)
+│
+├── config/           # Konfigurasjon (som Config-fil)
+│   └── supabase-config.ts
+│
+├── interfaces/       # TypeScript-typer (som Object Repository)
+│   └── index.ts
+│
+└── lib/              # Hjelpefunksjoner (som Utilities)
+    └── utils.ts</code></pre>
+
+    <!-- VANLIGE MØNSTRE -->
+    <h2>Vanlige mønstre du vil bruke</h2>
+
+    <h3>1. Hente og vise data</h3>
+    <pre><code>// Server Component - henter data før siden vises
+// (Som å kjøre en query før du viser resultat i UiPath)
+
+export default async function ProductsPage() {
+  // Hent data fra database
+  const { data: products } = await supabase
+    .from("products")
+    .select("*")
+
+  return (
+    &lt;div&gt;
+      {products?.map((product) => (
+        &lt;div key={product.id}&gt;
+          &lt;h3&gt;{product.name}&lt;/h3&gt;
+          &lt;p&gt;{product.price} kr&lt;/p&gt;
+        &lt;/div&gt;
+      ))}
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h3>2. Skjema med innsending</h3>
+    <pre><code>// Client Component - håndterer brukerinteraksjon
+"use client"
+
+import { useState } from "react"
+import { submitForm } from "@/actions/form"
+
+export default function ContactForm() {
+  const [isLoading, setIsLoading] = useState(false)
+
+  async function handleSubmit(e: React.FormEvent&lt;HTMLFormElement&gt;) {
+    e.preventDefault()  // Hindre standard form-oppførsel
+    setIsLoading(true)
+
+    const formData = new FormData(e.currentTarget)
+    const result = await submitForm(formData)
+
+    if (result.success) {
+      alert("Sendt!")
+    }
+    setIsLoading(false)
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit}&gt;
+      &lt;input name="email" type="email" required /&gt;
+      &lt;button disabled={isLoading}&gt;
+        {isLoading ? "Sender..." : "Send"}
+      &lt;/button&gt;
+    &lt;/form&gt;
+  )
+}</code></pre>
+
+    <h3>3. Betinget visning (If/Then i RPA)</h3>
+    <pre><code>// Som If/Then/Else i UiPath
+
+function UserGreeting({ isLoggedIn, userName }) {
+  // Kort if/else med ternary operator:
+  return (
+    &lt;div&gt;
+      {isLoggedIn ? (
+        &lt;p&gt;Velkommen tilbake, {userName}!&lt;/p&gt;
+      ) : (
+        &lt;p&gt;Vennligst logg inn&lt;/p&gt;
+      )}
+    &lt;/div&gt;
+  )
+}
+
+// Eller med && for enkel betingelse:
+function Notification({ hasNewMessages }) {
+  return (
+    &lt;div&gt;
+      {hasNewMessages && &lt;span&gt;Du har nye meldinger!&lt;/span&gt;}
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- TIPS -->
+    <h2>Tips for RPA-utviklere</h2>
+
+    <div class="success-box">
+      <strong>Du kan allerede mye!</strong>
+      <ul style="margin: 0.5rem 0 0 1.5rem;">
+        <li>Logisk tenkning og sekvenser → Komponenter og funksjoner</li>
+        <li>Variabler og data-typer → State og Interfaces</li>
+        <li>Invoke Workflow → Import og bruk komponenter</li>
+        <li>Try-Catch → try-catch i TypeScript</li>
+        <li>Loops (For Each) → .map() i JavaScript</li>
+        <li>If/Then/Else → Ternary operator og &&</li>
+      </ul>
+    </div>
+
+    <div class="info-box">
+      <strong>Hovedforskjellen:</strong> I RPA jobber du ofte sekvensielt (gjør A, så B, så C).
+      I React tenker du mer deklarativt: "Gitt denne data, vis dette."
+      Du beskriver <em>hva</em> som skal vises, ikke <em>hvordan</em> steg for steg.
+    </div>
+
+    <div class="footer">
+      <p>
+        <a href="index.html">← Hurtigstart</a> |
+        <a href="typescript-intro.html">TypeScript Intro →</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

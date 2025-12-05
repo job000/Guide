@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Next.js Utviklingsguide - Fullstack på 3-5 dager</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <style>
+    .guide-selector {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+    .guide-card {
+      background: linear-gradient(135deg, #f8fafc 0%, #fff 100%);
+      border: 3px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.3s;
+    }
+    .guide-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+    .guide-card.start {
+      border-color: #22c55e;
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    }
+    .guide-card.learn {
+      border-color: #3b82f6;
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+    }
+    .guide-card.reference {
+      border-color: #f59e0b;
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    }
+    .guide-card .icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .guide-card h3 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.25rem;
+    }
+    .guide-card h3::before {
+      display: none;
+    }
+    .guide-card p {
+      color: #64748b;
+      margin: 0;
+      font-size: 0.9rem;
+    }
+    .workflow {
+      background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%);
+      color: white;
+      padding: 2rem;
+      border-radius: 16px;
+      margin: 2rem 0;
+      border: 1px solid rgba(255,255,255,0.1);
+    }
+    .workflow h2 {
+      color: white;
+      margin-top: 0;
+      border: none;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+    .workflow h2::before {
+      display: none;
+    }
+    .workflow-steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .workflow-step {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      padding: 1.25rem 1rem;
+      border-radius: 12px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: transform 0.2s, background 0.2s;
+    }
+    .workflow-step:hover {
+      transform: translateY(-2px);
+      background: rgba(255,255,255,0.2);
+    }
+    .workflow-step .number {
+      background: #3b82f6;
+      color: white;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 0.75rem;
+      font-weight: bold;
+      font-size: 1rem;
+      box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+    }
+    .workflow-step h4 {
+      margin: 0.5rem 0;
+      font-size: 1rem;
+      font-weight: 600;
+      color: white;
+    }
+    .workflow-step p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.85);
+      line-height: 1.5;
+    }
+    .quick-links {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    .quick-link {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 1rem;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.2s;
+    }
+    .quick-link:hover {
+      border-color: #3b82f6;
+      background: #f8fafc;
+    }
+    .quick-link h4 {
+      margin: 0 0 0.25rem 0;
+      color: #1e293b;
+      font-size: 0.95rem;
+    }
+    .quick-link p {
+      margin: 0;
+      font-size: 0.8rem;
+      color: #64748b;
+    }
+    .hero {
+      background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
+      color: white;
+      padding: 2.5rem 2rem;
+      border-radius: 16px;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+    .hero h1 {
+      margin: 0;
+      font-size: 2rem;
+      color: white;
+      background: none;
+      -webkit-text-fill-color: white;
+    }
+    .hero p {
+      margin: 1rem 0 0 0;
+      opacity: 0.9;
+      color: white;
+    }
+    .hero .subtitle {
+      font-size: 1.1rem;
+      margin-top: 0.5rem;
+    }
+    .target-audience {
+      background: #f0fdf4;
+      border: 2px solid #22c55e;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+    }
+    .target-audience h3 {
+      color: #166534;
+      margin-top: 0;
+    }
+    .target-audience h3::before {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="index.html"><strong>Hjem</strong></a>
+    <a href="guide-generell/index.html">Start Her</a>
+    <a href="guide-generell/konsepter.html">Konsepter</a>
+    <a href="grunnleggende/index.html">Grunnleggende</a>
+    <a href="feilmeldinger/index.html">Feilmeldinger</a>
+  </nav>
+
+  <div class="container">
+    <div class="hero">
+      <h1>Next.js Fullstack Guide</h1>
+      <p class="subtitle">Lever profesjonelle nettsider til kunder på 3-5 dager</p>
+      <p style="font-size: 0.9rem; margin-top: 1rem; opacity: 0.8;">
+        Next.js 15 + React 19 + TypeScript + Tailwind CSS 4 + Supabase
+      </p>
+    </div>
+
+    <!-- MÅLGRUPPE -->
+    <div class="target-audience">
+      <h3>Hvem er denne guiden for?</h3>
+      <p>Du har OOP/RPA-erfaring (UiPath, BluePrism) eller annen programmeringsbakgrunn,
+      men er ny i webdev. Du vil levere profesjonelle nettsider til kunder uten å måtte
+      lære alt fra scratch. Denne guiden gir deg:</p>
+      <ul style="margin: 0.5rem 0 0 1.5rem;">
+        <li>Ferdige komponenter du kan gjenbruke</li>
+        <li>Steg-for-steg instruksjoner med sjekkpunkter</li>
+        <li>Forklaringer med OOP-analogier du kjenner</li>
+        <li>Løsninger på vanlige feil</li>
+      </ul>
+    </div>
+
+    <!-- WORKFLOW -->
+    <div class="workflow">
+      <h2>Din arbeidsflyt: Kundeprosjekt på 5 dager</h2>
+      <div class="workflow-steps">
+        <div class="workflow-step">
+          <div class="number">1</div>
+          <h4>Dag 1</h4>
+          <p>Kjør setup-script, sett opp Supabase</p>
+        </div>
+        <div class="workflow-step">
+          <div class="number">2</div>
+          <h4>Dag 2</h4>
+          <p>Tilpass header, footer, farger</p>
+        </div>
+        <div class="workflow-step">
+          <div class="number">3</div>
+          <h4>Dag 3</h4>
+          <p>Bygg alle sider fra maler</p>
+        </div>
+        <div class="workflow-step">
+          <div class="number">4</div>
+          <h4>Dag 4</h4>
+          <p>Legg inn kundens innhold</p>
+        </div>
+        <div class="workflow-step">
+          <div class="number">5</div>
+          <h4>Dag 5</h4>
+          <p>Test, deploy, lever</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- HOVEDGUIDER -->
+    <h2>Kom i gang</h2>
+
+    <div class="guide-selector">
+      <a href="guide-generell/auto-setup.html" class="guide-card start">
+        <div class="icon">🚀</div>
+        <h3>Auto-Setup (Anbefalt)</h3>
+        <p>Kjør ett script og få et komplett prosjekt med alle komponenter på 2 minutter.</p>
+      </a>
+
+      <a href="guide-generell/manuell-setup.html" class="guide-card start">
+        <div class="icon">🔧</div>
+        <h3>Manuell Setup</h3>
+        <p>Steg-for-steg instruksjoner hvis scriptet ikke fungerer (Windows).</p>
+      </a>
+
+      <a href="guide-generell/fullstack-arkitektur.html" class="guide-card learn">
+        <div class="icon">🏗️</div>
+        <h3>Fullstack Arkitektur</h3>
+        <p>Komplett guide: Auth, Admin, Route Groups, Server Actions. Copy-paste klar.</p>
+      </a>
+
+      <a href="guide-generell/konsepter.html" class="guide-card learn">
+        <div class="icon">💡</div>
+        <h3>Konsepter for RPA-utviklere</h3>
+        <p>Forstå Next.js/React med analogier fra UiPath og BluePrism.</p>
+      </a>
+
+      <a href="guide-generell/prosjektmaler.html" class="guide-card learn">
+        <div class="icon">📋</div>
+        <h3>Prosjektmaler</h3>
+        <p>Ferdige maler for restaurant, gym, konsulent, nettbutikk osv.</p>
+      </a>
+
+      <a href="guide-generell/sjekkliste.html" class="guide-card reference">
+        <div class="icon">✅</div>
+        <h3>Leveringssjekkliste</h3>
+        <p>Alt du må huske før du leverer til kunde.</p>
+      </a>
+
+      <a href="feilmeldinger/index.html" class="guide-card reference">
+        <div class="icon">🔍</div>
+        <h3>Feilmeldinger</h3>
+        <p>Søk etter feilmeldingen din og finn løsningen.</p>
+      </a>
+    </div>
+
+    <!-- HURTIGREFERANSE -->
+    <h2>Hurtigreferanse</h2>
+
+    <div class="quick-links">
+      <a href="grunnleggende/react-nextjs-tailwind.html" class="quick-link">
+        <h4>React + Next.js</h4>
+        <p>Komplett guide</p>
+      </a>
+      <a href="grunnleggende/typescript.html" class="quick-link">
+        <h4>TypeScript</h4>
+        <p>Typer og interfaces</p>
+      </a>
+      <a href="grunnleggende/tailwind.html" class="quick-link">
+        <h4>Tailwind CSS</h4>
+        <p>Styling-klasser</p>
+      </a>
+      <a href="guide-generell/database.html" class="quick-link">
+        <h4>Database/Supabase</h4>
+        <p>CRUD, SQL, queries</p>
+      </a>
+      <a href="guide-generell/autentisering.html" class="quick-link">
+        <h4>Innlogging</h4>
+        <p>Auth, JWT, sessions</p>
+      </a>
+      <a href="guide-generell/sikkerhet.html" class="quick-link">
+        <h4>Sikkerhet</h4>
+        <p>OWASP, GDPR, headers</p>
+      </a>
+      <a href="guide-generell/docker-deploy.html" class="quick-link">
+        <h4>Deploy</h4>
+        <p>Vercel, Docker, domene</p>
+      </a>
+    </div>
+
+    <!-- TYPISKE PROSJEKTER -->
+    <h2>Typiske kundeprosjekter</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Sider</th>
+          <th>Funksjoner</th>
+          <th>Guide</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Infoside/Bedrift</td>
+          <td>Hjem, Om, Tjenester, Kontakt</td>
+          <td>Kontaktskjema, SEO</td>
+          <td><a href="guide-generell/maler.html#konsulent">Gå til →</a></td>
+        </tr>
+        <tr>
+          <td>Restaurant</td>
+          <td>+ Meny, Booking</td>
+          <td>Meny med priser, bordbestilling</td>
+          <td><a href="guide-generell/maler.html#restaurant">Gå til →</a></td>
+        </tr>
+        <tr>
+          <td>Treningssenter</td>
+          <td>+ Timeplan, Priser</td>
+          <td>Klasse-påmelding, medlemskap</td>
+          <td><a href="guide-generell/maler.html#treningssenter">Gå til →</a></td>
+        </tr>
+        <tr>
+          <td>Nettbutikk</td>
+          <td>+ Produkter, Handlekurv, Checkout</td>
+          <td>Stripe betaling, ordrer</td>
+          <td><a href="guide-generell/maler.html#nettbutikk">Gå til →</a></td>
+        </tr>
+        <tr>
+          <td>Booking-side</td>
+          <td>+ Tjenester, Kalender</td>
+          <td>Timebestilling, e-post</td>
+          <td><a href="guide-generell/booking.html">Gå til →</a></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- VANLIGE KOMMANDOER -->
+    <h2>Vanlige kommandoer</h2>
+    <pre><code># Start nytt prosjekt
+npx create-next-app@latest prosjektnavn
+
+# Start utviklingsserver
+npm run dev
+
+# Bygg for produksjon
+npm run build
+
+# Sjekk for TypeScript-feil
+npx tsc --noEmit
+
+# Sjekk for lint-feil
+npm run lint</code></pre>
+
+    <div class="info-box" style="margin-top: 2rem;">
+      <strong>Trenger du hjelp?</strong> Start med <a href="guide-generell/auto-setup.html">Auto-Setup</a>
+      for å komme i gang raskt, eller les <a href="guide-generell/konsepter.html">Konsepter</a>
+      for å forstå hvordan Next.js fungerer.
+    </div>
+
+    <div class="footer">
+      <p>Guide for Next.js 15 + React 19 + TypeScript + Tailwind CSS 4 + Supabase</p>
+      <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+        Sist oppdatert: Desember 2024
+      </p>
+    </div>
+  </div>
+
+  <script src="assets/copy-code.js"></script>
+</body>
+</html>

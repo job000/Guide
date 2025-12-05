@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Betalingsintegrasjon - Next.js 15 Guide</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .flow-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      padding: 2rem;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px;
+      color: white;
+      margin: 1rem 0;
+    }
+    .flow-step {
+      background: rgba(255,255,255,0.2);
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+      min-width: 120px;
+    }
+    .flow-arrow {
+      font-size: 1.5rem;
+    }
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .pricing-card {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .pricing-card.popular {
+      border-color: #3b82f6;
+      transform: scale(1.05);
+    }
+    .price {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #1e293b;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html">Ny Nettside</a>
+    <a href="bilder.html">Bilder</a>
+    <a href="betaling.html"><strong>Betaling</strong></a>
+    <a href="booking.html">Booking</a>
+  </nav>
+
+  <div class="container">
+    <h1>Betalingsintegrasjon med Stripe</h1>
+
+    <blockquote>
+      <p>Implementer sikker betaling med Stripe. Støtter engangskjøp, abonnementer og fakturering.</p>
+    </blockquote>
+
+    <!-- FLOW -->
+    <h2>Betalingsflyt</h2>
+
+    <div class="flow-diagram">
+      <div class="flow-step">
+        <div style="font-size: 2rem;">🛒</div>
+        <div>Kunde velger</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div style="font-size: 2rem;">💳</div>
+        <div>Stripe Checkout</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div style="font-size: 2rem;">✓</div>
+        <div>Webhook bekrefter</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div style="font-size: 2rem;">📧</div>
+        <div>Bekreftelse</div>
+      </div>
+    </div>
+
+    <!-- SETUP -->
+    <h2>1. Oppsett</h2>
+
+    <h3>Installer Stripe</h3>
+    <pre><code>npm install stripe @stripe/stripe-js</code></pre>
+
+    <h3>Miljøvariabler</h3>
+    <pre><code># .env.local
+STRIPE_SECRET_KEY=sk_test_... # Fra Stripe Dashboard
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_... # Fra webhook-endepunkt
+
+# Produksjon: Bytt til sk_live_ og pk_live_</code></pre>
+
+    <h3>Stripe-klient</h3>
+    <pre><code>// src/config/stripe-config.ts
+import Stripe from "stripe"
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+  apiVersion: "2024-12-18.acacia",
+  typescript: true,
+})
+
+export default stripe</code></pre>
+
+    <!-- CHECKOUT -->
+    <h2>2. Stripe Checkout (enkleste metode)</h2>
+
+    <div class="info-box">
+      <strong>Anbefalt:</strong> Stripe Checkout er den enkleste og sikreste måten. Stripe håndterer alt: kortinformasjon, 3D Secure, kvitteringer.
+    </div>
+
+    <h3>Server Action for checkout</h3>
+    <pre><code>// src/actions/stripe.ts
+"use server"
+
+import stripe from "@/config/stripe-config"
+import { IApiResponse } from "@/interfaces"
+
+interface CheckoutItem {
+  name: string
+  price: number // i øre (100 = 1 kr)
+  quantity: number
+  image?: string
+}
+
+export async function createCheckoutSession(
+  items: CheckoutItem[],
+  customerEmail?: string
+): Promise&lt;IApiResponse&lt;string&gt;&gt; {
+  try {
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card", "klarna"], // Kort + Klarna
+      mode: "payment",
+      customer_email: customerEmail,
+      line_items: items.map((item) => ({
+        price_data: {
+          currency: "nok",
+          product_data: {
+            name: item.name,
+            images: item.image ? [item.image] : [],
+          },
+          unit_amount: item.price,
+        },
+        quantity: item.quantity,
+      })),
+      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/betaling/suksess?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/betaling/avbrutt`,
+      metadata: {
+        // Legg til egne data som sendes til webhook
+        orderId: `order_${Date.now()}`,
+      },
+    })
+
+    return {
+      success: true,
+      data: session.url!,
+    }
+  } catch (error) {
+    console.error("Stripe error:", error)
+    return {
+      success: false,
+      message: "Kunne ikke starte betaling",
+    }
+  }
+}</code></pre>
+
+    <h3>Checkout-knapp komponent</h3>
+    <pre><code>// src/components/functional/checkout-button.tsx
+"use client"
+
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import toast from "react-hot-toast"
+import { createCheckoutSession } from "@/actions/stripe"
+import { Button } from "@/components/ui/button"
+
+interface CheckoutButtonProps {
+  items: Array&lt;{
+    name: string
+    price: number
+    quantity: number
+    image?: string
+  }&gt;
+  customerEmail?: string
+}
+
+export default function CheckoutButton({ items, customerEmail }: CheckoutButtonProps) {
+  const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
+
+  const handleCheckout = async () => {
+    setIsLoading(true)
+
+    try {
+      const result = await createCheckoutSession(items, customerEmail)
+
+      if (result.success && result.data) {
+        // Redirect til Stripe Checkout
+        router.push(result.data)
+      } else {
+        toast.error(result.message || "Noe gikk galt")
+      }
+    } catch {
+      toast.error("Kunne ikke starte betaling")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+
+  return (
+    &lt;Button
+      onClick={handleCheckout}
+      disabled={isLoading}
+      className="w-full"
+      size="lg"
+    &gt;
+      {isLoading ? "Laster..." : `Betal ${(total / 100).toFixed(2)} kr`}
+    &lt;/Button&gt;
+  )
+}</code></pre>
+
+    <!-- WEBHOOK -->
+    <h2>3. Webhook - Håndter betalinger</h2>
+
+    <div class="info-box">
+      <strong>Viktig:</strong> Webhooks er kritiske! De bekrefter at betalingen faktisk gikk gjennom før du leverer varer/tjenester.
+    </div>
+
+    <pre><code>// src/app/api/webhooks/stripe/route.ts
+import { NextRequest, NextResponse } from "next/server"
+import stripe from "@/config/stripe-config"
+import Stripe from "stripe"
+import supabase from "@/config/supabase-config"
+
+export async function POST(req: NextRequest) {
+  const body = await req.text()
+  const signature = req.headers.get("stripe-signature")!
+
+  let event: Stripe.Event
+
+  try {
+    event = stripe.webhooks.constructEvent(
+      body,
+      signature,
+      process.env.STRIPE_WEBHOOK_SECRET!
+    )
+  } catch (err) {
+    console.error("Webhook signature verification failed")
+    return NextResponse.json({ error: "Invalid signature" }, { status: 400 })
+  }
+
+  // Håndter ulike events
+  switch (event.type) {
+    case "checkout.session.completed": {
+      const session = event.data.object as Stripe.Checkout.Session
+
+      // Hent ordredetaljer fra metadata
+      const orderId = session.metadata?.orderId
+
+      // Lagre ordre i database
+      await supabase.from("orders").insert({
+        stripe_session_id: session.id,
+        customer_email: session.customer_email,
+        amount: session.amount_total,
+        status: "paid",
+        metadata: session.metadata,
+      })
+
+      // Send bekreftelsesmail (valgfritt)
+      // await sendOrderConfirmation(session.customer_email, orderId)
+
+      console.log(`✓ Ordre betalt: ${orderId}`)
+      break
+    }
+
+    case "payment_intent.payment_failed": {
+      const paymentIntent = event.data.object as Stripe.PaymentIntent
+      console.error(`✗ Betaling feilet: ${paymentIntent.id}`)
+      break
+    }
+
+    case "customer.subscription.created":
+    case "customer.subscription.updated":
+    case "customer.subscription.deleted": {
+      const subscription = event.data.object as Stripe.Subscription
+      // Håndter abonnementsendringer
+      await handleSubscriptionChange(subscription)
+      break
+    }
+  }
+
+  return NextResponse.json({ received: true })
+}
+
+async function handleSubscriptionChange(subscription: Stripe.Subscription) {
+  const customerId = subscription.customer as string
+  const status = subscription.status
+
+  await supabase
+    .from("subscriptions")
+    .upsert({
+      stripe_customer_id: customerId,
+      stripe_subscription_id: subscription.id,
+      status: status,
+      current_period_end: new Date(subscription.current_period_end * 1000),
+    })
+}</code></pre>
+
+    <h3>Test webhook lokalt</h3>
+    <pre><code># Installer Stripe CLI
+brew install stripe/stripe-cli/stripe
+
+# Logg inn
+stripe login
+
+# Lytt til webhooks og forward til din app
+stripe listen --forward-to localhost:3000/api/webhooks/stripe
+
+# Kopier webhook secret (whsec_...) til .env.local</code></pre>
+
+    <!-- SUCCESS PAGE -->
+    <h2>4. Suksess-side</h2>
+
+    <pre><code>// src/app/betaling/suksess/page.tsx
+import { redirect } from "next/navigation"
+import stripe from "@/config/stripe-config"
+import { CheckCircle } from "lucide-react"
+
+interface Props {
+  searchParams: Promise&lt;{ session_id?: string }&gt;
+}
+
+export default async function BetalingSuksessPage({ searchParams }: Props) {
+  const { session_id } = await searchParams
+
+  if (!session_id) {
+    redirect("/")
+  }
+
+  // Hent session-detaljer
+  const session = await stripe.checkout.sessions.retrieve(session_id)
+
+  if (session.payment_status !== "paid") {
+    redirect("/betaling/avbrutt")
+  }
+
+  return (
+    &lt;div className="min-h-screen flex items-center justify-center"&gt;
+      &lt;div className="text-center max-w-md"&gt;
+        &lt;CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" /&gt;
+        &lt;h1 className="text-2xl font-bold mb-2"&gt;Takk for din bestilling!&lt;/h1&gt;
+        &lt;p className="text-gray-600 mb-4"&gt;
+          En bekreftelse er sendt til {session.customer_email}
+        &lt;/p&gt;
+        &lt;p className="text-sm text-gray-500"&gt;
+          Ordre-ID: {session.metadata?.orderId}
+        &lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- SUBSCRIPTIONS -->
+    <h2>5. Abonnementer</h2>
+
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <h3>Basis</h3>
+        <div class="price">99 kr</div>
+        <p style="color: #64748b;">per måned</p>
+      </div>
+      <div class="pricing-card popular">
+        <h3>Pro</h3>
+        <div class="price">299 kr</div>
+        <p style="color: #64748b;">per måned</p>
+      </div>
+      <div class="pricing-card">
+        <h3>Enterprise</h3>
+        <div class="price">999 kr</div>
+        <p style="color: #64748b;">per måned</p>
+      </div>
+    </div>
+
+    <h3>Opprett produkter i Stripe</h3>
+    <pre><code>// scripts/create-stripe-products.ts
+// Kjør én gang for å sette opp produkter
+
+import stripe from "@/config/stripe-config"
+
+async function createProducts() {
+  // Opprett produkt
+  const product = await stripe.products.create({
+    name: "Pro-abonnement",
+    description: "Tilgang til alle funksjoner",
+  })
+
+  // Opprett pris (abonnement)
+  const price = await stripe.prices.create({
+    product: product.id,
+    unit_amount: 29900, // 299 kr
+    currency: "nok",
+    recurring: {
+      interval: "month",
+    },
+  })
+
+  console.log("Product ID:", product.id)
+  console.log("Price ID:", price.id) // Lagre dette!
+}
+
+createProducts()</code></pre>
+
+    <h3>Server Action for abonnement</h3>
+    <pre><code>// src/actions/stripe.ts (legg til)
+
+export async function createSubscriptionCheckout(
+  priceId: string,
+  customerEmail: string
+): Promise&lt;IApiResponse&lt;string&gt;&gt; {
+  try {
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      mode: "subscription",
+      customer_email: customerEmail,
+      line_items: [
+        {
+          price: priceId,
+          quantity: 1,
+        },
+      ],
+      success_url: `${process.env.NEXT_PUBLIC_BASE_URL}/abonnement/suksess?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.NEXT_PUBLIC_BASE_URL}/priser`,
+      subscription_data: {
+        trial_period_days: 14, // 14 dager gratis prøveperiode
+      },
+    })
+
+    return { success: true, data: session.url! }
+  } catch (error) {
+    console.error("Subscription error:", error)
+    return { success: false, message: "Kunne ikke starte abonnement" }
+  }
+}
+
+// Avbryt abonnement
+export async function cancelSubscription(
+  subscriptionId: string
+): Promise&lt;IApiResponse&gt; {
+  try {
+    await stripe.subscriptions.update(subscriptionId, {
+      cancel_at_period_end: true,
+    })
+
+    return { success: true, message: "Abonnement avsluttes ved periodeslutt" }
+  } catch {
+    return { success: false, message: "Kunne ikke avbryte abonnement" }
+  }
+}
+
+// Kundeportal (for å administrere abonnement)
+export async function createCustomerPortal(
+  customerId: string
+): Promise&lt;IApiResponse&lt;string&gt;&gt; {
+  try {
+    const session = await stripe.billingPortal.sessions.create({
+      customer: customerId,
+      return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/konto`,
+    })
+
+    return { success: true, data: session.url }
+  } catch {
+    return { success: false, message: "Kunne ikke åpne kundeportal" }
+  }
+}</code></pre>
+
+    <!-- PRODUCTS TABLE -->
+    <h2>6. Database-skjema for ordre</h2>
+
+    <pre><code>-- Supabase SQL
+
+-- Ordrer
+CREATE TABLE orders (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  stripe_session_id TEXT UNIQUE,
+  customer_email TEXT NOT NULL,
+  amount INTEGER NOT NULL, -- i øre
+  status TEXT DEFAULT 'pending',
+  metadata JSONB,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Abonnementer
+CREATE TABLE subscriptions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES auth.users(id),
+  stripe_customer_id TEXT UNIQUE,
+  stripe_subscription_id TEXT UNIQUE,
+  status TEXT NOT NULL,
+  price_id TEXT,
+  current_period_end TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Indekser
+CREATE INDEX idx_orders_email ON orders(customer_email);
+CREATE INDEX idx_subscriptions_user ON subscriptions(user_id);
+CREATE INDEX idx_subscriptions_status ON subscriptions(status);</code></pre>
+
+    <!-- SHOPPING CART -->
+    <h2>7. Handlekurv (for nettbutikk)</h2>
+
+    <pre><code>// src/store/cart-store.ts
+import { create } from "zustand"
+import { persist } from "zustand/middleware"
+
+interface CartItem {
+  id: string
+  name: string
+  price: number
+  quantity: number
+  image?: string
+}
+
+interface CartStore {
+  items: CartItem[]
+  addItem: (item: Omit&lt;CartItem, "quantity"&gt;) => void
+  removeItem: (id: string) => void
+  updateQuantity: (id: string, quantity: number) => void
+  clearCart: () => void
+  total: () => number
+}
+
+export const useCartStore = create&lt;CartStore&gt;()(
+  persist(
+    (set, get) => ({
+      items: [],
+
+      addItem: (item) => {
+        set((state) => {
+          const existing = state.items.find((i) => i.id === item.id)
+          if (existing) {
+            return {
+              items: state.items.map((i) =>
+                i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+              ),
+            }
+          }
+          return { items: [...state.items, { ...item, quantity: 1 }] }
+        })
+      },
+
+      removeItem: (id) => {
+        set((state) => ({
+          items: state.items.filter((i) => i.id !== id),
+        }))
+      },
+
+      updateQuantity: (id, quantity) => {
+        if (quantity <= 0) {
+          get().removeItem(id)
+          return
+        }
+        set((state) => ({
+          items: state.items.map((i) =>
+            i.id === id ? { ...i, quantity } : i
+          ),
+        }))
+      },
+
+      clearCart: () => set({ items: [] }),
+
+      total: () => {
+        return get().items.reduce(
+          (sum, item) => sum + item.price * item.quantity,
+          0
+        )
+      },
+    }),
+    {
+      name: "cart-storage",
+    }
+  )
+)</code></pre>
+
+    <h3>Handlekurv-komponent</h3>
+    <pre><code>// src/components/functional/cart.tsx
+"use client"
+
+import { useCartStore } from "@/store/cart-store"
+import CheckoutButton from "./checkout-button"
+import { Trash2, Plus, Minus } from "lucide-react"
+
+export default function Cart() {
+  const { items, removeItem, updateQuantity, total } = useCartStore()
+
+  if (items.length === 0) {
+    return (
+      &lt;div className="text-center py-8 text-gray-500"&gt;
+        Handlekurven er tom
+      &lt;/div&gt;
+    )
+  }
+
+  return (
+    &lt;div className="space-y-4"&gt;
+      {items.map((item) => (
+        &lt;div key={item.id} className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg"&gt;
+          &lt;div className="flex-1"&gt;
+            &lt;h3 className="font-medium"&gt;{item.name}&lt;/h3&gt;
+            &lt;p className="text-sm text-gray-600"&gt;
+              {(item.price / 100).toFixed(2)} kr
+            &lt;/p&gt;
+          &lt;/div&gt;
+
+          &lt;div className="flex items-center gap-2"&gt;
+            &lt;button
+              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+              className="p-1 hover:bg-gray-200 rounded"
+            &gt;
+              &lt;Minus className="w-4 h-4" /&gt;
+            &lt;/button&gt;
+            &lt;span className="w-8 text-center"&gt;{item.quantity}&lt;/span&gt;
+            &lt;button
+              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+              className="p-1 hover:bg-gray-200 rounded"
+            &gt;
+              &lt;Plus className="w-4 h-4" /&gt;
+            &lt;/button&gt;
+          &lt;/div&gt;
+
+          &lt;button
+            onClick={() => removeItem(item.id)}
+            className="p-2 text-red-500 hover:bg-red-50 rounded"
+          &gt;
+            &lt;Trash2 className="w-4 h-4" /&gt;
+          &lt;/button&gt;
+        &lt;/div&gt;
+      ))}
+
+      &lt;div className="border-t pt-4"&gt;
+        &lt;div className="flex justify-between text-lg font-bold mb-4"&gt;
+          &lt;span&gt;Totalt&lt;/span&gt;
+          &lt;span&gt;{(total() / 100).toFixed(2)} kr&lt;/span&gt;
+        &lt;/div&gt;
+
+        &lt;CheckoutButton items={items} /&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- TIPS -->
+    <h2>Tips og sikkerhet</h2>
+
+    <div class="info-box">
+      <strong>Sikkerhet:</strong>
+      <ul style="margin: 0.5rem 0;">
+        <li>Aldri stol på priser fra klienten - beregn alltid på serveren</li>
+        <li>Verifiser alltid webhook-signaturer</li>
+        <li>Bruk <code>metadata</code> for å spore ordre-ID</li>
+        <li>Test grundig med Stripe test-modus før lansering</li>
+      </ul>
+    </div>
+
+    <div class="info-box">
+      <strong>Test-kort i Stripe:</strong>
+      <ul style="margin: 0.5rem 0;">
+        <li><code>4242 4242 4242 4242</code> - Suksess</li>
+        <li><code>4000 0000 0000 9995</code> - Avvist</li>
+        <li><code>4000 0025 0000 3155</code> - Krever 3D Secure</li>
+      </ul>
+    </div>
+
+    <div class="footer">
+      <p>
+        <a href="bilder.html">← Bilder</a> |
+        <a href="booking.html">Booking →</a>
+      </p>
+      <p style="margin-top: 1rem; color: #64748b; font-size: 0.85rem;">
+        Utviklet av <a href="https://obligarconsulting.no">Obligar Consulting</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

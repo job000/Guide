@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin-panel - Next.js 16 Guide</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .admin-preview {
+      background: #1e293b;
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 1.5rem 0;
+    }
+    .admin-preview-header {
+      background: #0f172a;
+      padding: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      border-bottom: 1px solid #334155;
+    }
+    .admin-preview-sidebar {
+      width: 200px;
+      background: #1e293b;
+      padding: 1rem;
+      border-right: 1px solid #334155;
+    }
+    .admin-preview-main {
+      flex: 1;
+      padding: 1.5rem;
+      background: #0f172a;
+    }
+    .file-badge {
+      display: inline-block;
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-family: monospace;
+      margin-bottom: 1rem;
+    }
+    .feature-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .feature-item {
+      background: #f8fafc;
+      padding: 1rem;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
+    .feature-item h4 {
+      margin: 0 0 0.5rem 0;
+      color: #1e40af;
+    }
+    .feature-item p {
+      margin: 0;
+      color: #64748b;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html">Ny Nettside</a>
+    <a href="sider.html">Flere Sider</a>
+    <a href="skjema.html">Kontaktskjema</a>
+    <a href="admin.html"><strong>Admin-panel</strong></a>
+  </nav>
+
+  <div class="container">
+    <h1>Admin-panel</h1>
+
+    <blockquote>
+      <p>Bygg et beskyttet admin-område for å se kontaktmeldinger, redigere innhold og administrere nettsiden.</p>
+    </blockquote>
+
+    <!-- FEATURES -->
+    <h2>Hva vi skal lage</h2>
+    <div class="feature-list">
+      <div class="feature-item">
+        <h4>Innlogging</h4>
+        <p>Beskyttet med JWT og proxy.ts (Next.js 16+)</p>
+      </div>
+      <div class="feature-item">
+        <h4>Dashboard</h4>
+        <p>Oversikt og statistikk</p>
+      </div>
+      <div class="feature-item">
+        <h4>Meldinger</h4>
+        <p>Se og marker som lest</p>
+      </div>
+      <div class="feature-item">
+        <h4>Innhold</h4>
+        <p>Rediger sider og tekst</p>
+      </div>
+    </div>
+
+    <!-- FOLDER STRUCTURE -->
+    <h2>Steg 1: Mappestruktur</h2>
+
+    <pre><code>mkdir -p src/app/admin/meldinger src/app/admin/innhold src/app/login</code></pre>
+
+    <p>Struktur:</p>
+    <pre><code>src/app/
+├── admin/
+│   ├── layout.tsx      # Admin-layout med sidebar
+│   ├── page.tsx        # Dashboard
+│   ├── meldinger/
+│   │   └── page.tsx    # Kontaktmeldinger
+│   └── innhold/
+│       └── page.tsx    # Innholdsredigering
+└── login/
+    └── page.tsx        # Innloggingsside</code></pre>
+
+    <!-- LOGIN PAGE -->
+    <h2>Steg 2: Innloggingsside</h2>
+
+    <div class="file-badge">src/app/login/page.tsx</div>
+
+    <pre><code>"use client"
+
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import toast from "react-hot-toast"
+import { login } from "@/actions/auth"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+
+export default function LoginPage() {
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent&lt;HTMLFormElement&gt;) => {
+    e.preventDefault()
+    setIsLoading(true)
+
+    const formData = new FormData(e.currentTarget)
+    const email = formData.get("email") as string
+    const password = formData.get("password") as string
+
+    try {
+      const result = await login({ email, password })
+
+      if (result.success) {
+        toast.success("Innlogget!")
+        router.push("/admin")
+        router.refresh()
+      } else {
+        toast.error(result.message || "Innlogging feilet")
+      }
+    } catch {
+      toast.error("Noe gikk galt")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  return (
+    &lt;div className="min-h-screen flex items-center justify-center bg-gray-100"&gt;
+      &lt;div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md"&gt;
+        &lt;h1 className="text-2xl font-bold text-center mb-6"&gt;Admin Innlogging&lt;/h1&gt;
+
+        &lt;form onSubmit={handleSubmit} className="space-y-4"&gt;
+          &lt;div&gt;
+            &lt;label className="block text-sm font-medium mb-1"&gt;E-post&lt;/label&gt;
+            &lt;Input
+              type="email"
+              name="email"
+              required
+              placeholder="admin@eksempel.no"
+            /&gt;
+          &lt;/div&gt;
+
+          &lt;div&gt;
+            &lt;label className="block text-sm font-medium mb-1"&gt;Passord&lt;/label&gt;
+            &lt;Input
+              type="password"
+              name="password"
+              required
+              placeholder="••••••••"
+            /&gt;
+          &lt;/div&gt;
+
+          &lt;Button type="submit" disabled={isLoading} className="w-full"&gt;
+            {isLoading ? "Logger inn..." : "Logg inn"}
+          &lt;/Button&gt;
+        &lt;/form&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- ADMIN LAYOUT -->
+    <h2>Steg 3: Admin-layout med sidebar</h2>
+
+    <div class="file-badge">src/app/admin/layout.tsx</div>
+
+    <pre><code>import Link from "next/link"
+import { redirect } from "next/navigation"
+import { getLoggedInUser, logout } from "@/actions/auth"
+
+export default async function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  // Sjekk om bruker er innlogget (server-side)
+  const { success, data: user } = await getLoggedInUser()
+
+  if (!success || !user) {
+    redirect("/login")
+  }
+
+  return (
+    &lt;div className="min-h-screen flex"&gt;
+      {/* Sidebar */}
+      &lt;aside className="w-64 bg-gray-900 text-white"&gt;
+        &lt;div className="p-6"&gt;
+          &lt;h2 className="text-xl font-bold"&gt;Admin&lt;/h2&gt;
+          &lt;p className="text-gray-400 text-sm"&gt;{user.name}&lt;/p&gt;
+        &lt;/div&gt;
+
+        &lt;nav className="px-4"&gt;
+          &lt;ul className="space-y-2"&gt;
+            &lt;li&gt;
+              &lt;Link
+                href="/admin"
+                className="block px-4 py-2 rounded hover:bg-gray-800 transition-colors"
+              &gt;
+                Dashboard
+              &lt;/Link&gt;
+            &lt;/li&gt;
+            &lt;li&gt;
+              &lt;Link
+                href="/admin/meldinger"
+                className="block px-4 py-2 rounded hover:bg-gray-800 transition-colors"
+              &gt;
+                Meldinger
+              &lt;/Link&gt;
+            &lt;/li&gt;
+            &lt;li&gt;
+              &lt;Link
+                href="/admin/innhold"
+                className="block px-4 py-2 rounded hover:bg-gray-800 transition-colors"
+              &gt;
+                Innhold
+              &lt;/Link&gt;
+            &lt;/li&gt;
+          &lt;/ul&gt;
+        &lt;/nav&gt;
+
+        {/* Logg ut */}
+        &lt;div className="absolute bottom-0 left-0 w-64 p-4"&gt;
+          &lt;form
+            action={async () =&gt; {
+              "use server"
+              await logout()
+              redirect("/login")
+            }}
+          &gt;
+            &lt;button
+              type="submit"
+              className="w-full px-4 py-2 text-left text-gray-400 hover:text-white hover:bg-gray-800 rounded transition-colors"
+            &gt;
+              Logg ut
+            &lt;/button&gt;
+          &lt;/form&gt;
+        &lt;/div&gt;
+      &lt;/aside&gt;
+
+      {/* Main content */}
+      &lt;main className="flex-1 bg-gray-100"&gt;
+        &lt;div className="p-8"&gt;{children}&lt;/div&gt;
+      &lt;/main&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- DASHBOARD -->
+    <h2>Steg 4: Dashboard</h2>
+
+    <div class="file-badge">src/app/admin/page.tsx</div>
+
+    <pre><code>import { getMessages } from "@/actions/contact"
+
+export default async function AdminDashboard() {
+  const { data: messages } = await getMessages()
+
+  const unreadCount = messages?.filter((m) =&gt; !m.is_read).length || 0
+  const totalCount = messages?.length || 0
+
+  return (
+    &lt;div&gt;
+      &lt;h1 className="text-3xl font-bold mb-8"&gt;Dashboard&lt;/h1&gt;
+
+      {/* Stats */}
+      &lt;div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"&gt;
+        &lt;div className="bg-white p-6 rounded-lg shadow"&gt;
+          &lt;h3 className="text-gray-500 text-sm"&gt;Uleste meldinger&lt;/h3&gt;
+          &lt;p className="text-3xl font-bold text-blue-600"&gt;{unreadCount}&lt;/p&gt;
+        &lt;/div&gt;
+
+        &lt;div className="bg-white p-6 rounded-lg shadow"&gt;
+          &lt;h3 className="text-gray-500 text-sm"&gt;Totalt meldinger&lt;/h3&gt;
+          &lt;p className="text-3xl font-bold"&gt;{totalCount}&lt;/p&gt;
+        &lt;/div&gt;
+
+        &lt;div className="bg-white p-6 rounded-lg shadow"&gt;
+          &lt;h3 className="text-gray-500 text-sm"&gt;Siste 7 dager&lt;/h3&gt;
+          &lt;p className="text-3xl font-bold text-green-600"&gt;
+            {messages?.filter((m) =&gt; {
+              const date = new Date(m.created_at)
+              const weekAgo = new Date()
+              weekAgo.setDate(weekAgo.getDate() - 7)
+              return date &gt; weekAgo
+            }).length || 0}
+          &lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      {/* Recent messages */}
+      &lt;div className="bg-white rounded-lg shadow"&gt;
+        &lt;div className="p-6 border-b"&gt;
+          &lt;h2 className="text-xl font-bold"&gt;Siste meldinger&lt;/h2&gt;
+        &lt;/div&gt;
+
+        &lt;div className="divide-y"&gt;
+          {messages?.slice(0, 5).map((message) =&gt; (
+            &lt;div key={message.id} className="p-4 flex items-center gap-4"&gt;
+              {!message.is_read && (
+                &lt;span className="w-2 h-2 bg-blue-600 rounded-full"&gt;&lt;/span&gt;
+              )}
+              &lt;div className="flex-1"&gt;
+                &lt;p className="font-medium"&gt;{message.name}&lt;/p&gt;
+                &lt;p className="text-sm text-gray-500 truncate"&gt;{message.message}&lt;/p&gt;
+              &lt;/div&gt;
+              &lt;span className="text-sm text-gray-400"&gt;
+                {new Date(message.created_at).toLocaleDateString("nb-NO")}
+              &lt;/span&gt;
+            &lt;/div&gt;
+          ))}
+
+          {(!messages || messages.length === 0) && (
+            &lt;p className="p-4 text-gray-500"&gt;Ingen meldinger ennå.&lt;/p&gt;
+          )}
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- MESSAGES PAGE -->
+    <h2>Steg 5: Meldinger-side</h2>
+
+    <div class="file-badge">src/app/admin/meldinger/page.tsx</div>
+
+    <pre><code>import { getMessages } from "@/actions/contact"
+import MessageList from "./message-list"
+
+export default async function MeldingerPage() {
+  const { data: messages } = await getMessages()
+
+  return (
+    &lt;div&gt;
+      &lt;h1 className="text-3xl font-bold mb-8"&gt;Kontaktmeldinger&lt;/h1&gt;
+      &lt;MessageList messages={messages || []} /&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <div class="file-badge">src/app/admin/meldinger/message-list.tsx</div>
+
+    <pre><code>"use client"
+
+import { useState } from "react"
+import toast from "react-hot-toast"
+import { markAsRead } from "@/actions/contact"
+import { IContactMessage } from "@/interfaces"
+import { Button } from "@/components/ui/button"
+
+interface MessageListProps {
+  messages: IContactMessage[]
+}
+
+export default function MessageList({ messages: initialMessages }: MessageListProps) {
+  const [messages, setMessages] = useState(initialMessages)
+  const [selectedId, setSelectedId] = useState&lt;number | null&gt;(null)
+
+  const selectedMessage = messages.find((m) =&gt; m.id === selectedId)
+
+  const handleMarkAsRead = async (id: number) =&gt; {
+    const result = await markAsRead(id)
+
+    if (result.success) {
+      setMessages((prev) =&gt;
+        prev.map((m) =&gt; (m.id === id ? { ...m, is_read: true } : m))
+      )
+      toast.success("Markert som lest")
+    } else {
+      toast.error("Kunne ikke oppdatere")
+    }
+  }
+
+  return (
+    &lt;div className="grid md:grid-cols-2 gap-6"&gt;
+      {/* Message list */}
+      &lt;div className="bg-white rounded-lg shadow"&gt;
+        &lt;div className="divide-y max-h-[600px] overflow-y-auto"&gt;
+          {messages.map((message) =&gt; (
+            &lt;button
+              key={message.id}
+              onClick={() =&gt; setSelectedId(message.id)}
+              className={`w-full p-4 text-left hover:bg-gray-50 transition-colors ${
+                selectedId === message.id ? "bg-blue-50" : ""
+              }`}
+            &gt;
+              &lt;div className="flex items-center gap-2"&gt;
+                {!message.is_read && (
+                  &lt;span className="w-2 h-2 bg-blue-600 rounded-full"&gt;&lt;/span&gt;
+                )}
+                &lt;span className="font-medium"&gt;{message.name}&lt;/span&gt;
+              &lt;/div&gt;
+              &lt;p className="text-sm text-gray-500"&gt;{message.email}&lt;/p&gt;
+              &lt;p className="text-sm text-gray-400 truncate mt-1"&gt;
+                {message.message}
+              &lt;/p&gt;
+              &lt;p className="text-xs text-gray-400 mt-2"&gt;
+                {new Date(message.created_at).toLocaleString("nb-NO")}
+              &lt;/p&gt;
+            &lt;/button&gt;
+          ))}
+
+          {messages.length === 0 && (
+            &lt;p className="p-4 text-gray-500 text-center"&gt;Ingen meldinger&lt;/p&gt;
+          )}
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      {/* Message detail */}
+      &lt;div className="bg-white rounded-lg shadow p-6"&gt;
+        {selectedMessage ? (
+          &lt;&gt;
+            &lt;div className="flex items-center justify-between mb-4"&gt;
+              &lt;h2 className="text-xl font-bold"&gt;{selectedMessage.name}&lt;/h2&gt;
+              {!selectedMessage.is_read && (
+                &lt;Button
+                  onClick={() =&gt; handleMarkAsRead(selectedMessage.id)}
+                  size="sm"
+                &gt;
+                  Marker som lest
+                &lt;/Button&gt;
+              )}
+            &lt;/div&gt;
+
+            &lt;div className="space-y-4 text-sm"&gt;
+              &lt;div&gt;
+                &lt;span className="text-gray-500"&gt;E-post:&lt;/span&gt;
+                &lt;a
+                  href={`mailto:${selectedMessage.email}`}
+                  className="ml-2 text-blue-600 hover:underline"
+                &gt;
+                  {selectedMessage.email}
+                &lt;/a&gt;
+              &lt;/div&gt;
+
+              {selectedMessage.phone && (
+                &lt;div&gt;
+                  &lt;span className="text-gray-500"&gt;Telefon:&lt;/span&gt;
+                  &lt;a
+                    href={`tel:${selectedMessage.phone}`}
+                    className="ml-2 text-blue-600 hover:underline"
+                  &gt;
+                    {selectedMessage.phone}
+                  &lt;/a&gt;
+                &lt;/div&gt;
+              )}
+
+              &lt;div&gt;
+                &lt;span className="text-gray-500"&gt;Mottatt:&lt;/span&gt;
+                &lt;span className="ml-2"&gt;
+                  {new Date(selectedMessage.created_at).toLocaleString("nb-NO")}
+                &lt;/span&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+
+            &lt;div className="mt-6 pt-6 border-t"&gt;
+              &lt;h3 className="font-semibold mb-2"&gt;Melding&lt;/h3&gt;
+              &lt;p className="whitespace-pre-wrap text-gray-700"&gt;
+                {selectedMessage.message}
+              &lt;/p&gt;
+            &lt;/div&gt;
+
+            {/* Quick reply */}
+            &lt;div className="mt-6 pt-6 border-t"&gt;
+              &lt;a
+                href={`mailto:${selectedMessage.email}?subject=Re: Henvendelse fra ${selectedMessage.name}`}
+                className="inline-flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition-colors"
+              &gt;
+                Svar på e-post
+              &lt;/a&gt;
+            &lt;/div&gt;
+          &lt;/&gt;
+        ) : (
+          &lt;p className="text-gray-500 text-center py-20"&gt;
+            Velg en melding for å se detaljer
+          &lt;/p&gt;
+        )}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- ROUTE PROTECTION -->
+    <h2>Steg 6: Rutebeskyttelse med proxy.ts (Next.js 16+)</h2>
+
+    <p>Opprett <code>src/proxy.ts</code> for å beskytte admin-ruter:</p>
+
+    <div class="file-badge">src/proxy.ts</div>
+
+    <pre><code>// src/proxy.ts (Next.js 16+)
+import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
+
+export default function proxy(request: NextRequest) {
+  const token = request.cookies.get("token")?.value
+  const path = request.nextUrl.pathname
+
+  // Beskyttede ruter
+  const protectedRoutes = ["/admin"]
+  const isProtected = protectedRoutes.some((route) =&gt; path.startsWith(route))
+
+  // Auth-ruter
+  const authRoutes = ["/login"]
+  const isAuthRoute = authRoutes.includes(path)
+
+  // Ikke innlogget → redirect til login
+  if (isProtected && !token) {
+    const loginUrl = new URL("/login", request.url)
+    loginUrl.searchParams.set("redirect", path)
+    return NextResponse.redirect(loginUrl)
+  }
+
+  // Innlogget → redirect bort fra login
+  if (isAuthRoute && token) {
+    const redirect = request.nextUrl.searchParams.get("redirect") || "/admin"
+    return NextResponse.redirect(new URL(redirect, request.url))
+  }
+
+  return NextResponse.next()
+}
+
+export const config = {
+  matcher: ["/admin/:path*", "/login"],
+}</code></pre>
+
+    <!-- CREATE ADMIN USER -->
+    <h2>Steg 7: Opprett admin-bruker</h2>
+
+    <p>Kjør denne SQL-en i Supabase for å lage en admin-bruker:</p>
+
+    <pre><code>-- Erstatt med ekte verdier!
+-- Passord må hashes med bcrypt først
+
+-- Alternativt: Bruk registreringsskjema og oppdater rolle etterpå:
+UPDATE users SET role = 'admin' WHERE email = 'admin@eksempel.no';</code></pre>
+
+    <p>Eller lag et script for å opprette admin:</p>
+
+    <div class="file-badge">scripts/create-admin.ts</div>
+
+    <pre><code>// Kjør med: npx tsx scripts/create-admin.ts
+import bcrypt from "bcryptjs"
+import { createClient } from "@supabase/supabase-js"
+
+const supabase = createClient(
+  process.env.SUPABASE_PROJECT_URL!,
+  process.env.SUPABASE_API_KEY!
+)
+
+async function createAdmin() {
+  const hashedPassword = await bcrypt.hash("ditt-passord-her", 10)
+
+  const { error } = await supabase.from("users").insert({
+    name: "Admin",
+    email: "admin@eksempel.no",
+    password: hashedPassword,
+    role: "admin",
+  })
+
+  if (error) {
+    console.error("Feil:", error.message)
+  } else {
+    console.log("Admin-bruker opprettet!")
+  }
+}
+
+createAdmin()</code></pre>
+
+    <!-- CONTENT MANAGEMENT (optional) -->
+    <h2>Valgfritt: Innholdsredigering</h2>
+
+    <div class="info-box">
+      <strong>Tips:</strong> For enkel innholdsredigering kan du:
+      <ul style="margin: 0.5rem 0;">
+        <li>Lagre tekster i database og hente dem i komponentene</li>
+        <li>Bruke et headless CMS som Sanity eller Contentful</li>
+        <li>Lagre i JSON-filer (for statisk innhold)</li>
+      </ul>
+    </div>
+
+    <div class="file-badge">src/app/admin/innhold/page.tsx</div>
+
+    <pre><code>export default function InnholdPage() {
+  return (
+    &lt;div&gt;
+      &lt;h1 className="text-3xl font-bold mb-8"&gt;Innholdsredigering&lt;/h1&gt;
+
+      &lt;div className="bg-white rounded-lg shadow p-6"&gt;
+        &lt;p className="text-gray-500"&gt;
+          Innholdsredigering kommer snart. For nå, rediger innhold direkte i koden:
+        &lt;/p&gt;
+
+        &lt;ul className="mt-4 space-y-2 text-sm"&gt;
+          &lt;li&gt;• &lt;code&gt;src/app/page.tsx&lt;/code&gt; - Forside&lt;/li&gt;
+          &lt;li&gt;• &lt;code&gt;src/app/om-oss/page.tsx&lt;/code&gt; - Om oss&lt;/li&gt;
+          &lt;li&gt;• &lt;code&gt;src/app/tjenester/page.tsx&lt;/code&gt; - Tjenester&lt;/li&gt;
+          &lt;li&gt;• &lt;code&gt;src/components/layout/header.tsx&lt;/code&gt; - Navigasjon&lt;/li&gt;
+          &lt;li&gt;• &lt;code&gt;src/components/layout/footer.tsx&lt;/code&gt; - Footer&lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- SECURITY TIPS -->
+    <h2>Sikkerhetstips</h2>
+
+    <div class="warning-box">
+      <h4>Viktig for produksjon:</h4>
+      <ul>
+        <li>Bruk sterke passord (minst 12 tegn)</li>
+        <li>Aktiver 2-faktor autentisering i Supabase</li>
+        <li>Begrens Row Level Security policies</li>
+        <li>Logg admin-aktivitet</li>
+        <li>Rate-limit innloggingsforsøk</li>
+      </ul>
+    </div>
+
+    <!-- NEXT STEPS -->
+    <h2>Videre utvikling</h2>
+    <ul>
+      <li><strong>Brukeradministrasjon</strong> - Legg til/fjern admin-brukere</li>
+      <li><strong>Aktivitetslogg</strong> - Se hvem som har gjort hva</li>
+      <li><strong>Bildeopplasting</strong> - Bruk Supabase Storage</li>
+      <li><strong>E-postvarsler</strong> - Få varsel om nye meldinger</li>
+    </ul>
+
+    <div class="footer">
+      <p>
+        <a href="skjema.html">← Kontaktskjema</a> |
+        <a href="deploy.html">Deploy →</a>
+      </p>
+      <p style="margin-top: 1rem; color: #64748b; font-size: 0.85rem;">
+        Utviklet av <a href="https://obligarconsulting.no">Obligar Consulting</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

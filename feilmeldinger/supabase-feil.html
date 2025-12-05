@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supabase Feilmeldinger</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .error-card {
+      background: white;
+      border: 2px solid #fca5a5;
+      border-left: 6px solid #ef4444;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      overflow: hidden;
+    }
+    .error-card-header {
+      background: #fef2f2;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid #fecaca;
+    }
+    .error-card-header h3 {
+      margin: 0;
+      color: #dc2626;
+      font-family: monospace;
+      font-size: 0.95rem;
+    }
+    .error-card-body {
+      padding: 1.25rem;
+    }
+    .error-card-body h4 {
+      margin: 0 0 0.5rem 0;
+      color: #1e293b;
+    }
+    .error-card-body p {
+      margin: 0 0 1rem 0;
+      color: #64748b;
+    }
+    .solution {
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      border-radius: 6px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    .solution h5 {
+      margin: 0 0 0.5rem 0;
+      color: #166534;
+    }
+    .category-header {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      margin: 2rem 0 1rem 0;
+    }
+    .category-header h2 {
+      margin: 0;
+    }
+    .search-box {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 2rem;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    .search-box input:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="../grunnleggende/index.html">Grunnleggende</a>
+    <a href="index.html">Feilmeldinger</a>
+    <a href="typescript-feil.html">TypeScript</a>
+    <a href="runtime-feil.html">Runtime</a>
+    <a href="nextjs-feil.html">Next.js</a>
+    <a href="supabase-feil.html"><strong>Supabase</strong></a>
+    <a href="tailwind-feil.html">Tailwind</a>
+    <a href="deploy-feil.html">Deploy</a>
+  </nav>
+
+  <div class="container">
+    <h1>Supabase & Database Feilmeldinger</h1>
+
+    <blockquote>
+      <p>Alle vanlige Supabase, database og autentiserings-feil med løsninger.</p>
+    </blockquote>
+
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Søk etter feilmelding... (f.eks. 'Invalid API key')" onkeyup="filterErrors()">
+    </div>
+
+    <div class="info-box">
+      <strong>Tips:</strong> Kopier feilmeldingen fra konsollen og lim inn i søkefeltet over.
+    </div>
+
+    <!-- CONNECTION ERRORS -->
+    <div class="category-header">
+      <h2>Tilkoblings-feil</h2>
+    </div>
+
+    <div class="error-card" data-search="invalid api key project url">
+      <div class="error-card-header">
+        <h3>Invalid API key / Invalid Project URL</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Supabase-klienten kan ikke koble til fordi API-nøkkelen eller URL-en er feil eller mangler.</p>
+        <pre><code>// FEIL - Manglende eller feil miljøvariabler
+createClient(undefined, undefined)</code></pre>
+        <div class="solution">
+          <h5>Løsning 1: Sjekk .env.local</h5>
+          <pre><code># .env.local (i prosjektets rotmappe)
+NEXT_PUBLIC_SUPABASE_URL=https://xxxxxxxxxxxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+# VIKTIG:
+# - Ingen mellomrom rundt =
+# - URL må starte med https://
+# - NEXT_PUBLIC_ prefix er påkrevd for klient-side kode</code></pre>
+          <h5>Løsning 2: Restart serveren</h5>
+          <pre><code># Miljøvariabler lastes kun ved oppstart
+Ctrl+C
+npm run dev</code></pre>
+          <h5>Løsning 3: Finn riktige nøkler i Supabase</h5>
+          <pre><code>1. Gå til supabase.com
+2. Velg ditt prosjekt
+3. Settings → API
+4. Kopier "Project URL" og "anon public" nøkkel</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-card" data-search="fetch failed connection refused">
+      <div class="error-card-header">
+        <h3>fetch failed / Connection refused</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Kan ikke nå Supabase-serveren. Ofte nettverksproblem eller feil URL.</p>
+        <div class="solution">
+          <h5>Løsning 1: Sjekk prosjekt-URL</h5>
+          <pre><code># URL må være i dette formatet:
+https://xxxxxxxxxxxxx.supabase.co
+
+# FEIL eksempler:
+http://xxxxxxxxxxxxx.supabase.co  ← http i stedet for https
+https://xxxxxxxxxxxxx.supabase.com  ← .com i stedet for .co
+xxxxxxxxxxxxx.supabase.co  ← Mangler https://</code></pre>
+          <h5>Løsning 2: Sjekk at Supabase-prosjektet kjører</h5>
+          <pre><code>1. Gå til supabase.com
+2. Sjekk at prosjektet ikke er pauset
+3. Hvis pauset: Klikk "Resume" eller "Restore"</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- RLS POLICY ERRORS -->
+    <div class="category-header">
+      <h2>Row Level Security (RLS) Feil</h2>
+    </div>
+
+    <div class="error-card" data-search="new row violates row-level security policy">
+      <div class="error-card-header">
+        <h3>new row violates row-level security policy</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>RLS blokkerer innsetting fordi det ikke finnes en policy som tillater INSERT for brukeren.</p>
+        <pre><code>// FEIL - Ingen policy tillater dette
+const { error } = await supabase
+  .from('todos')
+  .insert({ title: 'Test' })
+// Error: new row violates row-level security policy</code></pre>
+        <div class="solution">
+          <h5>Løsning 1: Lag INSERT policy i Supabase</h5>
+          <pre><code>-- Authentication → Policies → New Policy
+
+-- Tillat brukere å lage sine egne todos
+CREATE POLICY "Users can insert own todos"
+ON todos FOR INSERT
+TO authenticated
+WITH CHECK (auth.uid() = user_id);
+
+-- Eller tillat alle inserts (ikke anbefalt i produksjon)
+CREATE POLICY "Enable insert for all users"
+ON todos FOR INSERT
+TO authenticated
+WITH CHECK (true);</code></pre>
+          <h5>Løsning 2: Send user_id med i insert</h5>
+          <pre><code>const { data: { user } } = await supabase.auth.getUser()
+
+const { error } = await supabase
+  .from('todos')
+  .insert({
+    title: 'Test',
+    user_id: user.id  // Viktig!
+  })</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-card" data-search="permission denied for table">
+      <div class="error-card-header">
+        <h3>permission denied for table / Row-level security blocked</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>RLS er aktivert men det finnes ingen policy som tillater SELECT/UPDATE/DELETE.</p>
+        <div class="solution">
+          <h5>Løsning: Lag policies for alle operasjoner</h5>
+          <pre><code>-- SELECT policy
+CREATE POLICY "Users can view own todos"
+ON todos FOR SELECT
+TO authenticated
+USING (auth.uid() = user_id);
+
+-- UPDATE policy
+CREATE POLICY "Users can update own todos"
+ON todos FOR UPDATE
+TO authenticated
+USING (auth.uid() = user_id)
+WITH CHECK (auth.uid() = user_id);
+
+-- DELETE policy
+CREATE POLICY "Users can delete own todos"
+ON todos FOR DELETE
+TO authenticated
+USING (auth.uid() = user_id);</code></pre>
+          <h5>Eller: Midlertidig deaktiver RLS (kun for testing!)</h5>
+          <pre><code>-- I Supabase SQL Editor
+ALTER TABLE todos DISABLE ROW LEVEL SECURITY;
+
+-- VIKTIG: Aktiver igjen før produksjon!
+ALTER TABLE todos ENABLE ROW LEVEL SECURITY;</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- DATABASE CONSTRAINT ERRORS -->
+    <div class="category-header">
+      <h2>Database Constraint Feil</h2>
+    </div>
+
+    <div class="error-card" data-search="duplicate key value violates unique constraint">
+      <div class="error-card-header">
+        <h3>duplicate key value violates unique constraint</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Du prøver å lagre en verdi som allerede finnes i en kolonne med UNIQUE constraint.</p>
+        <pre><code>// FEIL - Email finnes allerede
+const { error } = await supabase
+  .from('users')
+  .insert({ email: 'ola@test.no' })
+// Error: duplicate key value violates unique constraint "users_email_key"</code></pre>
+        <div class="solution">
+          <h5>Løsning 1: Sjekk om verdien finnes først</h5>
+          <pre><code>const { data: existing } = await supabase
+  .from('users')
+  .select('id')
+  .eq('email', email)
+  .single()
+
+if (existing) {
+  // Brukeren finnes allerede
+  console.log('Email er allerede registrert')
+} else {
+  // Trygt å opprette ny bruker
+  await supabase.from('users').insert({ email })
+}</code></pre>
+          <h5>Løsning 2: Bruk upsert (oppdater hvis finnes)</h5>
+          <pre><code>const { error } = await supabase
+  .from('users')
+  .upsert({
+    email: 'ola@test.no',
+    name: 'Ola Nordmann'
+  }, {
+    onConflict: 'email'  // Hvilken kolonne som sjekkes
+  })</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-card" data-search="foreign key constraint violates">
+      <div class="error-card-header">
+        <h3>insert or update violates foreign key constraint</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Du refererer til en rad som ikke eksisterer i den relaterte tabellen.</p>
+        <pre><code>// FEIL - user_id 999 finnes ikke i users-tabellen
+const { error } = await supabase
+  .from('todos')
+  .insert({
+    title: 'Test',
+    user_id: 999  // ← Denne brukeren finnes ikke
+  })
+// Error: violates foreign key constraint "todos_user_id_fkey"</code></pre>
+        <div class="solution">
+          <h5>Løsning 1: Bruk gyldig foreign key</h5>
+          <pre><code>// Hent innlogget brukers ID
+const { data: { user } } = await supabase.auth.getUser()
+
+const { error } = await supabase
+  .from('todos')
+  .insert({
+    title: 'Test',
+    user_id: user.id  // ← Gyldig user_id
+  })</code></pre>
+          <h5>Løsning 2: Sjekk at relatert rad eksisterer</h5>
+          <pre><code>// Verifiser at brukeren eksisterer
+const { data: userExists } = await supabase
+  .from('users')
+  .select('id')
+  .eq('id', userId)
+  .single()
+
+if (!userExists) {
+  console.log('Brukeren finnes ikke')
+  return
+}
+
+// Trygt å opprette todo
+await supabase.from('todos').insert({ user_id: userId, ... })</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-card" data-search="null value in column violates not-null constraint">
+      <div class="error-card-header">
+        <h3>null value in column violates not-null constraint</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Du prøver å sette NULL i en kolonne som er påkrevd (NOT NULL).</p>
+        <pre><code>// FEIL - 'title' er påkrevd
+const { error } = await supabase
+  .from('todos')
+  .insert({
+    user_id: userId
+    // Mangler 'title' som er NOT NULL
+  })
+// Error: null value in column "title" violates not-null constraint</code></pre>
+        <div class="solution">
+          <h5>Løsning: Send alle påkrevde felter</h5>
+          <pre><code>// Før - FEIL
+const { error } = await supabase
+  .from('todos')
+  .insert({
+    user_id: userId
+  })
+
+// Etter - RIKTIG
+const { error } = await supabase
+  .from('todos')
+  .insert({
+    user_id: userId,
+    title: 'Min todo',  // ← Nå inkludert
+    completed: false
+  })</code></pre>
+          <h5>Eller: Gjør kolonnen nullable i databasen</h5>
+          <pre><code>-- I Supabase SQL Editor (hvis title IKKE skal være påkrevd)
+ALTER TABLE todos
+ALTER COLUMN title DROP NOT NULL;</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- TYPE ERRORS -->
+    <div class="category-header">
+      <h2>Type Mismatch Feil</h2>
+    </div>
+
+    <div class="error-card" data-search="invalid input syntax for type integer uuid timestamp">
+      <div class="error-card-header">
+        <h3>invalid input syntax for type integer/uuid/timestamp</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Du sender feil datatype til databasen. F.eks. string når den forventer number.</p>
+        <pre><code>// FEIL - Sender string til en integer-kolonne
+const { error } = await supabase
+  .from('products')
+  .insert({
+    price: "100"  // ← String, men kolonne er integer
+  })
+
+// FEIL - Ugyldig UUID-format
+const { error } = await supabase
+  .from('todos')
+  .update({ user_id: "123" })  // ← Ikke gyldig UUID</code></pre>
+        <div class="solution">
+          <h5>Løsning 1: Konverter til riktig type</h5>
+          <pre><code>// Før - FEIL
+const price = "100"
+await supabase.from('products').insert({ price })
+
+// Etter - RIKTIG
+const price = parseInt("100")  // eller Number("100")
+await supabase.from('products').insert({ price })
+
+// For desimaltall
+const price = parseFloat("99.99")
+await supabase.from('products').insert({ price })</code></pre>
+          <h5>Løsning 2: Valider UUID-format</h5>
+          <pre><code>// UUID må være i format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+const validUuid = "550e8400-e29b-41d4-a716-446655440000"
+await supabase.from('todos').insert({ user_id: validUuid })
+
+// Hent brukerens UUID fra auth
+const { data: { user } } = await supabase.auth.getUser()
+const userId = user.id  // Alltid gyldig UUID</code></pre>
+          <h5>Løsning 3: Timestamp-format</h5>
+          <pre><code>// Før - FEIL
+const date = "2024-01-15"  // Bare dato
+
+// Etter - RIKTIG
+const date = new Date().toISOString()  // "2024-01-15T10:30:00.000Z"
+await supabase.from('events').insert({ created_at: date })</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- AUTH ERRORS -->
+    <div class="category-header">
+      <h2>Autentiserings-feil</h2>
+    </div>
+
+    <div class="error-card" data-search="invalid login credentials">
+      <div class="error-card-header">
+        <h3>Invalid login credentials</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Email eller passord er feil ved innlogging.</p>
+        <pre><code>const { error } = await supabase.auth.signInWithPassword({
+  email: 'ola@test.no',
+  password: 'feil-passord'
+})
+// Error: Invalid login credentials</code></pre>
+        <div class="solution">
+          <h5>Løsning 1: Vis brukervennlig feilmelding</h5>
+          <pre><code>const { data, error } = await supabase.auth.signInWithPassword({
+  email,
+  password
+})
+
+if (error) {
+  if (error.message.includes('Invalid login credentials')) {
+    alert('Feil email eller passord')
+  }
+  return
+}
+
+// Innlogging vellykket
+console.log('Logget inn som:', data.user.email)</code></pre>
+          <h5>Løsning 2: Tilby passord-reset</h5>
+          <pre><code>async function resetPassword(email: string) {
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: 'https://ditt-domene.com/reset-password'
+  })
+
+  if (!error) {
+    alert('Sjekk din e-post for reset-lenke')
+  }
+}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-card" data-search="user already registered email already registered">
+      <div class="error-card-header">
+        <h3>User already registered / Email already registered</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Emailen er allerede i bruk når du prøver å registrere ny bruker.</p>
+        <div class="solution">
+          <h5>Løsning: Håndter feilen og vis melding</h5>
+          <pre><code>const { data, error } = await supabase.auth.signUp({
+  email,
+  password
+})
+
+if (error) {
+  if (error.message.includes('already registered')) {
+    alert('Denne emailen er allerede registrert. Prøv å logge inn i stedet.')
+    // Eventuelt redirect til login-siden
+    router.push('/login')
+  }
+  return
+}
+
+// Registrering vellykket
+alert('Sjekk din email for bekreftelseslenke')</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-card" data-search="session not found jwt expired">
+      <div class="error-card-header">
+        <h3>Session not found / JWT expired</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Brukerens sesjon har utløpt eller eksisterer ikke.</p>
+        <div class="solution">
+          <h5>Løsning 1: Sjekk og refresh sesjon</h5>
+          <pre><code>// Sjekk om bruker er innlogget
+const { data: { session } } = await supabase.auth.getSession()
+
+if (!session) {
+  // Brukeren er ikke innlogget
+  router.push('/login')
+  return
+}
+
+// Automatisk refresh av sesjon
+const { data: { session: newSession }, error } = await supabase.auth.refreshSession()
+if (error) {
+  // Kunne ikke refreshe - logg ut brukeren
+  await supabase.auth.signOut()
+  router.push('/login')
+}</code></pre>
+          <h5>Løsning 2: Sett opp auth state listener</h5>
+          <pre><code>useEffect(() => {
+  const { data: { subscription } } = supabase.auth.onAuthStateChange(
+    async (event, session) => {
+      if (event === 'SIGNED_OUT') {
+        router.push('/login')
+      }
+      if (event === 'TOKEN_REFRESHED') {
+        console.log('Token refreshed')
+      }
+    }
+  )
+
+  return () => subscription.unsubscribe()
+}, [])</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUERY ERRORS -->
+    <div class="category-header">
+      <h2>Query/Spørring Feil</h2>
+    </div>
+
+    <div class="error-card" data-search="column does not exist">
+      <div class="error-card-header">
+        <h3>column "x" does not exist</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Du spør etter en kolonne som ikke finnes i tabellen.</p>
+        <pre><code>// FEIL - Kolonnen 'username' finnes ikke
+const { data } = await supabase
+  .from('users')
+  .select('username')  // ← Finnes ikke
+// Error: column "username" does not exist</code></pre>
+        <div class="solution">
+          <h5>Løsning: Sjekk kolonnenavn i Supabase</h5>
+          <pre><code>// 1. Gå til Supabase → Table Editor
+// 2. Se hvilke kolonner som faktisk eksisterer
+// 3. Bruk riktige kolonnenavn
+
+// Før - FEIL
+const { data } = await supabase
+  .from('users')
+  .select('username')
+
+// Etter - RIKTIG
+const { data } = await supabase
+  .from('users')
+  .select('name')  // ← Riktig kolonnenavn</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-card" data-search="more than one row returned single">
+      <div class="error-card-header">
+        <h3>Multiple (or no) rows returned by a query expected to return exactly one row</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Du bruker .single() men spørringen returnerer 0 eller flere enn 1 rad.</p>
+        <pre><code>// FEIL - Kan returnere flere rader
+const { data } = await supabase
+  .from('users')
+  .select('*')
+  .eq('name', 'Ola')
+  .single()  // ← Kræsjer hvis 0 eller 2+ rader</code></pre>
+        <div class="solution">
+          <h5>Løsning 1: Fjern .single() hvis flere rader er forventet</h5>
+          <pre><code>// Før - FEIL (hvis det er flere "Ola")
+const { data } = await supabase
+  .from('users')
+  .select('*')
+  .eq('name', 'Ola')
+  .single()
+
+// Etter - RIKTIG
+const { data } = await supabase
+  .from('users')
+  .select('*')
+  .eq('name', 'Ola')
+// data er nå en array: []</code></pre>
+          <h5>Løsning 2: Bruk .maybeSingle() for 0 eller 1 rad</h5>
+          <pre><code>// Returnerer null hvis ingen rad, objekt hvis 1 rad
+const { data } = await supabase
+  .from('users')
+  .select('*')
+  .eq('id', userId)
+  .maybeSingle()
+
+// data er null eller et enkelt objekt</code></pre>
+          <h5>Løsning 3: Filtrer på UNIQUE-kolonne</h5>
+          <pre><code>// Trygt å bruke .single() med unike kolonner (id, email)
+const { data } = await supabase
+  .from('users')
+  .select('*')
+  .eq('id', userId)  // ← ID er alltid unik
+  .single()</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p><a href="index.html">← Tilbake til feilmeldinger</a> | <a href="../index.html">Hjem</a></p>
+    </div>
+  </div>
+
+  <script>
+    function filterErrors() {
+      const input = document.getElementById('searchInput').value.toLowerCase();
+      const cards = document.querySelectorAll('.error-card');
+
+      cards.forEach(card => {
+        const searchText = card.getAttribute('data-search') + ' ' + card.textContent.toLowerCase();
+        if (searchText.includes(input)) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+  </script>
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

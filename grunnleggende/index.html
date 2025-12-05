@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grunnleggende - TypeScript, React, CSS</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .topic-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+    .topic-card {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-decoration: none;
+      color: inherit;
+      transition: all 0.2s;
+    }
+    .topic-card:hover {
+      border-color: #3b82f6;
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+    }
+    .topic-card .icon {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+    .topic-card h3 {
+      margin: 0 0 0.5rem 0;
+    }
+    .topic-card p {
+      margin: 0;
+      color: #64748b;
+      font-size: 0.9rem;
+    }
+    .topic-card .difficulty {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      margin-top: 0.75rem;
+    }
+    .difficulty-beginner { background: #dcfce7; color: #166534; }
+    .difficulty-medium { background: #fef3c7; color: #92400e; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html"><strong>Grunnleggende</strong></a>
+    <a href="typescript.html">TypeScript</a>
+    <a href="react.html">React</a>
+    <a href="tailwind.html">Tailwind</a>
+    <a href="nextjs.html">Next.js</a>
+  </nav>
+
+  <div class="container">
+    <h1>Grunnleggende</h1>
+
+    <blockquote>
+      <p>Alt du trenger å vite om TypeScript, React, CSS og Next.js. Perfekt for utviklere med OOP-bakgrunn.</p>
+    </blockquote>
+
+    <div class="info-box">
+      <strong>Tips:</strong> Bruk Ctrl+F / Cmd+F for å søke på denne siden. Klikk på et emne for full guide.
+    </div>
+
+    <div class="topic-grid">
+      <a href="react-nextjs-tailwind.html" class="topic-card" style="border-color: #22c55e; background: linear-gradient(135deg, #f0fdf4, #dcfce7);">
+        <div class="icon">🚀</div>
+        <h3>React + Next.js + Tailwind</h3>
+        <p>KOMPLETT GUIDE: Alt du trenger for å forstå og bruke React i Next.js 16. Anbefalt start!</p>
+        <span class="difficulty difficulty-beginner">Nybegynner</span>
+      </a>
+
+      <a href="typescript.html" class="topic-card">
+        <div class="icon">📘</div>
+        <h3>TypeScript</h3>
+        <p>Typer, interfaces, generics, type assertions. Alt du trenger for typesikker kode.</p>
+        <span class="difficulty difficulty-beginner">Nybegynner</span>
+      </a>
+
+      <a href="react.html" class="topic-card">
+        <div class="icon">⚛️</div>
+        <h3>React Basics</h3>
+        <p>Komponenter, props, state, hooks. Grunnmuren i moderne webutvikling.</p>
+        <span class="difficulty difficulty-beginner">Nybegynner</span>
+      </a>
+
+      <a href="tailwind.html" class="topic-card">
+        <div class="icon">🎨</div>
+        <h3>Tailwind CSS</h3>
+        <p>Alle klasser forklart: flexbox, grid, spacing, farger, responsive design.</p>
+        <span class="difficulty difficulty-beginner">Nybegynner</span>
+      </a>
+
+      <a href="nextjs.html" class="topic-card">
+        <div class="icon">▲</div>
+        <h3>Next.js 16</h3>
+        <p>App Router, Server Actions, proxy.ts, layouts, routing.</p>
+        <span class="difficulty difficulty-medium">Middels</span>
+      </a>
+
+      <a href="komponenter.html" class="topic-card">
+        <div class="icon">🧩</div>
+        <h3>Bruke Komponenter</h3>
+        <p>Hvordan importere, bruke props, og sette sammen komponenter.</p>
+        <span class="difficulty difficulty-beginner">Nybegynner</span>
+      </a>
+
+      <a href="react-snippets.html" class="topic-card">
+        <div class="icon">⚡</div>
+        <h3>React Snippets</h3>
+        <p>rafce, useState, useEffect - alle snarveier i VS Code.</p>
+        <span class="difficulty difficulty-beginner">Nybegynner</span>
+      </a>
+    </div>
+
+    <h2>Hurtigreferanse</h2>
+
+    <h3>TypeScript - Mest brukte</h3>
+    <pre><code>// Variabeltyper
+const name: string = "Ola"
+const age: number = 25
+const isActive: boolean = true
+const items: string[] = ["a", "b"]
+
+// Interface (objekt-type)
+interface User {
+  id: number
+  name: string
+  email?: string  // ? = valgfritt
+}
+
+// Funksjon med typer
+function greet(name: string): string {
+  return `Hei, ${name}!`
+}
+
+// Array av objekter
+const users: User[] = [{ id: 1, name: "Ola" }]</code></pre>
+
+    <h3>React - Mest brukte</h3>
+    <pre><code>// Enkel komponent
+export default function Hello() {
+  return &lt;h1&gt;Hei!&lt;/h1&gt;
+}
+
+// Med props
+interface Props {
+  name: string
+}
+export default function Hello({ name }: Props) {
+  return &lt;h1&gt;Hei, {name}!&lt;/h1&gt;
+}
+
+// Med state (krever "use client")
+"use client"
+import { useState } from "react"
+
+export default function Counter() {
+  const [count, setCount] = useState(0)
+  return (
+    &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+      Klikket {count} ganger
+    &lt;/button&gt;
+  )
+}</code></pre>
+
+    <h3>Tailwind - Mest brukte klasser</h3>
+    <pre><code>&lt;!-- Layout --&gt;
+&lt;div className="flex"&gt;            {/* Flexbox */}
+&lt;div className="grid grid-cols-3"&gt; {/* Grid med 3 kolonner */}
+&lt;div className="container mx-auto"&gt; {/* Sentrert container */}
+
+&lt;!-- Spacing --&gt;
+&lt;div className="p-4"&gt;   {/* Padding 1rem */}
+&lt;div className="m-4"&gt;   {/* Margin 1rem */}
+&lt;div className="gap-4"&gt; {/* Gap mellom flex/grid items */}
+
+&lt;!-- Tekst --&gt;
+&lt;p className="text-lg"&gt;        {/* Større tekst */}
+&lt;p className="font-bold"&gt;      {/* Fet tekst */}
+&lt;p className="text-gray-600"&gt;  {/* Grå tekst */}
+
+&lt;!-- Responsive --&gt;
+&lt;div className="hidden md:block"&gt;  {/* Skjult på mobil, synlig på tablet+ */}
+&lt;div className="grid-cols-1 md:grid-cols-2 lg:grid-cols-3"&gt;</code></pre>
+
+    <h3>Next.js - Viktige mønstre</h3>
+    <pre><code>// Server Component (standard) - kan hente data
+export default async function Page() {
+  const data = await getData()
+  return &lt;div&gt;{data}&lt;/div&gt;
+}
+
+// Client Component - for interaktivitet
+"use client"
+import { useState } from "react"
+export default function Form() {
+  const [value, setValue] = useState("")
+  return &lt;input value={value} onChange={e =&gt; setValue(e.target.value)} /&gt;
+}
+
+// Server Action - backend-logikk
+"use server"
+export async function saveData(data: FormData) {
+  await db.insert(data)
+  return { success: true }
+}
+
+// Bruke Server Action i form
+&lt;form action={saveData}&gt;
+  &lt;input name="email" /&gt;
+  &lt;button type="submit"&gt;Send&lt;/button&gt;
+&lt;/form&gt;</code></pre>
+
+    <div class="footer">
+      <p><a href="../index.html">← Tilbake til hovedsiden</a></p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

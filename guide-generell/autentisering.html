@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>05. Autentisering - Next.js 16 Guide</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="../04-database/index.html">Database</a>
+    <a href="index.html"><strong>Autentisering</strong></a>
+    <a href="../06-server-actions/index.html">Server Actions</a>
+  </nav>
+
+  <div class="container">
+    <h1>05. Autentisering</h1>
+
+    <blockquote>
+      <p>Komplett guide for brukerregistrering, innlogging og tilgangskontroll.</p>
+    </blockquote>
+
+    <h2>Registrering</h2>
+    <p class="section-desc">
+      <strong>Server Action</strong> som oppretter nye brukere. Hasher passord med bcrypt før lagring. Sjekker om e-post allerede er registrert.
+    </p>
+    <pre><code>// src/actions/auth.ts
+"use server"
+
+import bcrypt from "bcryptjs"
+import supabase from "@/config/supabase-config"
+
+export async function register(payload: {
+  name: string
+  email: string
+  password: string
+}) {
+  try {
+    // Sjekk om e-post finnes
+    const { data: existing } = await supabase
+      .from("users")
+      .select("id")
+      .eq("email", payload.email)
+      .single()
+
+    if (existing) {
+      return { success: false, message: "E-post er allerede registrert" }
+    }
+
+    // Hash passord
+    const hashedPassword = await bcrypt.hash(payload.password, 10)
+
+    // Opprett bruker
+    const { error } = await supabase.from("users").insert({
+      name: payload.name,
+      email: payload.email,
+      password: hashedPassword,
+    })
+
+    if (error) throw error
+
+    return { success: true, message: "Bruker opprettet!" }
+  } catch (error: any) {
+    return { success: false, message: error.message }
+  }
+}</code></pre>
+
+    <h2>Innlogging</h2>
+    <p class="section-desc">
+      Verifiserer passord med bcrypt, genererer <strong>JWT-token</strong>, og lagrer i en sikker <code>httpOnly</code> cookie. Token utløper etter 7 dager.
+    </p>
+    <pre><code>// src/actions/auth.ts (fortsettelse)
+import jwt from "jsonwebtoken"
+import { cookies } from "next/headers"
+
+export async function login(payload: {
+  email: string
+  password: string
+}) {
+  try {
+    // Finn bruker
+    const { data: user, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("email", payload.email)
+      .single()
+
+    if (error || !user) {
+      return { success: false, message: "Ugyldig e-post eller passord" }
+    }
+
+    // Verifiser passord
+    const isValid = await bcrypt.compare(payload.password, user.password)
+
+    if (!isValid) {
+      return { success: false, message: "Ugyldig e-post eller passord" }
+    }
+
+    // Generer JWT
+    const token = jwt.sign(
+      { userId: user.id, email: user.email },
+      process.env.JWT_SECRET!,
+      { expiresIn: "7d" }
+    )
+
+    // Lagre i cookie
+    const cookieStore = await cookies()
+    cookieStore.set("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 24 * 7, // 7 dager
+    })
+
+    return { success: true, message: "Innlogget!" }
+  } catch (error: any) {
+    return { success: false, message: error.message }
+  }
+}</code></pre>
+
+    <h2>Hent innlogget bruker</h2>
+    <p class="section-desc">
+      Leser JWT fra cookie, <strong>verifiserer token</strong>, og henter brukerdata fra database. Brukes for å vise brukerinfo i UI.
+    </p>
+    <pre><code>export async function getLoggedInUser() {
+  try {
+    const cookieStore = await cookies()
+    const token = cookieStore.get("token")?.value
+
+    if (!token) {
+      return { success: false, message: "Ikke innlogget" }
+    }
+
+    // Verifiser token
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+      userId: number
+    }
+
+    // Hent bruker
+    const { data: user, error } = await supabase
+      .from("users")
+      .select("id, name, email, role")
+      .eq("id", decoded.userId)
+      .single()
+
+    if (error || !user) {
+      return { success: false, message: "Bruker ikke funnet" }
+    }
+
+    return { success: true, data: user }
+  } catch {
+    return { success: false, message: "Ugyldig sesjon" }
+  }
+}</code></pre>
+
+    <h2>Proxy (rutebeskyttelse) - Next.js 16+</h2>
+    <p class="section-desc">
+      Next.js 16 <strong>proxy</strong> som kjører før hver forespørsel. Blokkerer tilgang til beskyttede ruter hvis bruker ikke er innlogget. Omdirigerer innloggede brukere bort fra login-siden.
+    </p>
+    <pre><code>// src/proxy.ts (Next.js 16+)
+import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
+
+export default function proxy(request: NextRequest) {
+  const token = request.cookies.get("token")?.value
+  const path = request.nextUrl.pathname
+
+  // Beskyttede ruter
+  const protectedRoutes = ["/dashboard", "/profile", "/settings"]
+  const isProtected = protectedRoutes.some((route) => path.startsWith(route))
+
+  // Auth-ruter (login/register)
+  const authRoutes = ["/login", "/register"]
+  const isAuthRoute = authRoutes.includes(path)
+
+  // Ikke innlogget, prøver beskyttet rute
+  if (isProtected && !token) {
+    return NextResponse.redirect(new URL("/login", request.url))
+  }
+
+  // Innlogget, prøver auth-rute
+  if (isAuthRoute && token) {
+    return NextResponse.redirect(new URL("/dashboard", request.url))
+  }
+
+  return NextResponse.next()
+}
+
+export const config = {
+  matcher: ["/dashboard/:path*", "/profile/:path*", "/login", "/register"],
+}</code></pre>
+
+    <h2>Zustand store for bruker</h2>
+    <p class="section-desc">
+      <strong>Global state</strong> for innlogget bruker. Brukes for å vise brukerinfo i navbar, sjekke roller, etc. Zustand er lettere enn Redux og perfekt for mindre apper.
+    </p>
+    <pre><code>// src/store/users-store.ts
+import { create } from "zustand"
+
+interface User {
+  id: number
+  name: string
+  email: string
+  role: string
+}
+
+interface UsersStore {
+  user: User | null
+  setUser: (user: User) => void
+  clearUser: () => void
+}
+
+const useUsersStore = create&lt;UsersStore&gt;((set) => ({
+  user: null,
+  setUser: (user) => set({ user }),
+  clearUser: () => set({ user: null }),
+}))
+
+export default useUsersStore</code></pre>
+
+    <h2>Registreringsskjema</h2>
+    <p class="section-desc">
+      <strong>Komplett skjema</strong> med React Hook Form og Zod-validering. Viser feilmeldinger under hvert felt. Kaller Server Action ved submit.
+    </p>
+    <pre><code>"use client"
+
+import { useState } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+import { useRouter } from "next/navigation"
+import toast from "react-hot-toast"
+import { register } from "@/actions/auth"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+
+const schema = z.object({
+  name: z.string().min(2, "Navn må være minst 2 tegn"),
+  email: z.string().email("Ugyldig e-post"),
+  password: z.string().min(6, "Passord må være minst 6 tegn"),
+})
+
+type FormData = z.infer&lt;typeof schema&gt;
+
+export default function RegisterPage() {
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+
+  const { register: formRegister, handleSubmit, formState: { errors } } = useForm&lt;FormData&gt;({
+    resolver: zodResolver(schema),
+  })
+
+  const onSubmit = async (data: FormData) => {
+    setLoading(true)
+    try {
+      const response = await register(data)
+
+      if (response.success) {
+        toast.success(response.message)
+        router.push("/login")
+      } else {
+        toast.error(response.message)
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit(onSubmit)} className="space-y-4"&gt;
+      &lt;div&gt;
+        &lt;label className="block text-sm font-medium mb-1"&gt;Navn&lt;/label&gt;
+        &lt;Input {...formRegister("name")} /&gt;
+        {errors.name && &lt;p className="text-red-500 text-sm"&gt;{errors.name.message}&lt;/p&gt;}
+      &lt;/div&gt;
+
+      &lt;div&gt;
+        &lt;label className="block text-sm font-medium mb-1"&gt;E-post&lt;/label&gt;
+        &lt;Input {...formRegister("email")} type="email" /&gt;
+        {errors.email && &lt;p className="text-red-500 text-sm"&gt;{errors.email.message}&lt;/p&gt;}
+      &lt;/div&gt;
+
+      &lt;div&gt;
+        &lt;label className="block text-sm font-medium mb-1"&gt;Passord&lt;/label&gt;
+        &lt;Input {...formRegister("password")} type="password" /&gt;
+        {errors.password && &lt;p className="text-red-500 text-sm"&gt;{errors.password.message}&lt;/p&gt;}
+      &lt;/div&gt;
+
+      &lt;Button type="submit" className="w-full" disabled={loading}&gt;
+        {loading ? "Registrerer..." : "Registrer"}
+      &lt;/Button&gt;
+    &lt;/form&gt;
+  )
+}</code></pre>
+
+    <h2>Sikkerhetstips</h2>
+    <div class="warning-box">
+      <ul>
+        <li><strong>Alltid hash passord</strong> med bcrypt før lagring</li>
+        <li><strong>Bruk httpOnly cookies</strong> for tokens</li>
+        <li><strong>Valider alltid input</strong> på server-siden</li>
+        <li><strong>Gi generiske feilmeldinger</strong> (ikke avslør om e-post finnes)</li>
+      </ul>
+    </div>
+
+    <h2>Avhengigheter</h2>
+    <p class="section-desc">
+      Installer disse pakkene for autentisering og state management.
+    </p>
+    <pre><code>npm install bcryptjs jsonwebtoken js-cookie zustand
+npm install -D @types/bcryptjs @types/jsonwebtoken @types/js-cookie</code></pre>
+
+    <div class="footer">
+      <p><a href="../04-database/index.html">← Forrige</a> | <a href="../06-server-actions/index.html">Neste: Server Actions →</a></p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

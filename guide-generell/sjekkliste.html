@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prosjektleveringssjekkliste - Next.js Guide</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .checklist {
+      background: linear-gradient(135deg, #f8fafc 0%, #fff 100%);
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .checklist h3 {
+      margin-top: 0;
+      color: var(--primary);
+      border-bottom: 2px solid var(--primary);
+      padding-bottom: 0.5rem;
+    }
+    .checklist ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .checklist li {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid var(--gray-100);
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+    .checklist li:last-child {
+      border-bottom: none;
+    }
+    .checklist input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      margin-top: 2px;
+      accent-color: var(--primary);
+    }
+    .priority-high {
+      border-left: 4px solid #ef4444;
+      padding-left: 1rem;
+    }
+    .priority-medium {
+      border-left: 4px solid #f59e0b;
+      padding-left: 1rem;
+    }
+    .priority-low {
+      border-left: 4px solid #22c55e;
+      padding-left: 1rem;
+    }
+    .time-estimate {
+      background: var(--gray-100);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      color: var(--gray-600);
+      margin-left: auto;
+      white-space: nowrap;
+    }
+    .phase-header {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 8px;
+      margin: 2rem 0 1rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .phase-time {
+      background: rgba(255,255,255,0.2);
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html">Hurtigstart</a>
+    <a href="docker-deploy.html">Deploy</a>
+    <a href="sjekkliste.html"><strong>Sjekkliste</strong></a>
+    <a href="sikkerhet.html">Sikkerhet</a>
+  </nav>
+
+  <div class="container">
+    <h1>Prosjektleveringssjekkliste</h1>
+
+    <blockquote>
+      <p>Komplett sjekkliste for å sikre profesjonell leveranse. Skriv ut og kryss av underveis.</p>
+    </blockquote>
+
+    <div class="info-box">
+      <strong>Tidsoversikt:</strong> Total estimert tid: 20-25 timer fordelt på 5 dager (4-5 timer/dag)
+    </div>
+
+    <!-- FASE 1: OPPSTART -->
+    <div class="phase-header">
+      <span>Fase 1: Prosjektoppstart</span>
+      <span class="phase-time">Dag 1 - 2 timer</span>
+    </div>
+
+    <div class="checklist priority-high">
+      <h3>Kundemøte og krav</h3>
+      <ul>
+        <li>
+          <input type="checkbox">
+          <span>Avklart alle sider som skal lages (forside, om oss, kontakt, etc.)</span>
+          <span class="time-estimate">15 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Mottatt logo i høy oppløsning (SVG eller PNG)</span>
+          <span class="time-estimate">-</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Mottatt fargepalett / brand guidelines</span>
+          <span class="time-estimate">-</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Avklart kontaktinformasjon (tlf, epost, adresse)</span>
+          <span class="time-estimate">-</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Avklart om kunde har domene eller trenger nytt</span>
+          <span class="time-estimate">10 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Definert hvem som skal motta kontaktskjema-meldinger</span>
+          <span class="time-estimate">5 min</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="checklist">
+      <h3>Prosjektoppsett</h3>
+      <ul>
+        <li>
+          <input type="checkbox">
+          <span>Opprettet GitHub-repository</span>
+          <span class="time-estimate">5 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Kjørt <code>create-next-app</code> med TypeScript og Tailwind</span>
+          <span class="time-estimate">5 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Installert alle avhengigheter (Supabase, Zustand, etc.)</span>
+          <span class="time-estimate">5 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Opprettet Supabase-prosjekt</span>
+          <span class="time-estimate">10 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Konfigurert .env.local med alle nødvendige variabler</span>
+          <span class="time-estimate">5 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Kjørt SQL for database-tabeller</span>
+          <span class="time-estimate">15 min</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- FASE 2: UTVIKLING -->
+    <div class="phase-header">
+      <span>Fase 2: Utvikling</span>
+      <span class="phase-time">Dag 2-4 - 15 timer</span>
+    </div>
+
+    <div class="checklist priority-high">
+      <h3>Kjernefunksjonalitet</h3>
+      <ul>
+        <li>
+          <input type="checkbox">
+          <span>Layout med Header og Footer implementert</span>
+          <span class="time-estimate">1 time</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Navigasjon fungerer på alle enheter</span>
+          <span class="time-estimate">30 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Forside med hero-seksjon</span>
+          <span class="time-estimate">1.5 time</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Kontaktside med fungerende skjema</span>
+          <span class="time-estimate">2 timer</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Om oss-side</span>
+          <span class="time-estimate">1 time</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Tjenester/produkter-side</span>
+          <span class="time-estimate">2 timer</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="checklist priority-medium">
+      <h3>Responsivt design</h3>
+      <ul>
+        <li>
+          <input type="checkbox">
+          <span>Testet på mobil (320px - 480px)</span>
+          <span class="time-estimate">30 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Testet på tablet (768px - 1024px)</span>
+          <span class="time-estimate">20 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Testet på desktop (1280px+)</span>
+          <span class="time-estimate">20 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Hamburger-meny fungerer på mobil</span>
+          <span class="time-estimate">30 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Bilder er responsive (srcset eller next/image)</span>
+          <span class="time-estimate">20 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Tekststørrelser lesbare på alle skjermer</span>
+          <span class="time-estimate">15 min</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="checklist">
+      <h3>Innhold</h3>
+      <ul>
+        <li>
+          <input type="checkbox">
+          <span>Alle tekster fra kunde lagt inn</span>
+          <span class="time-estimate">1 time</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Bilder optimalisert og komprimert</span>
+          <span class="time-estimate">30 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Alt-tekster på alle bilder</span>
+          <span class="time-estimate">15 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Favicon lagt inn</span>
+          <span class="time-estimate">5 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Open Graph-bilder for deling på sosiale medier</span>
+          <span class="time-estimate">15 min</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- FASE 3: KVALITETSSIKRING -->
+    <div class="phase-header">
+      <span>Fase 3: Kvalitetssikring</span>
+      <span class="phase-time">Dag 4-5 - 4 timer</span>
+    </div>
+
+    <div class="checklist priority-high">
+      <h3>Funksjonell testing</h3>
+      <ul>
+        <li>
+          <input type="checkbox">
+          <span>Kontaktskjema sender e-post/lagrer i database</span>
+          <span class="time-estimate">15 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Alle lenker fungerer (ingen 404)</span>
+          <span class="time-estimate">15 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Skjemavalidering viser feilmeldinger</span>
+          <span class="time-estimate">10 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Suksessmeldinger vises etter skjemainnsending</span>
+          <span class="time-estimate">5 min</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="checklist priority-medium">
+      <h3>Ytelse</h3>
+      <ul>
+        <li>
+          <input type="checkbox">
+          <span>Lighthouse Performance-score &gt; 90</span>
+          <span class="time-estimate">30 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Lighthouse Accessibility-score &gt; 90</span>
+          <span class="time-estimate">20 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Ingen console-feil i nettleser</span>
+          <span class="time-estimate">10 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Lastetid under 3 sekunder på 4G</span>
+          <span class="time-estimate">15 min</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="checklist">
+      <h3>SEO</h3>
+      <ul>
+        <li>
+          <input type="checkbox">
+          <span>Unike title-tags på alle sider</span>
+          <span class="time-estimate">15 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Meta descriptions på alle sider</span>
+          <span class="time-estimate">20 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>robots.txt og sitemap.xml generert</span>
+          <span class="time-estimate">10 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Strukturerte data (Schema.org) for bedrift</span>
+          <span class="time-estimate">15 min</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- FASE 4: DEPLOYMENT -->
+    <div class="phase-header">
+      <span>Fase 4: Deployment</span>
+      <span class="phase-time">Dag 5 - 2 timer</span>
+    </div>
+
+    <div class="checklist priority-high">
+      <h3>Produksjonsklargjøring</h3>
+      <ul>
+        <li>
+          <input type="checkbox">
+          <span>Alle miljøvariabler satt i produksjon</span>
+          <span class="time-estimate">10 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Domene koblet til hosting</span>
+          <span class="time-estimate">15 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>SSL-sertifikat aktivert (HTTPS)</span>
+          <span class="time-estimate">5 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>www og non-www redirect fungerer</span>
+          <span class="time-estimate">10 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Build kjører uten feil</span>
+          <span class="time-estimate">5 min</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="checklist">
+      <h3>Post-launch</h3>
+      <ul>
+        <li>
+          <input type="checkbox">
+          <span>Google Search Console verifisert</span>
+          <span class="time-estimate">10 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Google Analytics / Vercel Analytics aktivert</span>
+          <span class="time-estimate">15 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Testet live-side på forskjellige enheter</span>
+          <span class="time-estimate">15 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Kontaktskjema testet i produksjon</span>
+          <span class="time-estimate">5 min</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- FASE 5: OVERLEVERING -->
+    <div class="phase-header">
+      <span>Fase 5: Overlevering</span>
+      <span class="phase-time">Dag 5 - 1 time</span>
+    </div>
+
+    <div class="checklist priority-high">
+      <h3>Dokumentasjon til kunde</h3>
+      <ul>
+        <li>
+          <input type="checkbox">
+          <span>Innloggingsdetaljer for hosting/Vercel</span>
+          <span class="time-estimate">5 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Innloggingsdetaljer for Supabase</span>
+          <span class="time-estimate">5 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Domeneregistrar-tilgang overlevert</span>
+          <span class="time-estimate">5 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Brukerguide for eventuelle admin-funksjoner</span>
+          <span class="time-estimate">30 min</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="checklist">
+      <h3>Avslutning</h3>
+      <ul>
+        <li>
+          <input type="checkbox">
+          <span>Faktura sendt</span>
+          <span class="time-estimate">10 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Supportavtale diskutert (om ønskelig)</span>
+          <span class="time-estimate">15 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Backup av kildekode lagret</span>
+          <span class="time-estimate">5 min</span>
+        </li>
+        <li>
+          <input type="checkbox">
+          <span>Prosjekt arkivert i intern oversikt</span>
+          <span class="time-estimate">5 min</span>
+        </li>
+      </ul>
+    </div>
+
+    <!-- QUICK REFERENCE -->
+    <h2>Hurtigreferanse: Vanlige kommandoer</h2>
+    <pre><code># Utvikling
+npm run dev          # Start utviklingsserver
+
+# Testing
+npm run lint         # Sjekk kode for feil
+npx tsc --noEmit     # TypeScript-sjekk
+
+# Produksjon
+npm run build        # Bygg for produksjon
+npm start           # Kjør produksjonsbygg lokalt
+
+# Git
+git add . && git commit -m "melding" && git push
+
+# Supabase
+npx supabase gen types typescript --project-id="xxx" > types/supabase.ts</code></pre>
+
+    <h2>Kontaktpunkter ved problemer</h2>
+    <table>
+      <tr>
+        <th>Problem</th>
+        <th>Løsning</th>
+      </tr>
+      <tr>
+        <td>Build feiler</td>
+        <td>Sjekk TypeScript-feil med <code>npx tsc --noEmit</code></td>
+      </tr>
+      <tr>
+        <td>Miljøvariabler mangler</td>
+        <td>Verifiser at alle variabler er satt i Vercel/produksjon</td>
+      </tr>
+      <tr>
+        <td>Supabase-feil</td>
+        <td>Sjekk RLS-policies og API-nøkkel</td>
+      </tr>
+      <tr>
+        <td>CSS fungerer ikke</td>
+        <td>Tøm cache: <code>rm -rf .next && npm run dev</code></td>
+      </tr>
+      <tr>
+        <td>Hydration error</td>
+        <td>Bruk "use client" og useEffect for dynamisk innhold</td>
+      </tr>
+    </table>
+
+    <div class="success-box">
+      <strong>Tips!</strong> Skriv ut denne sjekklisten og heng den opp ved arbeidsstasjonen. Kryss av fysisk for bedre oversikt.
+    </div>
+
+    <div class="footer">
+      <p><a href="docker-deploy.html">← Docker/Deploy</a> | <a href="sikkerhet.html">Sikkerhet →</a></p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

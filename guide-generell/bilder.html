@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bildehåndtering - Next.js 15 Guide</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .comparison > div {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .comparison .bad { border-color: #ef4444; }
+    .comparison .good { border-color: #22c55e; }
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .image-card {
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+    }
+    .image-card .size {
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html">Ny Nettside</a>
+    <a href="seo.html">SEO</a>
+    <a href="bilder.html"><strong>Bilder</strong></a>
+    <a href="betaling.html">Betaling</a>
+  </nav>
+
+  <div class="container">
+    <h1>Bildehåndtering</h1>
+
+    <blockquote>
+      <p>Optimaliser bilder for rask lasting. Bruk next/image og Supabase Storage for profesjonell bildehåndtering.</p>
+    </blockquote>
+
+    <!-- WHY OPTIMIZE -->
+    <h2>Hvorfor bildeoptimalisering?</h2>
+
+    <div class="info-box">
+      <strong>Fakta:</strong> Bilder utgjør ofte 50-80% av en nettsides størrelse. Uoptimaliserte bilder = treg side = dårlig SEO + frustrerte brukere.
+    </div>
+
+    <!-- NEXT/IMAGE -->
+    <h2>next/image - Automatisk optimalisering</h2>
+
+    <p>Next.js sin Image-komponent gir deg:</p>
+    <ul>
+      <li><strong>Automatisk WebP/AVIF</strong> - Moderne formater, mindre filer</li>
+      <li><strong>Lazy loading</strong> - Laster bare synlige bilder</li>
+      <li><strong>Responsive</strong> - Riktig størrelse for skjermen</li>
+      <li><strong>Placeholder blur</strong> - Fin lasting-effekt</li>
+    </ul>
+
+    <div class="comparison">
+      <div class="bad">
+        <h4 style="color: #ef4444; margin-top: 0;">❌ Ikke gjør dette</h4>
+        <pre><code>&lt;img src="/bilde.jpg" /&gt;</code></pre>
+        <p style="font-size: 0.9rem;">Ingen optimalisering, ingen lazy loading</p>
+      </div>
+      <div class="good">
+        <h4 style="color: #22c55e; margin-top: 0;">✓ Gjør dette</h4>
+        <pre><code>import Image from "next/image"
+
+&lt;Image
+  src="/bilde.jpg"
+  alt="Beskrivelse"
+  width={800}
+  height={600}
+/&gt;</code></pre>
+      </div>
+    </div>
+
+    <h3>Grunnleggende bruk</h3>
+
+    <pre><code>import Image from "next/image"
+
+// Lokalt bilde (i /public)
+&lt;Image
+  src="/images/hero.jpg"
+  alt="Hero-bilde"
+  width={1200}
+  height={600}
+  priority // Laster først (for above-the-fold)
+/&gt;
+
+// Eksternt bilde (URL)
+&lt;Image
+  src="https://eksempel.no/bilde.jpg"
+  alt="Eksternt bilde"
+  width={400}
+  height={300}
+/&gt;
+
+// Fill container
+&lt;div className="relative h-64"&gt;
+  &lt;Image
+    src="/bilde.jpg"
+    alt="Fyller container"
+    fill
+    className="object-cover"
+  /&gt;
+&lt;/div&gt;</code></pre>
+
+    <h3>Responsive bilder</h3>
+
+    <pre><code>// Forskjellige størrelser for forskjellige skjermer
+&lt;Image
+  src="/hero.jpg"
+  alt="Hero"
+  width={1200}
+  height={600}
+  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+/&gt;
+
+// Med fill og object-fit
+&lt;div className="relative w-full h-[400px] md:h-[600px]"&gt;
+  &lt;Image
+    src="/hero.jpg"
+    alt="Hero"
+    fill
+    className="object-cover object-center"
+    sizes="100vw"
+    priority
+  /&gt;
+&lt;/div&gt;</code></pre>
+
+    <h3>Placeholder blur</h3>
+
+    <pre><code>// For lokale bilder - automatisk blur
+import heroImage from "@/public/images/hero.jpg"
+
+&lt;Image
+  src={heroImage}
+  alt="Hero"
+  placeholder="blur"
+/&gt;
+
+// For eksterne bilder - manuell blurDataURL
+&lt;Image
+  src="https://url.no/bilde.jpg"
+  alt="Bilde"
+  width={800}
+  height={600}
+  placeholder="blur"
+  blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRg..."
+/&gt;</code></pre>
+
+    <!-- NEXT.CONFIG -->
+    <h3>next.config.ts for eksterne bilder</h3>
+
+    <pre><code>// next.config.ts
+import type { NextConfig } from "next"
+
+const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**.supabase.co",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+      },
+      // Legg til flere domener etter behov
+    ],
+  },
+}
+
+export default nextConfig</code></pre>
+
+    <!-- SUPABASE STORAGE -->
+    <h2>Supabase Storage - Bildeopplasting</h2>
+
+    <p>For brukeropplastede bilder (logo, produktbilder, etc.):</p>
+
+    <h3>1. Opprett bucket i Supabase</h3>
+    <ol>
+      <li>Gå til Storage i Supabase Dashboard</li>
+      <li>Klikk "New bucket"</li>
+      <li>Navn: <code>images</code></li>
+      <li>Public bucket: Ja (for offentlige bilder)</li>
+    </ol>
+
+    <h3>2. Storage policies</h3>
+    <pre><code>-- Tillat alle å lese bilder
+CREATE POLICY "Public Access"
+ON storage.objects FOR SELECT
+USING (bucket_id = 'images');
+
+-- Tillat autentiserte brukere å laste opp
+CREATE POLICY "Auth Upload"
+ON storage.objects FOR INSERT
+WITH CHECK (
+  bucket_id = 'images' AND
+  auth.role() = 'authenticated'
+);
+
+-- Tillat eier å slette
+CREATE POLICY "Owner Delete"
+ON storage.objects FOR DELETE
+USING (
+  bucket_id = 'images' AND
+  auth.uid() = owner
+);</code></pre>
+
+    <h3>3. Server Action for opplasting</h3>
+
+    <pre><code>// src/actions/upload.ts
+"use server"
+
+import supabase from "@/config/supabase-config"
+import { IApiResponse } from "@/interfaces"
+
+export async function uploadImage(formData: FormData): Promise&lt;IApiResponse&lt;string&gt;&gt; {
+  try {
+    const file = formData.get("file") as File
+
+    if (!file) {
+      return { success: false, message: "Ingen fil valgt" }
+    }
+
+    // Valider filtype
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"]
+    if (!allowedTypes.includes(file.type)) {
+      return { success: false, message: "Ugyldig filtype. Bruk JPG, PNG, WebP eller GIF." }
+    }
+
+    // Valider størrelse (maks 5MB)
+    const maxSize = 5 * 1024 * 1024
+    if (file.size > maxSize) {
+      return { success: false, message: "Filen er for stor. Maks 5MB." }
+    }
+
+    // Generer unikt filnavn
+    const ext = file.name.split(".").pop()
+    const fileName = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${ext}`
+    const filePath = `uploads/${fileName}`
+
+    // Last opp til Supabase
+    const { error } = await supabase.storage
+      .from("images")
+      .upload(filePath, file)
+
+    if (error) throw error
+
+    // Hent offentlig URL
+    const { data: urlData } = supabase.storage
+      .from("images")
+      .getPublicUrl(filePath)
+
+    return {
+      success: true,
+      message: "Bilde lastet opp!",
+      data: urlData.publicUrl,
+    }
+  } catch (error) {
+    console.error("Upload error:", error)
+    return { success: false, message: "Kunne ikke laste opp bilde" }
+  }
+}
+
+export async function deleteImage(path: string): Promise&lt;IApiResponse&gt; {
+  try {
+    const { error } = await supabase.storage
+      .from("images")
+      .remove([path])
+
+    if (error) throw error
+
+    return { success: true }
+  } catch {
+    return { success: false, message: "Kunne ikke slette bilde" }
+  }
+}</code></pre>
+
+    <h3>4. Opplastingskomponent</h3>
+
+    <pre><code>// src/components/functional/image-upload.tsx
+"use client"
+
+import { useState, useRef } from "react"
+import Image from "next/image"
+import toast from "react-hot-toast"
+import { uploadImage } from "@/actions/upload"
+import { Button } from "@/components/ui/button"
+
+interface ImageUploadProps {
+  onUpload: (url: string) => void
+  currentImage?: string
+}
+
+export default function ImageUpload({ onUpload, currentImage }: ImageUploadProps) {
+  const [isUploading, setIsUploading] = useState(false)
+  const [preview, setPreview] = useState&lt;string | null&gt;(currentImage || null)
+  const inputRef = useRef&lt;HTMLInputElement&gt;(null)
+
+  const handleFileChange = async (e: React.ChangeEvent&lt;HTMLInputElement&gt;) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    // Vis preview
+    const reader = new FileReader()
+    reader.onload = (e) => setPreview(e.target?.result as string)
+    reader.readAsDataURL(file)
+
+    // Last opp
+    setIsUploading(true)
+    const formData = new FormData()
+    formData.append("file", file)
+
+    try {
+      const result = await uploadImage(formData)
+
+      if (result.success && result.data) {
+        toast.success("Bilde lastet opp!")
+        onUpload(result.data)
+      } else {
+        toast.error(result.message || "Opplasting feilet")
+        setPreview(currentImage || null)
+      }
+    } catch {
+      toast.error("Noe gikk galt")
+      setPreview(currentImage || null)
+    } finally {
+      setIsUploading(false)
+    }
+  }
+
+  return (
+    &lt;div className="space-y-4"&gt;
+      {/* Preview */}
+      {preview && (
+        &lt;div className="relative w-full h-48 bg-gray-100 rounded-lg overflow-hidden"&gt;
+          &lt;Image
+            src={preview}
+            alt="Preview"
+            fill
+            className="object-cover"
+          /&gt;
+        &lt;/div&gt;
+      )}
+
+      {/* Upload button */}
+      &lt;div&gt;
+        &lt;input
+          ref={inputRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          onChange={handleFileChange}
+          className="hidden"
+        /&gt;
+        &lt;Button
+          type="button"
+          variant="outline"
+          onClick={() => inputRef.current?.click()}
+          disabled={isUploading}
+        &gt;
+          {isUploading ? "Laster opp..." : preview ? "Bytt bilde" : "Velg bilde"}
+        &lt;/Button&gt;
+      &lt;/div&gt;
+
+      &lt;p className="text-sm text-gray-500"&gt;
+        JPG, PNG, WebP eller GIF. Maks 5MB.
+      &lt;/p&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- IMAGE SIZES -->
+    <h2>Anbefalte bildestørrelser</h2>
+
+    <div class="image-grid">
+      <div class="image-card">
+        <strong>Hero/Banner</strong>
+        <div class="size">1920 x 1080 px</div>
+      </div>
+      <div class="image-card">
+        <strong>Produktbilde</strong>
+        <div class="size">800 x 800 px</div>
+      </div>
+      <div class="image-card">
+        <strong>Thumbnail</strong>
+        <div class="size">400 x 400 px</div>
+      </div>
+      <div class="image-card">
+        <strong>Logo</strong>
+        <div class="size">300 x 100 px</div>
+      </div>
+      <div class="image-card">
+        <strong>OG Image</strong>
+        <div class="size">1200 x 630 px</div>
+      </div>
+      <div class="image-card">
+        <strong>Avatar</strong>
+        <div class="size">200 x 200 px</div>
+      </div>
+    </div>
+
+    <!-- OPTIMIZATION TIPS -->
+    <h2>Optimaliseringstips</h2>
+
+    <div class="info-box">
+      <strong>Før opplasting:</strong>
+      <ul style="margin: 0.5rem 0;">
+        <li>Komprimer bilder med <a href="https://squoosh.app" target="_blank">Squoosh</a> eller <a href="https://tinypng.com" target="_blank">TinyPNG</a></li>
+        <li>Bruk WebP-format når mulig (30% mindre enn JPG)</li>
+        <li>Ikke last opp større enn nødvendig</li>
+      </ul>
+    </div>
+
+    <div class="info-box">
+      <strong>I koden:</strong>
+      <ul style="margin: 0.5rem 0;">
+        <li>Bruk <code>priority</code> for above-the-fold bilder</li>
+        <li>Bruk <code>sizes</code> for responsive bilder</li>
+        <li>Bruk <code>placeholder="blur"</code> for bedre UX</li>
+        <li>Angi alltid <code>width</code> og <code>height</code> (unngå layout shift)</li>
+      </ul>
+    </div>
+
+    <!-- GALLERY COMPONENT -->
+    <h2>Bildegalleri-komponent</h2>
+
+    <pre><code>// src/components/functional/image-gallery.tsx
+"use client"
+
+import { useState } from "react"
+import Image from "next/image"
+
+interface GalleryImage {
+  src: string
+  alt: string
+}
+
+interface ImageGalleryProps {
+  images: GalleryImage[]
+}
+
+export default function ImageGallery({ images }: ImageGalleryProps) {
+  const [selectedIndex, setSelectedIndex] = useState(0)
+
+  return (
+    &lt;div className="space-y-4"&gt;
+      {/* Hovedbilde */}
+      &lt;div className="relative aspect-video bg-gray-100 rounded-lg overflow-hidden"&gt;
+        &lt;Image
+          src={images[selectedIndex].src}
+          alt={images[selectedIndex].alt}
+          fill
+          className="object-contain"
+          sizes="(max-width: 768px) 100vw, 800px"
+        /&gt;
+      &lt;/div&gt;
+
+      {/* Thumbnails */}
+      &lt;div className="flex gap-2 overflow-x-auto pb-2"&gt;
+        {images.map((image, index) => (
+          &lt;button
+            key={index}
+            onClick={() => setSelectedIndex(index)}
+            className={`relative w-20 h-20 flex-shrink-0 rounded-lg overflow-hidden border-2 transition-colors ${
+              index === selectedIndex
+                ? "border-blue-600"
+                : "border-transparent hover:border-gray-300"
+            }`}
+          &gt;
+            &lt;Image
+              src={image.src}
+              alt={image.alt}
+              fill
+              className="object-cover"
+              sizes="80px"
+            /&gt;
+          &lt;/button&gt;
+        ))}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <div class="footer">
+      <p>
+        <a href="seo.html">← SEO</a> |
+        <a href="betaling.html">Betaling →</a>
+      </p>
+      <p style="margin-top: 1rem; color: #64748b; font-size: 0.85rem;">
+        Utviklet av <a href="https://obligarconsulting.no">Obligar Consulting</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

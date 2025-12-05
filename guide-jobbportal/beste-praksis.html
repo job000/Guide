@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>08. Beste praksis - Next.js Guide</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="../07-styling/index.html">Styling</a>
+    <a href="index.html"><strong>Beste praksis</strong></a>
+    <a href="../09-gjenbrukbare-maler/index.html">Maler</a>
+  </nav>
+
+  <div class="container">
+    <h1>08. Beste praksis</h1>
+
+    <blockquote>
+      <p>Sikkerhet, ytelse og kodestandard for produksjonsklare applikasjoner.</p>
+    </blockquote>
+
+    <h2>Sikkerhet</h2>
+
+    <h3>1. Passord-håndtering</h3>
+    <pre><code>import bcrypt from "bcryptjs"
+
+// Ved registrering - ALLTID hash passord
+const hashedPassword = await bcrypt.hash(password, 10)
+
+// Ved innlogging
+const isMatch = await bcrypt.compare(inputPassword, storedHashedPassword)</code></pre>
+
+    <h3>2. Input-validering</h3>
+    <pre><code>import { z } from "zod"
+
+const schema = z.object({
+  email: z.string().email("Ugyldig e-post"),
+  password: z.string().min(8, "Minst 8 tegn"),
+})
+
+export async function myAction(data: unknown) {
+  const result = schema.safeParse(data)
+
+  if (!result.success) {
+    return { success: false, message: result.error.errors[0].message }
+  }
+
+  // Bruk result.data trygt
+}</code></pre>
+
+    <h3>3. Cookie-sikkerhet</h3>
+    <pre><code>cookies().set("token", token, {
+  httpOnly: true,      // Kan ikke leses av JavaScript
+  secure: true,        // Kun over HTTPS
+  sameSite: "strict",  // Beskytter mot CSRF
+  maxAge: 60 * 60 * 24 * 7,  // 7 dager
+})</code></pre>
+
+    <h3>4. Miljøvariabler</h3>
+    <pre><code>// ALDRI hardkod hemmeligheter
+const secret = "min-hemmelighet"  // FEIL
+
+// Bruk miljøvariabler
+const secret = process.env.JWT_SECRET  // RIKTIG
+
+// Valider at de finnes
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET er ikke satt")
+}</code></pre>
+
+    <h3>5. Generiske feilmeldinger</h3>
+    <pre><code>// FEIL - forteller angriper at e-post finnes
+return { message: "Bruker med denne e-posten finnes ikke" }
+
+// RIKTIG - gir ikke info til angriper
+return { message: "Ugyldig e-post eller passord" }</code></pre>
+
+    <h2>Ytelse</h2>
+
+    <h3>1. Server Components først</h3>
+    <pre><code>// Standard - foretrekk dette (ingen "use client")
+async function ProductList() {
+  const products = await getProducts()
+  return &lt;ul&gt;...&lt;/ul&gt;
+}
+
+// Kun når nødvendig
+"use client"
+function Counter() {
+  const [count, setCount] = useState(0)
+  return &lt;button&gt;...&lt;/button&gt;
+}</code></pre>
+
+    <h3>2. Lazy loading</h3>
+    <pre><code>import dynamic from "next/dynamic"
+
+const HeavyChart = dynamic(() =&gt; import("./HeavyChart"), {
+  loading: () =&gt; &lt;p&gt;Laster...&lt;/p&gt;,
+  ssr: false,
+})</code></pre>
+
+    <h3>3. Bildeopti­malisering</h3>
+    <pre><code>import Image from "next/image"
+
+&lt;Image
+  src="/hero.jpg"
+  alt="Beskrivelse"
+  width={800}
+  height={400}
+  priority  // For bilder over the fold
+/&gt;</code></pre>
+
+    <h2>Kodestandard</h2>
+
+    <h3>Navnekonvensjoner</h3>
+    <table>
+      <tr><th>Type</th><th>Konvensjon</th><th>Eksempel</th></tr>
+      <tr><td>Komponenter</td><td>PascalCase</td><td><code>JobCard</code></td></tr>
+      <tr><td>Funksjoner</td><td>camelCase</td><td><code>createJob</code></td></tr>
+      <tr><td>Konstanter</td><td>SCREAMING_SNAKE</td><td><code>MAX_FILE_SIZE</code></td></tr>
+      <tr><td>Filer (komponenter)</td><td>kebab-case</td><td><code>job-card.tsx</code></td></tr>
+      <tr><td>Interfaces</td><td>PascalCase med I</td><td><code>IJob</code></td></tr>
+    </table>
+
+    <h3>Error-håndtering</h3>
+    <pre><code>export async function riskyOperation() {
+  try {
+    const result = await dangerousCall()
+    return { success: true, data: result }
+  } catch (error) {
+    console.error("Operation failed:", error)
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Ukjent feil",
+    }
+  }
+}</code></pre>
+
+    <h3>Tidlig return</h3>
+    <pre><code>// Unngå dypt nesting
+async function processApplication(id: number) {
+  const app = await getApplication(id)
+
+  if (!app) {
+    return { success: false, message: "Ikke funnet" }
+  }
+
+  if (app.status !== "pending") {
+    return { success: false, message: "Allerede behandlet" }
+  }
+
+  // Hovedlogikk her
+  return { success: true }
+}</code></pre>
+
+    <h2>Sjekkliste før lansering</h2>
+    <div class="warning-box">
+      <ul>
+        <li>[ ] Alle miljøvariabler er satt i produksjon</li>
+        <li>[ ] Passord hashes med bcrypt</li>
+        <li>[ ] JWT-hemmelighet er sterk (32+ tegn)</li>
+        <li>[ ] HTTPS er aktivert</li>
+        <li>[ ] Alle skjemaer har validering</li>
+        <li>[ ] Bilder er optimalisert</li>
+        <li>[ ] Ingen console.log i produksjonskode</li>
+        <li>[ ] Error boundaries er på plass</li>
+        <li>[ ] Loading states vises</li>
+        <li>[ ] Tom-tilstander håndteres</li>
+      </ul>
+    </div>
+
+    <h2>Vanlige feil å unngå</h2>
+
+    <h3>1. Kun klient-validering</h3>
+    <pre><code>// FEIL - kan omgås
+function Form() {
+  const onSubmit = (data) =&gt; {
+    if (data.email.includes("@")) submitToServer(data)
+  }
+}
+
+// RIKTIG - valider på server også
+"use server"
+export async function submit(data: unknown) {
+  const validated = schema.safeParse(data)
+  if (!validated.success) return { error: "Ugyldig data" }
+}</code></pre>
+
+    <h3>2. Stol på klient-data</h3>
+    <pre><code>// FEIL - bruker ID fra frontend
+export async function deleteJob(payload: { jobId: number; userId: number }) {
+  await supabase.from("jobs").delete().eq("id", payload.jobId)
+}
+
+// RIKTIG - verifiser fra token
+export async function deleteJob(jobId: number) {
+  const user = await getLoggedInUser()  // Fra token
+  if (!user) return { error: "Ikke innlogget" }
+
+  const { data: job } = await supabase
+    .from("jobs")
+    .select("owner_id")
+    .eq("id", jobId)
+    .single()
+
+  if (job?.owner_id !== user.id) return { error: "Ikke tillatt" }
+
+  await supabase.from("jobs").delete().eq("id", jobId)
+}</code></pre>
+
+    <div class="footer">
+      <p><a href="../07-styling/index.html">← Forrige</a> | <a href="../09-gjenbrukbare-maler/index.html">Neste: Maler →</a></p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

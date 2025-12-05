@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Next.js/TypeScript/Supabase - Cheat Sheet</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+      font-size: 10px;
+      line-height: 1.3;
+      color: #000;
+      background: #fff;
+      padding: 10mm;
+    }
+
+    h1 {
+      font-size: 18px;
+      margin-bottom: 8px;
+      text-align: center;
+      border-bottom: 3px solid #000;
+      padding-bottom: 4px;
+    }
+
+    h2 {
+      font-size: 13px;
+      margin-top: 12px;
+      margin-bottom: 4px;
+      padding: 3px 6px;
+      background: #000;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    h3 {
+      font-size: 11px;
+      margin-top: 6px;
+      margin-bottom: 2px;
+      font-weight: 600;
+      border-bottom: 1px solid #ccc;
+    }
+
+    .two-col {
+      column-count: 2;
+      column-gap: 10px;
+      break-inside: avoid-column;
+    }
+
+    .section {
+      break-inside: avoid;
+      margin-bottom: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 3px 0 6px 0;
+      font-size: 9px;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 2px 4px;
+      text-align: left;
+    }
+
+    th {
+      background: #f5f5f5;
+      font-weight: 600;
+      font-size: 9px;
+    }
+
+    code, pre {
+      font-family: 'Courier New', monospace;
+      font-size: 8.5px;
+      background: #f8f8f8;
+    }
+
+    pre {
+      padding: 3px 5px;
+      border-left: 2px solid #999;
+      margin: 2px 0;
+      overflow-x: auto;
+    }
+
+    code {
+      padding: 1px 3px;
+      border-radius: 2px;
+    }
+
+    ul {
+      margin-left: 12px;
+      margin-top: 2px;
+    }
+
+    li {
+      margin-bottom: 1px;
+    }
+
+    .note {
+      background: #fffacd;
+      border-left: 3px solid #ffeb3b;
+      padding: 3px 5px;
+      margin: 3px 0;
+      font-size: 9px;
+    }
+
+    .error-box {
+      background: #ffe6e6;
+      border-left: 3px solid #f44336;
+      padding: 3px 5px;
+      margin: 3px 0;
+      font-size: 9px;
+    }
+
+    .compact {
+      line-height: 1.2;
+    }
+
+    @media print {
+      body {
+        padding: 8mm;
+      }
+
+      .section, .two-col {
+        page-break-inside: avoid;
+      }
+
+      h2 {
+        page-break-after: avoid;
+      }
+
+      @page {
+        size: A4;
+        margin: 10mm;
+      }
+    }
+
+    /* Utility */
+    .mb-2 { margin-bottom: 2px; }
+    .mb-4 { margin-bottom: 4px; }
+    .mt-2 { margin-top: 2px; }
+  </style>
+</head>
+<body>
+
+<h1>Next.js/TypeScript/Supabase - Hurtigreferanse</h1>
+
+<div class="two-col">
+
+<!-- ==================== SECTION 1: TERMINAL ==================== -->
+<div class="section">
+  <h2>1. Terminal Kommandoer</h2>
+
+  <h3>Prosjekt Setup</h3>
+  <pre>npx create-next-app@latest mitt-prosjekt
+cd mitt-prosjekt
+npm install @supabase/supabase-js bcryptjs jsonwebtoken
+npm install -D @types/bcryptjs @types/jsonwebtoken
+npm run dev  # Start server på localhost:3000</pre>
+
+  <h3>NPM Kommandoer</h3>
+  <table>
+    <tr><th>Kommando</th><th>Beskrivelse</th></tr>
+    <tr><td><code>npm run dev</code></td><td>Start utviklingsserver</td></tr>
+    <tr><td><code>npm run build</code></td><td>Bygg for produksjon</td></tr>
+    <tr><td><code>npm run start</code></td><td>Start produksjonsserver</td></tr>
+    <tr><td><code>npm install pakke</code></td><td>Installer pakke</td></tr>
+    <tr><td><code>npm run lint</code></td><td>Kjør ESLint</td></tr>
+  </table>
+
+  <h3>Git Kommandoer</h3>
+  <pre>git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin URL
+git push -u origin main</pre>
+
+  <h3>Supabase CLI</h3>
+  <pre># Installer globalt
+npm install -g supabase
+
+# Login og init
+supabase login
+supabase init
+supabase link --project-ref din-ref-id</pre>
+</div>
+
+<!-- ==================== SECTION 2: TYPESCRIPT ==================== -->
+<div class="section">
+  <h2>2. TypeScript Quick Reference</h2>
+
+  <h3>Vanlige Typer</h3>
+  <pre>string, number, boolean, null, undefined
+any (unngå!), unknown, never, void</pre>
+
+  <h3>Arrays & Objekter</h3>
+  <pre>const names: string[] = ["Ola", "Kari"]
+const nums: Array&lt;number&gt; = [1, 2, 3]
+const user: { name: string; age: number } = {...}</pre>
+
+  <h3>Interface Eksempler</h3>
+  <pre>interface User {
+  id: number
+  name: string
+  email: string
+  role?: string        // Valgfri
+  readonly createdAt: Date  // Read-only
+}
+
+// Extending
+interface Admin extends User {
+  permissions: string[]
+}</pre>
+
+  <h3>Type vs Interface</h3>
+  <pre>// Union types (bruk type)
+type Status = "pending" | "active" | "done"
+
+// Intersection (bruk type)
+type Admin = User & { isAdmin: boolean }
+
+// Objekter (bruk interface)
+interface Product { name: string; price: number }</pre>
+
+  <h3>Generics</h3>
+  <pre>interface ApiResponse&lt;T&gt; {
+  success: boolean
+  data?: T
+}
+
+const res: ApiResponse&lt;User[]&gt; = {...}</pre>
+
+  <h3>Utility Types</h3>
+  <pre>Partial&lt;User&gt;        // Alle felter valgfrie
+Pick&lt;User, "id" | "name"&gt;  // Velg felter
+Omit&lt;User, "password"&gt;     // Fjern felter
+Record&lt;string, number&gt;     // Key-value map</pre>
+
+  <h3>Type Assertions</h3>
+  <pre>const input = document.querySelector("input") as HTMLInputElement
+user?.email  // Optional chaining
+user!.email  // Non-null assertion (bruk med varsomhet)</pre>
+</div>
+
+</div><!-- end two-col -->
+
+<div class="two-col">
+
+<!-- ==================== SECTION 3: REACT/NEXT.JS ==================== -->
+<div class="section">
+  <h2>3. React/Next.js Patterns</h2>
+
+  <h3>Server Component (Standard)</h3>
+  <pre>// app/page.tsx (async OK!)
+export default async function Page() {
+  const data = await fetch('...').then(r => r.json())
+  return &lt;div&gt;{data.title}&lt;/div&gt;
+}</pre>
+
+  <h3>Client Component</h3>
+  <pre>"use client"
+
+import { useState } from 'react'
+
+export default function Counter() {
+  const [count, setCount] = useState(0)
+  return &lt;button onClick={() => setCount(count + 1)}&gt;
+    {count}
+  &lt;/button&gt;
+}</pre>
+
+  <h3>useState</h3>
+  <pre>const [name, setName] = useState('')
+const [count, setCount] = useState(0)
+const [loading, setLoading] = useState(false)
+const [items, setItems] = useState&lt;Item[]&gt;([])</pre>
+
+  <h3>useEffect</h3>
+  <pre>// Kjør ved mount
+useEffect(() => {
+  fetchData()
+}, [])
+
+// Kjør når 'user' endres
+useEffect(() => {
+  console.log(user)
+}, [user])
+
+// Med cleanup
+useEffect(() => {
+  const sub = subscribe()
+  return () => sub.unsubscribe()
+}, [])</pre>
+
+  <h3>Server Actions</h3>
+  <pre>// actions/myAction.ts
+"use server"
+
+export async function createUser(formData: FormData) {
+  const name = formData.get("name") as string
+  // ... database logic
+  return { success: true }
+}
+
+// Bruk i form
+&lt;form action={createUser}&gt;
+  &lt;input name="name" /&gt;
+  &lt;button&gt;Submit&lt;/button&gt;
+&lt;/form&gt;</pre>
+
+  <h3>Component med Props</h3>
+  <pre>interface Props {
+  title: string
+  description?: string
+}
+
+export default function Card({ title, description }: Props) {
+  return &lt;div&gt;{title}&lt;/div&gt;
+}</pre>
+</div>
+
+<!-- ==================== SECTION 4: TAILWIND ==================== -->
+<div class="section">
+  <h2>4. Tailwind - Mest Brukte</h2>
+
+  <h3>Layout - Flexbox</h3>
+  <table>
+    <tr><th>Klasse</th><th>Beskrivelse</th></tr>
+    <tr><td><code>flex</code></td><td>Display flex</td></tr>
+    <tr><td><code>flex-col</code></td><td>Vertikal (kolonne)</td></tr>
+    <tr><td><code>flex-row</code></td><td>Horisontal (rad)</td></tr>
+    <tr><td><code>justify-center</code></td><td>Sentrer horisontalt</td></tr>
+    <tr><td><code>justify-between</code></td><td>Space between</td></tr>
+    <tr><td><code>items-center</code></td><td>Sentrer vertikalt</td></tr>
+    <tr><td><code>gap-4</code></td><td>Mellomrom (16px)</td></tr>
+  </table>
+
+  <h3>Layout - Grid</h3>
+  <pre>grid grid-cols-3 gap-4  // 3 kolonner
+grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3  // Responsiv</pre>
+
+  <h3>Spacing (p = padding, m = margin)</h3>
+  <table>
+    <tr><th>Klasse</th><th>Verdi</th></tr>
+    <tr><td><code>p-4</code></td><td>16px alle sider</td></tr>
+    <tr><td><code>px-4</code></td><td>16px venstre+høyre</td></tr>
+    <tr><td><code>py-4</code></td><td>16px topp+bunn</td></tr>
+    <tr><td><code>m-4</code></td><td>Margin 16px</td></tr>
+    <tr><td><code>mx-auto</code></td><td>Sentrer horisontalt</td></tr>
+  </table>
+  <div class="note">Verdier: 0, 1 (4px), 2 (8px), 4 (16px), 6 (24px), 8 (32px)</div>
+
+  <h3>Typography</h3>
+  <pre>text-xs (12px), text-sm (14px), text-base (16px)
+text-lg (18px), text-xl (20px), text-2xl (24px)
+font-normal, font-medium, font-semibold, font-bold
+text-left, text-center, text-right</pre>
+
+  <h3>Colors</h3>
+  <pre>bg-white, bg-gray-100, bg-blue-500
+text-gray-900, text-blue-500, text-red-500
+border-gray-300</pre>
+
+  <h3>Responsive (mobile-first)</h3>
+  <pre>sm: (640px+)  md: (768px+)  lg: (1024px+)
+Eksempel: flex-col md:flex-row  // Kolonne på mobil, rad på tablet+</pre>
+
+  <h3>Vanlige Mønstre</h3>
+  <pre>// Sentrert container
+&lt;div className="max-w-4xl mx-auto px-4"&gt;...&lt;/div&gt;
+
+// Knapp
+&lt;button className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"&gt;
+
+// Input
+&lt;input className="w-full px-3 py-2 border rounded focus:ring-2 focus:ring-blue-500"&gt;
+
+// Kort/Card
+&lt;div className="bg-white rounded-lg border p-5 shadow-sm"&gt;</pre>
+</div>
+
+</div><!-- end two-col -->
+
+<!-- ==================== SECTION 5: SUPABASE ==================== -->
+<div class="section">
+  <h2>5. Supabase Queries</h2>
+
+  <div class="two-col compact">
+
+  <h3>Setup</h3>
+  <pre>// config/supabase-config.ts
+import { createClient } from "@supabase/supabase-js"
+const supabase = createClient(
+  process.env.SUPABASE_PROJECT_URL!,
+  process.env.SUPABASE_API_KEY!
+)
+export default supabase</pre>
+
+  <h3>SELECT (Hent data)</h3>
+  <pre>// Hent alle
+const { data, error } = await supabase
+  .from("users")
+  .select("*")
+
+// Med filter
+.select("*")
+.eq("status", "active")
+.order("created_at", { ascending: false })
+
+// Hent én rad
+.select("*")
+.eq("id", userId)
+.single()
+
+// Join (relasjon)
+.select(`
+  *,
+  user:users(name, email)
+`)</pre>
+
+  <h3>INSERT (Opprett)</h3>
+  <pre>const { data, error } = await supabase
+  .from("users")
+  .insert({
+    name: "Ola",
+    email: "ola@test.no"
+  })
+  .select()
+  .single()</pre>
+
+  <h3>UPDATE (Oppdater)</h3>
+  <pre>const { error } = await supabase
+  .from("users")
+  .update({ name: "Nytt Navn" })
+  .eq("id", userId)</pre>
+
+  <h3>DELETE (Slett)</h3>
+  <pre>const { error } = await supabase
+  .from("users")
+  .delete()
+  .eq("id", userId)</pre>
+
+  <h3>Filtering</h3>
+  <table>
+    <tr><th>Metode</th><th>Beskrivelse</th></tr>
+    <tr><td><code>.eq("x", y)</code></td><td>Lik (equal)</td></tr>
+    <tr><td><code>.neq("x", y)</code></td><td>Ikke lik</td></tr>
+    <tr><td><code>.gt("x", y)</code></td><td>Større enn</td></tr>
+    <tr><td><code>.lt("x", y)</code></td><td>Mindre enn</td></tr>
+    <tr><td><code>.gte/.lte</code></td><td>Større/mindre eller lik</td></tr>
+    <tr><td><code>.ilike("x", "%y%")</code></td><td>Tekstsøk</td></tr>
+    <tr><td><code>.in("x", [a,b])</code></td><td>I liste</td></tr>
+    <tr><td><code>.is("x", null)</code></td><td>Er null</td></tr>
+  </table>
+
+  <h3>Sortering & Paginering</h3>
+  <pre>.order("created_at", { ascending: false })
+.limit(10)
+.range(0, 9)  // Første 10 rader</pre>
+
+  <h3>RLS Policy (SQL)</h3>
+  <pre>ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+
+-- Tillat alle (utvikling)
+CREATE POLICY "Allow all" ON users
+  FOR ALL USING (true);
+
+-- Bare egne data (produksjon)
+CREATE POLICY "Users can view own data" ON users
+  FOR SELECT USING (auth.uid() = id);</pre>
+
+  <h3>Storage (Filopplasting)</h3>
+  <pre>// Last opp
+const { error } = await supabase.storage
+  .from("uploads")
+  .upload(filePath, fileBuffer, {
+    contentType: file.type
+  })
+
+// Hent URL
+const { data } = supabase.storage
+  .from("uploads")
+  .getPublicUrl(filePath)
+
+// Slett
+await supabase.storage
+  .from("uploads")
+  .remove(["path/to/file.jpg"])</pre>
+
+  </div>
+</div>
+
+<!-- ==================== SECTION 6: VANLIGE FEIL ==================== -->
+<div class="section">
+  <h2>6. Top 10 Vanlige Feil + Løsninger</h2>
+
+  <div class="error-box mb-2">
+    <strong>1. Property 'x' does not exist on type 'Y'</strong><br>
+    Løsning: Legg til egenskapen i interface eller bruk optional chaining <code>user?.email</code>
+  </div>
+
+  <div class="error-box mb-2">
+    <strong>2. Object is possibly 'undefined'</strong><br>
+    Løsning: <code>if (user) { ... }</code> eller <code>user?.name</code> eller <code>user!.name</code>
+  </div>
+
+  <div class="error-box mb-2">
+    <strong>3. Module not found: Can't resolve 'X'</strong><br>
+    Løsning: <code>npm install pakke</code> eller sjekk import-path. Restart server.
+  </div>
+
+  <div class="error-box mb-2">
+    <strong>4. useState can only be used in Client Components</strong><br>
+    Løsning: Legg til <code>"use client"</code> øverst i filen
+  </div>
+
+  <div class="error-box mb-2">
+    <strong>5. Hydration failed / Text content mismatch</strong><br>
+    Løsning: Bruk <code>"use client"</code> for dynamisk innhold (dato/tid). Sjekk HTML-nesting (ikke &lt;p&gt; inne i &lt;p&gt;)
+  </div>
+
+  <div class="error-box mb-2">
+    <strong>6. Cannot read properties of undefined (reading 'x')</strong><br>
+    Løsning: Sjekk om objekt eksisterer før bruk: <code>if (obj) { obj.x }</code> eller <code>obj?.x</code>
+  </div>
+
+  <div class="error-box mb-2">
+    <strong>7. Type 'X' is not assignable to type 'Y'</strong><br>
+    Løsning: Bruk riktig type. Sjekk at alle påkrevde felter er med i objektet.
+  </div>
+
+  <div class="error-box mb-2">
+    <strong>8. cookies() / headers() can only be called from Server Components</strong><br>
+    Løsning: Fjern <code>"use client"</code> eller flytt logikken til Server Action
+  </div>
+
+  <div class="error-box mb-2">
+    <strong>9. Supabase Invalid API key</strong><br>
+    Løsning: Sjekk <code>.env.local</code> har riktige nøkler. Restart server etter endring.
+  </div>
+
+  <div class="error-box mb-2">
+    <strong>10. Build failed: ESLint error</strong><br>
+    Løsning: Kjør <code>npm run lint</code> og fiks feilene. Eller deaktiver midlertidig i <code>next.config.ts</code>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div style="text-align: center; margin-top: 12px; padding-top: 8px; border-top: 2px solid #000; font-size: 9px;">
+  <strong>Next.js/TypeScript/Supabase Cheat Sheet</strong> - Laget for hurtig referanse under utvikling
+</div>
+
+</body>
+</html>

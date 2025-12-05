@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tilpasningsguide - Obligar Consulting</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .customization-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+    .customization-card {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: all 0.3s;
+    }
+    .customization-card:hover {
+      border-color: #3b82f6;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+    }
+    .customization-card h3 {
+      margin-top: 0;
+      color: #1e293b;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .customization-card-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+    }
+    .step-container {
+      background: #f8fafc;
+      border-left: 4px solid #3b82f6;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .step-container h4 {
+      margin: 0 0 1rem 0;
+      color: #1e40af;
+    }
+    .before-after {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin: 1rem 0;
+    }
+    .before-after-item {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .before-after-item h5 {
+      margin: 0 0 0.5rem 0;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .before-after-item.before h5 { color: #dc2626; }
+    .before-after-item.after h5 { color: #16a34a; }
+    .visual-preview {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 2rem;
+      margin: 1rem 0;
+      text-align: center;
+    }
+    .color-palette {
+      display: flex;
+      gap: 1rem;
+      margin: 1rem 0;
+      flex-wrap: wrap;
+    }
+    .color-swatch {
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      display: flex;
+      align-items: flex-end;
+      padding: 0.5rem;
+      color: white;
+      font-size: 0.75rem;
+      font-weight: bold;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+      border: 2px solid rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html">Ny Nettside</a>
+    <a href="tilpasning.html"><strong>Tilpasning</strong></a>
+    <a href="komponenter.html">Komponenter</a>
+    <a href="maler.html">Maler</a>
+  </nav>
+
+  <div class="container">
+    <h1>Tilpasningsguide for Kundeprosjekter</h1>
+
+    <blockquote>
+      <p>Steg-for-steg guide for å tilpasse prosjektet til hver enkelt kunde. Fra farger til logo til innhold.</p>
+    </blockquote>
+
+    <div class="success-box">
+      <h3 style="margin-top: 0;">Rask tilpasning: 30 minutter</h3>
+      <p>Med denne guiden kan du tilpasse et ferdig prosjekt til kunde på under 30 minutter:</p>
+      <ul style="margin: 0.5rem 0 0 0;">
+        <li>Farger og logo: 5 minutter</li>
+        <li>Navigasjon og footer: 5 minutter</li>
+        <li>Fonts og typografi: 5 minutter</li>
+        <li>Innhold og tekster: 15 minutter</li>
+      </ul>
+    </div>
+
+    <h2>Oversikt</h2>
+    <div class="customization-grid">
+      <div class="customization-card">
+        <h3><span class="customization-card-icon">1</span> Farger</h3>
+        <p>Endre merkevarefarger i Tailwind-konfigurasjon</p>
+        <a href="#colors">Gå til guide →</a>
+      </div>
+      <div class="customization-card">
+        <h3><span class="customization-card-icon">2</span> Logo</h3>
+        <p>Bytt logo og favicon</p>
+        <a href="#logo">Gå til guide →</a>
+      </div>
+      <div class="customization-card">
+        <h3><span class="customization-card-icon">3</span> Navigasjon</h3>
+        <p>Endre meny-lenker og struktur</p>
+        <a href="#navigation">Gå til guide →</a>
+      </div>
+      <div class="customization-card">
+        <h3><span class="customization-card-icon">4</span> Footer</h3>
+        <p>Oppdater footer-informasjon</p>
+        <a href="#footer">Gå til guide →</a>
+      </div>
+      <div class="customization-card">
+        <h3><span class="customization-card-icon">5</span> Fonts</h3>
+        <p>Velg og implementer nye skrifttyper</p>
+        <a href="#fonts">Gå til guide →</a>
+      </div>
+      <div class="customization-card">
+        <h3><span class="customization-card-icon">6</span> Nye sider</h3>
+        <p>Legg til flere sider</p>
+        <a href="#pages">Gå til guide →</a>
+      </div>
+    </div>
+
+    <!-- COLORS SECTION -->
+    <h2 id="colors">1. Endre farger</h2>
+    <p>Alle farger styres fra Tailwind-konfigurasjonen. Dette gjør det enkelt å endre hele merkevaren på ett sted.</p>
+
+    <div class="step-container">
+      <h4>Steg 1: Åpne Tailwind-konfigurasjon</h4>
+      <p>Fil: <code>tailwind.config.ts</code> (i rot-mappen)</p>
+      <pre><code>import type { Config } from "tailwindcss";
+
+const config: Config = {
+  content: [
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        primary: {
+          DEFAULT: '#3b82f6',  // Hovedfarge
+          50: '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#3b82f6',      // Same as DEFAULT
+          600: '#2563eb',
+          700: '#1d4ed8',
+          800: '#1e40af',
+          900: '#1e3a8a',
+        },
+        secondary: {
+          DEFAULT: '#8b5cf6',  // Sekundærfarge
+          50: '#faf5ff',
+          100: '#f3e8ff',
+          200: '#e9d5ff',
+          300: '#d8b4fe',
+          400: '#c084fc',
+          500: '#a855f7',
+          600: '#9333ea',
+          700: '#7e22ce',
+          800: '#6b21a8',
+          900: '#581c87',
+        }
+      }
+    },
+  },
+  plugins: [],
+};
+export default config;</code></pre>
+    </div>
+
+    <div class="step-container">
+      <h4>Steg 2: Endre til kundens farger</h4>
+      <p>Bruk et verktøy som <a href="https://uicolors.app" target="_blank">UIColors</a> til å generere full palett fra én farge.</p>
+
+      <h5>Eksempel: Restaurant med rødt tema</h5>
+      <div class="before-after">
+        <div class="before-after-item before">
+          <h5>Før (Standard blå)</h5>
+          <pre><code>primary: {
+  DEFAULT: '#3b82f6',
+  500: '#3b82f6',
+  600: '#2563eb',
+}</code></pre>
+        </div>
+        <div class="before-after-item after">
+          <h5>Etter (Restaurant rød)</h5>
+          <pre><code>primary: {
+  DEFAULT: '#dc2626',
+  500: '#dc2626',
+  600: '#b91c1c',
+}</code></pre>
+        </div>
+      </div>
+
+      <p>Nå vil alle <code>bg-primary</code>, <code>text-primary</code> etc. bruke rød!</p>
+    </div>
+
+    <div class="step-container">
+      <h4>Steg 3: Test endringene</h4>
+      <pre><code>npm run dev</code></pre>
+      <p>Åpne <code>http://localhost:3000</code> og se at alle knapper, lenker og hover-effekter bruker nye farger.</p>
+    </div>
+
+    <div class="success-box">
+      <h4>Hurtig fargeendring</h4>
+      <p>For rask testing, endre bare disse to linjene:</p>
+      <pre><code>primary: {
+  DEFAULT: '#din-farge-her',  // Kun denne for å starte
+}</code></pre>
+      <p>Du kan alltid legge til full palett senere.</p>
+    </div>
+
+    <h3>Populære fargepaletter</h3>
+    <div class="color-palette">
+      <div class="color-swatch" style="background: #3b82f6;">#3b82f6<br>Tech/SaaS</div>
+      <div class="color-swatch" style="background: #dc2626;">#dc2626<br>Restaurant</div>
+      <div class="color-swatch" style="background: #16a34a;">#16a34a<br>Helse</div>
+      <div class="color-swatch" style="background: #ea580c;">#ea580c<br>Sport</div>
+      <div class="color-swatch" style="background: #7c3aed;">#7c3aed<br>Kreativ</div>
+      <div class="color-swatch" style="background: #0891b2;">#0891b2<br>Finans</div>
+    </div>
+
+    <!-- LOGO SECTION -->
+    <h2 id="logo">2. Bytte logo</h2>
+    <p>Logo vises i header og brukes som favicon (fane-ikon i nettleser).</p>
+
+    <div class="step-container">
+      <h4>Steg 1: Forbered logo-filene</h4>
+      <p>Du trenger:</p>
+      <ul>
+        <li><strong>Logo (SVG/PNG):</strong> For header. Anbefalt: 150-200px bred, transparent bakgrunn</li>
+        <li><strong>Favicon (PNG/ICO):</strong> 32x32px eller 512x512px (for bedre kvalitet)</li>
+      </ul>
+    </div>
+
+    <div class="step-container">
+      <h4>Steg 2: Plasser filene</h4>
+      <pre><code>public/
+├── logo.svg          # Eller logo.png
+└── favicon.ico       # Eller favicon.png</code></pre>
+      <p>Plasser logo-filene i <code>public/</code> mappen.</p>
+    </div>
+
+    <div class="step-container">
+      <h4>Steg 3: Oppdater header-komponenten</h4>
+      <p>Fil: <code>src/components/layout/header.tsx</code></p>
+
+      <div class="before-after">
+        <div class="before-after-item before">
+          <h5>Før</h5>
+          <pre><code>&lt;Image
+  src="/logo.svg"
+  alt="Logo"
+  width={150}
+  height={40}
+/&gt;</code></pre>
+        </div>
+        <div class="before-after-item after">
+          <h5>Etter</h5>
+          <pre><code>&lt;Image
+  src="/kunde-logo.png"
+  alt="Kunde Navn"
+  width={180}
+  height={50}
+/&gt;</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-container">
+      <h4>Steg 4: Oppdater favicon</h4>
+      <p>Fil: <code>src/app/layout.tsx</code></p>
+      <pre><code>import type { Metadata } from "next"
+
+export const metadata: Metadata = {
+  title: "Kunde Navn",
+  description: "Beskrivelse",
+  icons: {
+    icon: '/favicon.png',  // Eller favicon.ico
+  },
+}</code></pre>
+    </div>
+
+    <div class="warning-box">
+      <h4>Tips for logo</h4>
+      <ul style="margin: 0.5rem 0 0 0;">
+        <li>SVG er best (skalerbart, liten filstørrelse)</li>
+        <li>PNG må ha transparent bakgrunn</li>
+        <li>Høyde bør være 40-60px i header</li>
+        <li>Test på både lys og mørk bakgrunn</li>
+      </ul>
+    </div>
+
+    <!-- NAVIGATION SECTION -->
+    <h2 id="navigation">3. Endre navigasjon</h2>
+    <p>Navigasjonslenker er definert i header-komponenten.</p>
+
+    <div class="step-container">
+      <h4>Steg 1: Åpne header-komponenten</h4>
+      <p>Fil: <code>src/components/layout/header.tsx</code></p>
+      <pre><code>const navigation = [
+  { name: 'Hjem', href: '/' },
+  { name: 'Om oss', href: '/om-oss' },
+  { name: 'Tjenester', href: '/tjenester' },
+  { name: 'Kontakt', href: '/kontakt' },
+]</code></pre>
+    </div>
+
+    <div class="step-container">
+      <h4>Steg 2: Tilpass til kunde</h4>
+      <h5>Eksempel 1: Restaurant</h5>
+      <pre><code>const navigation = [
+  { name: 'Hjem', href: '/' },
+  { name: 'Meny', href: '/meny' },
+  { name: 'Bestill bord', href: '/bestill' },
+  { name: 'Om oss', href: '/om-oss' },
+  { name: 'Kontakt', href: '/kontakt' },
+]</code></pre>
+
+      <h5>Eksempel 2: Treningssenter</h5>
+      <pre><code>const navigation = [
+  { name: 'Hjem', href: '/' },
+  { name: 'Medlemskap', href: '/medlemskap' },
+  { name: 'Treningsgrupper', href: '/grupper' },
+  { name: 'Trenere', href: '/trenere' },
+  { name: 'Bli medlem', href: '/bli-medlem' },
+]</code></pre>
+
+      <h5>Eksempel 3: Konsulentfirma</h5>
+      <pre><code>const navigation = [
+  { name: 'Hjem', href: '/' },
+  { name: 'Tjenester', href: '/tjenester' },
+  { name: 'Portefølje', href: '/portefolje' },
+  { name: 'Team', href: '/team' },
+  { name: 'Blogg', href: '/blogg' },
+  { name: 'Kontakt', href: '/kontakt' },
+]</code></pre>
+    </div>
+
+    <div class="step-container">
+      <h4>Steg 3: Legg til dropdown-meny (valgfritt)</h4>
+      <pre><code>const navigation = [
+  { name: 'Hjem', href: '/' },
+  {
+    name: 'Tjenester',
+    href: '/tjenester',
+    submenu: [
+      { name: 'Webutvikling', href: '/tjenester/web' },
+      { name: 'Design', href: '/tjenester/design' },
+      { name: 'Konsultering', href: '/tjenester/konsultering' },
+    ]
+  },
+  { name: 'Kontakt', href: '/kontakt' },
+]</code></pre>
+      <p style="color: #64748b; font-size: 0.9rem;">
+        Merk: Dette krever ekstra kode i header-komponenten for å vise dropdown. Se <a href="komponenter.html#dropdown">komponent-biblioteket</a>.
+      </p>
+    </div>
+
+    <!-- FOOTER SECTION -->
+    <h2 id="footer">4. Endre footer-informasjon</h2>
+    <p>Footer inneholder kontaktinfo, sosiale medier og juridiske lenker.</p>
+
+    <div class="step-container">
+      <h4>Steg 1: Åpne footer-komponenten</h4>
+      <p>Fil: <code>src/components/layout/footer.tsx</code></p>
+    </div>
+
+    <div class="step-container">
+      <h4>Steg 2: Oppdater firma-informasjon</h4>
+      <pre><code>// Finn seksjonen med firmainfo
+&lt;div&gt;
+  &lt;h3 className="font-bold text-lg mb-4"&gt;Kunde AS&lt;/h3&gt;
+  &lt;p className="text-gray-400"&gt;Gateadresse 123&lt;/p&gt;
+  &lt;p className="text-gray-400"&gt;0123 Oslo&lt;/p&gt;
+  &lt;p className="text-gray-400 mt-2"&gt;Org.nr: 123 456 789&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <div class="step-container">
+      <h4>Steg 3: Oppdater kontaktinfo</h4>
+      <pre><code>&lt;div&gt;
+  &lt;h3 className="font-bold text-lg mb-4"&gt;Kontakt&lt;/h3&gt;
+  &lt;p className="text-gray-400"&gt;
+    E-post: &lt;a href="mailto:post@kunde.no"&gt;post@kunde.no&lt;/a&gt;
+  &lt;/p&gt;
+  &lt;p className="text-gray-400"&gt;
+    Telefon: &lt;a href="tel:+4712345678"&gt;+47 123 45 678&lt;/a&gt;
+  &lt;/p&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <div class="step-container">
+      <h4>Steg 4: Legg til sosiale medier</h4>
+      <pre><code>&lt;div className="flex gap-4"&gt;
+  &lt;a href="https://facebook.com/kunde" target="_blank"
+     className="text-gray-400 hover:text-white"&gt;
+    &lt;svg className="w-6 h-6" fill="currentColor"&gt;...&lt;/svg&gt;
+  &lt;/a&gt;
+  &lt;a href="https://instagram.com/kunde" target="_blank"
+     className="text-gray-400 hover:text-white"&gt;
+    &lt;svg className="w-6 h-6" fill="currentColor"&gt;...&lt;/svg&gt;
+  &lt;/a&gt;
+&lt;/div&gt;</code></pre>
+    </div>
+
+    <div class="warning-box">
+      <h4>Ikke glem juridiske sider</h4>
+      <p>Footer bør linke til:</p>
+      <ul style="margin: 0.5rem 0 0 0;">
+        <li><a href="/personvern">Personvernerklæring</a> (GDPR-krav)</li>
+        <li><a href="/vilkar">Vilkår og betingelser</a></li>
+        <li><a href="/informasjonskapsler">Informasjonskapsler</a> (hvis du bruker cookies)</li>
+      </ul>
+      <p style="margin-top: 0.5rem;">Se <a href="sider.html">sider-guiden</a> for ferdig innhold.</p>
+    </div>
+
+    <!-- FONTS SECTION -->
+    <h2 id="fonts">5. Endre fonts</h2>
+    <p>Next.js 14+ bruker <code>next/font</code> for optimal font-loading.</p>
+
+    <div class="step-container">
+      <h4>Steg 1: Velg font fra Google Fonts</h4>
+      <p>Gå til <a href="https://fonts.google.com" target="_blank">fonts.google.com</a> og velg en font.</p>
+      <p>Populære kombinasjoner:</p>
+      <ul>
+        <li><strong>Inter</strong> (moderne, universell)</li>
+        <li><strong>Poppins</strong> (geometrisk, elegant)</li>
+        <li><strong>Montserrat</strong> (urban, moderne)</li>
+        <li><strong>Roboto</strong> (klassisk, lesbar)</li>
+        <li><strong>Playfair Display</strong> (serif, elegant - for overskrifter)</li>
+      </ul>
+    </div>
+
+    <div class="step-container">
+      <h4>Steg 2: Implementer i layout.tsx</h4>
+      <p>Fil: <code>src/app/layout.tsx</code></p>
+
+      <h5>Én font for alt</h5>
+      <pre><code>import { Inter } from 'next/font/google'
+
+const inter = Inter({
+  subsets: ['latin'],
+  display: 'swap',
+})
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    &lt;html lang="no" className={inter.className}&gt;
+      &lt;body&gt;{children}&lt;/body&gt;
+    &lt;/html&gt;
+  )
+}</code></pre>
+
+      <h5>To fonter (heading + body)</h5>
+      <pre><code>import { Poppins, Open_Sans } from 'next/font/google'
+
+const headingFont = Poppins({
+  subsets: ['latin'],
+  weight: ['600', '700', '800'],
+  variable: '--font-heading',
+})
+
+const bodyFont = Open_Sans({
+  subsets: ['latin'],
+  variable: '--font-body',
+})
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    &lt;html lang="no" className={`${headingFont.variable} ${bodyFont.variable}`}&gt;
+      &lt;body className="font-body"&gt;{children}&lt;/body&gt;
+    &lt;/html&gt;
+  )
+}</code></pre>
+    </div>
+
+    <div class="step-container">
+      <h4>Steg 3: Oppdater Tailwind-config (for to fonter)</h4>
+      <p>Fil: <code>tailwind.config.ts</code></p>
+      <pre><code>theme: {
+  extend: {
+    fontFamily: {
+      heading: ['var(--font-heading)'],
+      body: ['var(--font-body)'],
+    }
+  }
+}</code></pre>
+
+      <p>Bruk i komponenter:</p>
+      <pre><code>&lt;h1 className="font-heading"&gt;Overskrift&lt;/h1&gt;
+&lt;p className="font-body"&gt;Brødtekst&lt;/p&gt;</code></pre>
+    </div>
+
+    <!-- PAGES SECTION -->
+    <h2 id="pages">6. Legge til nye sider</h2>
+    <p>Next.js App Router bruker fil-basert routing. Hver mappe i <code>src/app/</code> blir en rute.</p>
+
+    <div class="step-container">
+      <h4>Steg 1: Opprett ny mappe og page.tsx</h4>
+      <pre><code>src/app/
+├── (eksisterende sider)
+└── ny-side/          # ← Ny mappe
+    └── page.tsx      # ← Ny fil</code></pre>
+      <p>Dette lager ruten: <code>http://localhost:3000/ny-side</code></p>
+    </div>
+
+    <div class="step-container">
+      <h4>Steg 2: Legg til innhold i page.tsx</h4>
+      <pre><code>import type { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'Ny Side | Kunde Navn',
+  description: 'Beskrivelse av ny side',
+}
+
+export default function NySide() {
+  return (
+    &lt;div className="container mx-auto px-4 py-16"&gt;
+      &lt;h1 className="text-4xl font-bold mb-6"&gt;Ny Side&lt;/h1&gt;
+      &lt;p className="text-lg text-gray-600"&gt;Innhold her...&lt;/p&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+    </div>
+
+    <div class="step-container">
+      <h4>Steg 3: Legg til i navigasjon</h4>
+      <p>Gå tilbake til <code>src/components/layout/header.tsx</code>:</p>
+      <pre><code>const navigation = [
+  { name: 'Hjem', href: '/' },
+  { name: 'Ny Side', href: '/ny-side' },  // ← Legg til
+  { name: 'Kontakt', href: '/kontakt' },
+]</code></pre>
+    </div>
+
+    <div class="success-box">
+      <h4>Dynamiske ruter</h4>
+      <p>For sider som produkter eller bloggposter:</p>
+      <pre><code>src/app/
+└── blogg/
+    ├── page.tsx              # /blogg
+    └── [slug]/
+        └── page.tsx          # /blogg/min-artikkel</code></pre>
+      <p>Se <a href="sider.html">sider-guiden</a> for eksempler.</p>
+    </div>
+
+    <!-- QUICK CHECKLIST -->
+    <h2>Sjekkliste: Klar for kunde</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Oppgave</th>
+          <th>Fil</th>
+          <th>Ferdig?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Endre farger</td>
+          <td><code>tailwind.config.ts</code></td>
+          <td>☐</td>
+        </tr>
+        <tr>
+          <td>Bytt logo</td>
+          <td><code>public/logo.svg</code> + <code>header.tsx</code></td>
+          <td>☐</td>
+        </tr>
+        <tr>
+          <td>Bytt favicon</td>
+          <td><code>public/favicon.ico</code> + <code>layout.tsx</code></td>
+          <td>☐</td>
+        </tr>
+        <tr>
+          <td>Oppdater navigasjon</td>
+          <td><code>components/layout/header.tsx</code></td>
+          <td>☐</td>
+        </tr>
+        <tr>
+          <td>Oppdater footer</td>
+          <td><code>components/layout/footer.tsx</code></td>
+          <td>☐</td>
+        </tr>
+        <tr>
+          <td>Endre font</td>
+          <td><code>app/layout.tsx</code></td>
+          <td>☐</td>
+        </tr>
+        <tr>
+          <td>Legg til nødvendige sider</td>
+          <td><code>app/*/page.tsx</code></td>
+          <td>☐</td>
+        </tr>
+        <tr>
+          <td>Test på mobil</td>
+          <td>Chrome DevTools</td>
+          <td>☐</td>
+        </tr>
+        <tr>
+          <td>Oppdater metadata</td>
+          <td>Alle <code>page.tsx</code> filer</td>
+          <td>☐</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="success-box">
+      <h3 style="margin-top: 0;">Neste steg</h3>
+      <p>Når du har tilpasset grunnleggende design:</p>
+      <ul style="margin: 0.5rem 0 0 0;">
+        <li><a href="komponenter.html">Bruk komponent-biblioteket</a> for å bygge sider raskt</li>
+        <li><a href="sider.html">Legg til standardsider</a> (om oss, personvern, etc.)</li>
+        <li><a href="skjema.html">Implementer kontaktskjema</a></li>
+        <li><a href="deploy.html">Deploy til produksjon</a></li>
+      </ul>
+    </div>
+
+    <div class="footer">
+      <p><a href="index.html">← Ny Nettside</a> | <a href="komponenter.html">Komponent-bibliotek →</a></p>
+      <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+        <a href="https://obligarconsulting.no" target="_blank" style="color: #2563eb;">Obligar Consulting</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

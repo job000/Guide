@@ -1,0 +1,1079 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manuelt Oppsett - Next.js 16</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .step-card {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+    .step-card.active {
+      border-color: #3b82f6;
+    }
+    .step-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      background: #3b82f6;
+      color: white;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-right: 1rem;
+    }
+    .step-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .step-header h3 {
+      margin: 0;
+      font-size: 1.25rem;
+    }
+    .time-estimate {
+      background: #f0fdf4;
+      color: #166534;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-left: auto;
+    }
+    .code-file {
+      background: #1e293b;
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    .code-file-header {
+      background: #334155;
+      color: #94a3b8;
+      padding: 0.5rem 1rem;
+      font-family: monospace;
+      font-size: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .code-file pre {
+      margin: 0;
+      padding: 1rem;
+      overflow-x: auto;
+    }
+    .method-selector {
+      display: flex;
+      gap: 1rem;
+      margin: 2rem 0;
+    }
+    .method-btn {
+      flex: 1;
+      padding: 1.5rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      background: white;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .method-btn:hover {
+      border-color: #3b82f6;
+    }
+    .method-btn.active {
+      border-color: #3b82f6;
+      background: #eff6ff;
+    }
+    .method-btn h4 {
+      margin: 0 0 0.5rem 0;
+    }
+    .method-btn p {
+      margin: 0;
+      color: #64748b;
+      font-size: 0.9rem;
+    }
+    .checklist {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+    }
+    .checklist-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .checklist-item:last-child {
+      border-bottom: none;
+    }
+    .checklist-item input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      margin-top: 2px;
+      cursor: pointer;
+    }
+    .terminal-box {
+      background: #0f172a;
+      border-radius: 12px;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+    .terminal-box code {
+      color: #22c55e;
+      font-family: 'Menlo', 'Monaco', monospace;
+    }
+    .terminal-prompt::before {
+      content: "$ ";
+      color: #64748b;
+    }
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+    .comparison-table th,
+    .comparison-table td {
+      padding: 1rem;
+      text-align: left;
+      border: 1px solid #e2e8f0;
+    }
+    .comparison-table th {
+      background: #f8fafc;
+    }
+    .folder-tree {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 1.5rem;
+      font-family: monospace;
+      font-size: 0.9rem;
+    }
+    .folder { color: #3b82f6; }
+    .file { color: #64748b; }
+    .file-new { color: #22c55e; }
+    .progress-bar {
+      background: #e2e8f0;
+      border-radius: 9999px;
+      height: 8px;
+      margin: 1rem 0;
+    }
+    .progress-bar-fill {
+      background: #3b82f6;
+      border-radius: 9999px;
+      height: 100%;
+      transition: width 0.3s;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html">Ny Nettside</a>
+    <a href="auto-setup.html">Auto-Setup</a>
+    <a href="manuell-oppsett.html"><strong>Manuelt Oppsett</strong></a>
+    <a href="../grunnleggende/index.html">Grunnleggende</a>
+  </nav>
+
+  <div class="container">
+    <h1>Manuelt Oppsett - Next.js 16</h1>
+
+    <blockquote>
+      <p>Komplett guide for å sette opp et Next.js 16 prosjekt steg for steg. Perfekt hvis du vil forstå hvert steg eller har problemer med auto-setup scriptet.</p>
+    </blockquote>
+
+    <!-- METHOD COMPARISON -->
+    <div class="info-box">
+      <strong>Velg din metode:</strong>
+      <table class="comparison-table" style="margin-top: 1rem;">
+        <tr>
+          <th>Metode</th>
+          <th>Tid</th>
+          <th>Anbefalt for</th>
+        </tr>
+        <tr>
+          <td><a href="auto-setup.html">Auto-Setup Script</a></td>
+          <td>~3 min</td>
+          <td>Erfarne utviklere, raske prosjekter</td>
+        </tr>
+        <tr>
+          <td><strong>Manuelt oppsett</strong> (denne)</td>
+          <td>~20 min</td>
+          <td>Læring, feilsøking, full kontroll</td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- PREREQUISITES -->
+    <h2>Før du starter</h2>
+
+    <div class="checklist">
+      <h4 style="margin-top: 0;">Sjekkliste - Systemkrav</h4>
+      <div class="checklist-item">
+        <input type="checkbox" id="check-node">
+        <label for="check-node">
+          <strong>Node.js 18.17+</strong><br>
+          <code>node -v</code> → Bør vise v18.17.0 eller høyere
+        </label>
+      </div>
+      <div class="checklist-item">
+        <input type="checkbox" id="check-npm">
+        <label for="check-npm">
+          <strong>npm 9.0+</strong><br>
+          <code>npm -v</code> → Bør vise 9.0.0 eller høyere
+        </label>
+      </div>
+      <div class="checklist-item">
+        <input type="checkbox" id="check-git">
+        <label for="check-git">
+          <strong>Git</strong> (valgfritt)<br>
+          <code>git --version</code>
+        </label>
+      </div>
+      <div class="checklist-item">
+        <input type="checkbox" id="check-vscode">
+        <label for="check-vscode">
+          <strong>VS Code</strong> (anbefalt editor)<br>
+          <a href="https://code.visualstudio.com/download" target="_blank">Last ned VS Code</a>
+        </label>
+      </div>
+    </div>
+
+    <div class="warning-box">
+      <h4>Installere Node.js på Mac</h4>
+      <p>Åpne Terminal og kjør en av disse:</p>
+      <div class="terminal-box">
+        <code class="terminal-prompt">brew install node@20</code>
+      </div>
+      <p>Eller med nvm (anbefalt for flere Node-versjoner):</p>
+      <div class="terminal-box">
+        <code class="terminal-prompt">curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.0/install.sh | bash</code><br>
+        <code class="terminal-prompt">nvm install 20</code><br>
+        <code class="terminal-prompt">nvm use 20</code>
+      </div>
+    </div>
+
+    <!-- STEP 1 -->
+    <div class="step-card">
+      <div class="step-header">
+        <span class="step-number">1</span>
+        <h3>Opprett Next.js prosjekt</h3>
+        <span class="time-estimate">~2 min</span>
+      </div>
+
+      <p>Åpne Terminal og naviger til mappen hvor du vil opprette prosjektet:</p>
+
+      <div class="terminal-box">
+        <code class="terminal-prompt">cd ~/Developer</code><br>
+        <code class="terminal-prompt">npx create-next-app@16 mitt-prosjekt --typescript --tailwind --eslint --app --src-dir --turbopack --import-alias "@/*" --yes</code>
+      </div>
+
+      <div class="info-box">
+        <strong>Forklaring av flaggene:</strong>
+        <ul style="margin: 0.5rem 0;">
+          <li><code>@16</code> - Next.js versjon 16</li>
+          <li><code>--typescript</code> - TypeScript støtte</li>
+          <li><code>--tailwind</code> - Tailwind CSS</li>
+          <li><code>--eslint</code> - Kodesjekking</li>
+          <li><code>--app</code> - App Router (ikke Pages)</li>
+          <li><code>--src-dir</code> - src/ mappe for kode</li>
+          <li><code>--turbopack</code> - Rask bundler</li>
+          <li><code>--import-alias "@/*"</code> - @ = src/</li>
+          <li><code>--yes</code> - Godta alle defaults</li>
+        </ul>
+      </div>
+
+      <p>Gå inn i prosjektmappen:</p>
+      <div class="terminal-box">
+        <code class="terminal-prompt">cd mitt-prosjekt</code>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div class="step-card">
+      <div class="step-header">
+        <span class="step-number">2</span>
+        <h3>Installer avhengigheter</h3>
+        <span class="time-estimate">~3 min</span>
+      </div>
+
+      <p>Installer alle nødvendige pakker:</p>
+
+      <div class="terminal-box">
+        <code class="terminal-prompt">npm install @supabase/supabase-js zustand react-hook-form @hookform/resolvers zod bcryptjs jsonwebtoken js-cookie react-hot-toast lucide-react dayjs clsx tailwind-merge class-variance-authority @radix-ui/react-label @radix-ui/react-slot</code>
+      </div>
+
+      <p>Installer TypeScript-typer:</p>
+      <div class="terminal-box">
+        <code class="terminal-prompt">npm install -D @types/bcryptjs @types/jsonwebtoken @types/js-cookie</code>
+      </div>
+
+      <div class="info-box">
+        <strong>Hva er disse pakkene?</strong>
+        <table class="comparison-table" style="margin-top: 0.5rem; font-size: 0.9rem;">
+          <tr><td><code>@supabase/supabase-js</code></td><td>Database og auth</td></tr>
+          <tr><td><code>zustand</code></td><td>State management</td></tr>
+          <tr><td><code>react-hook-form + zod</code></td><td>Skjemavalidering</td></tr>
+          <tr><td><code>bcryptjs + jsonwebtoken</code></td><td>Passord og JWT</td></tr>
+          <tr><td><code>react-hot-toast</code></td><td>Notifikasjoner</td></tr>
+          <tr><td><code>lucide-react</code></td><td>Ikoner</td></tr>
+          <tr><td><code>clsx + tailwind-merge</code></td><td>CSS utilities</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div class="step-card">
+      <div class="step-header">
+        <span class="step-number">3</span>
+        <h3>Opprett mappestruktur</h3>
+        <span class="time-estimate">~1 min</span>
+      </div>
+
+      <p>Opprett alle nødvendige mapper:</p>
+
+      <div class="terminal-box">
+        <code class="terminal-prompt">mkdir -p src/actions src/components/ui src/components/layout src/components/functional src/config src/interfaces src/lib src/store src/hooks</code>
+      </div>
+
+      <div class="folder-tree">
+<pre>
+<span class="folder">src/</span>
+├── <span class="folder">actions/</span>          <span style="color: #22c55e;">← Server Actions (backend)</span>
+├── <span class="folder">app/</span>              <span style="color: #64748b;">← Sider (allerede opprettet)</span>
+├── <span class="folder file-new">components/</span>
+│   ├── <span class="folder file-new">ui/</span>          <span style="color: #22c55e;">← Gjenbrukbare UI-komponenter</span>
+│   ├── <span class="folder file-new">layout/</span>      <span style="color: #22c55e;">← Header, Footer, Nav</span>
+│   └── <span class="folder file-new">functional/</span>  <span style="color: #22c55e;">← Funksjonelle komponenter</span>
+├── <span class="folder file-new">config/</span>           <span style="color: #22c55e;">← Supabase-tilkobling</span>
+├── <span class="folder file-new">interfaces/</span>       <span style="color: #22c55e;">← TypeScript-typer</span>
+├── <span class="folder file-new">lib/</span>              <span style="color: #22c55e;">← Hjelpefunksjoner</span>
+├── <span class="folder file-new">store/</span>            <span style="color: #22c55e;">← Zustand state</span>
+└── <span class="folder file-new">hooks/</span>            <span style="color: #22c55e;">← Custom React hooks</span>
+</pre>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div class="step-card">
+      <div class="step-header">
+        <span class="step-number">4</span>
+        <h3>Opprett .env.local</h3>
+        <span class="time-estimate">~2 min</span>
+      </div>
+
+      <p>Opprett miljøvariabler i prosjektroten:</p>
+
+      <div class="code-file">
+        <div class="code-file-header">
+          <span>.env.local</span>
+          <button class="copy-btn" onclick="copyCode(this)">Kopier</button>
+        </div>
+        <pre><code># Supabase (hent fra supabase.com → Settings → API)
+SUPABASE_PROJECT_URL=https://din-id.supabase.co
+SUPABASE_API_KEY=din-anon-key
+
+# JWT Secret (minst 32 tegn)
+# Generer med: openssl rand -base64 32
+JWT_SECRET=MinstTrettiToTegnLangHemmeligNokkel123456
+
+# E-post (valgfritt)
+NODEMAILER_APP_PASSWORD=</code></pre>
+      </div>
+
+      <div class="warning-box">
+        <strong>Viktig!</strong> .env.local skal ALDRI committes til git. Den er allerede i .gitignore.
+      </div>
+
+      <p>Lag også en .env.example for dokumentasjon:</p>
+      <div class="code-file">
+        <div class="code-file-header">
+          <span>.env.example</span>
+          <button class="copy-btn" onclick="copyCode(this)">Kopier</button>
+        </div>
+        <pre><code># Kopier til .env.local og fyll inn verdier
+SUPABASE_PROJECT_URL=https://din-id.supabase.co
+SUPABASE_API_KEY=din-anon-key
+JWT_SECRET=generer-med-openssl-rand-base64-32
+NODEMAILER_APP_PASSWORD=</code></pre>
+      </div>
+    </div>
+
+    <!-- STEP 5 -->
+    <div class="step-card">
+      <div class="step-header">
+        <span class="step-number">5</span>
+        <h3>Opprett konfigurasjonsfiler</h3>
+        <span class="time-estimate">~3 min</span>
+      </div>
+
+      <h4>5.1 Supabase-tilkobling</h4>
+      <div class="code-file">
+        <div class="code-file-header">
+          <span>src/config/supabase-config.ts</span>
+          <button class="copy-btn" onclick="copyCode(this)">Kopier</button>
+        </div>
+        <pre><code>import { createClient } from "@supabase/supabase-js"
+
+const supabaseUrl = process.env.SUPABASE_PROJECT_URL!
+const supabaseKey = process.env.SUPABASE_API_KEY!
+
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error("Supabase-konfigurasjon mangler i .env.local")
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey)
+
+export default supabase</code></pre>
+      </div>
+
+      <h4>5.2 Hjelpefunksjoner</h4>
+      <div class="code-file">
+        <div class="code-file-header">
+          <span>src/lib/utils.ts</span>
+          <button class="copy-btn" onclick="copyCode(this)">Kopier</button>
+        </div>
+        <pre><code>import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+
+// Formater dato (norsk)
+export function formatDate(date: string | Date): string {
+  return new Date(date).toLocaleDateString("nb-NO", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  })
+}
+
+// Formater pris (norsk)
+export function formatPrice(amount: number): string {
+  return new Intl.NumberFormat("nb-NO", {
+    style: "currency",
+    currency: "NOK",
+    minimumFractionDigits: 0,
+  }).format(amount)
+}</code></pre>
+      </div>
+
+      <h4>5.3 TypeScript interfaces</h4>
+      <div class="code-file">
+        <div class="code-file-header">
+          <span>src/interfaces/index.ts</span>
+          <button class="copy-btn" onclick="copyCode(this)">Kopier</button>
+        </div>
+        <pre><code>// Bruker
+export interface IUser {
+  id: number
+  name: string
+  email: string
+  role: string
+  phone?: string
+  created_at: string
+}
+
+// API-respons (alle server actions returnerer dette)
+export interface IApiResponse&lt;T = unknown&gt; {
+  success: boolean
+  message?: string
+  data?: T
+}
+
+// Kontaktmelding
+export interface IContactMessage {
+  id: number
+  name: string
+  email: string
+  phone?: string
+  message: string
+  is_read: boolean
+  created_at: string
+}
+
+// Generisk innhold
+export interface IContent {
+  id: number
+  type: string
+  title: string
+  description?: string
+  image_url?: string
+  price?: number
+  is_active: boolean
+  sort_order: number
+  created_at: string
+}</code></pre>
+      </div>
+
+      <h4>5.4 Zustand store</h4>
+      <div class="code-file">
+        <div class="code-file-header">
+          <span>src/store/users-store.ts</span>
+          <button class="copy-btn" onclick="copyCode(this)">Kopier</button>
+        </div>
+        <pre><code>import { create } from "zustand"
+import { IUser } from "@/interfaces"
+
+interface UsersStore {
+  user: IUser | null
+  setUser: (user: IUser) => void
+  clearUser: () => void
+}
+
+const useUsersStore = create&lt;UsersStore&gt;((set) => ({
+  user: null,
+  setUser: (user) => set({ user }),
+  clearUser: () => set({ user: null }),
+}))
+
+export default useUsersStore</code></pre>
+      </div>
+    </div>
+
+    <!-- STEP 6 -->
+    <div class="step-card">
+      <div class="step-header">
+        <span class="step-number">6</span>
+        <h3>Opprett Server Actions</h3>
+        <span class="time-estimate">~5 min</span>
+      </div>
+
+      <h4>6.1 Auth actions (innlogging/registrering)</h4>
+      <div class="code-file">
+        <div class="code-file-header">
+          <span>src/actions/auth.ts</span>
+          <button class="copy-btn" onclick="copyCode(this)">Kopier</button>
+        </div>
+        <pre><code>"use server"
+
+import bcrypt from "bcryptjs"
+import jwt from "jsonwebtoken"
+import { cookies } from "next/headers"
+import supabase from "@/config/supabase-config"
+import { IApiResponse, IUser } from "@/interfaces"
+
+export async function register(payload: {
+  name: string
+  email: string
+  password: string
+}): Promise&lt;IApiResponse&gt; {
+  try {
+    // Sjekk om e-post finnes
+    const { data: existing } = await supabase
+      .from("users")
+      .select("id")
+      .eq("email", payload.email)
+      .single()
+
+    if (existing) {
+      return { success: false, message: "E-post er allerede registrert" }
+    }
+
+    // Hash passord
+    const hashedPassword = await bcrypt.hash(payload.password, 10)
+
+    // Opprett bruker
+    const { error } = await supabase.from("users").insert({
+      name: payload.name,
+      email: payload.email,
+      password: hashedPassword,
+    })
+
+    if (error) throw error
+
+    return { success: true, message: "Bruker opprettet!" }
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Ukjent feil"
+    return { success: false, message }
+  }
+}
+
+export async function login(payload: {
+  email: string
+  password: string
+}): Promise&lt;IApiResponse&gt; {
+  try {
+    const { data: user, error } = await supabase
+      .from("users")
+      .select("*")
+      .eq("email", payload.email)
+      .single()
+
+    if (error || !user) {
+      return { success: false, message: "Ugyldig e-post eller passord" }
+    }
+
+    const isValid = await bcrypt.compare(payload.password, user.password)
+
+    if (!isValid) {
+      return { success: false, message: "Ugyldig e-post eller passord" }
+    }
+
+    const token = jwt.sign(
+      { userId: user.id, email: user.email },
+      process.env.JWT_SECRET!,
+      { expiresIn: "7d" }
+    )
+
+    const cookieStore = await cookies()
+    cookieStore.set("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 60 * 60 * 24 * 7,
+    })
+
+    return { success: true, message: "Innlogget!" }
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Ukjent feil"
+    return { success: false, message }
+  }
+}
+
+export async function getLoggedInUser(): Promise&lt;IApiResponse&lt;IUser&gt;&gt; {
+  try {
+    const cookieStore = await cookies()
+    const token = cookieStore.get("token")?.value
+
+    if (!token) {
+      return { success: false, message: "Ikke innlogget" }
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET!) as {
+      userId: number
+    }
+
+    const { data: user, error } = await supabase
+      .from("users")
+      .select("id, name, email, role")
+      .eq("id", decoded.userId)
+      .single()
+
+    if (error || !user) {
+      return { success: false, message: "Bruker ikke funnet" }
+    }
+
+    return { success: true, data: user }
+  } catch {
+    return { success: false, message: "Ugyldig sesjon" }
+  }
+}
+
+export async function logout(): Promise&lt;IApiResponse&gt; {
+  const cookieStore = await cookies()
+  cookieStore.delete("token")
+  return { success: true }
+}</code></pre>
+      </div>
+
+      <h4>6.2 Contact actions (kontaktskjema)</h4>
+      <div class="code-file">
+        <div class="code-file-header">
+          <span>src/actions/contact.ts</span>
+          <button class="copy-btn" onclick="copyCode(this)">Kopier</button>
+        </div>
+        <pre><code>"use server"
+
+import supabase from "@/config/supabase-config"
+import { IApiResponse, IContactMessage } from "@/interfaces"
+
+export async function submitContact(payload: {
+  name: string
+  email: string
+  phone?: string
+  message: string
+}): Promise&lt;IApiResponse&gt; {
+  try {
+    const { error } = await supabase
+      .from("contact_messages")
+      .insert(payload)
+
+    if (error) throw error
+
+    return { success: true, message: "Takk! Vi kontakter deg snart." }
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Noe gikk galt"
+    return { success: false, message }
+  }
+}
+
+export async function getMessages(): Promise&lt;IApiResponse&lt;IContactMessage[]&gt;&gt; {
+  try {
+    const { data, error } = await supabase
+      .from("contact_messages")
+      .select("*")
+      .order("created_at", { ascending: false })
+
+    if (error) throw error
+
+    return { success: true, data }
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Kunne ikke hente meldinger"
+    return { success: false, message, data: [] }
+  }
+}
+
+export async function markAsRead(id: number): Promise&lt;IApiResponse&gt; {
+  try {
+    const { error } = await supabase
+      .from("contact_messages")
+      .update({ is_read: true })
+      .eq("id", id)
+
+    if (error) throw error
+
+    return { success: true }
+  } catch {
+    return { success: false }
+  }
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- STEP 7 -->
+    <div class="step-card">
+      <div class="step-header">
+        <span class="step-number">7</span>
+        <h3>Opprett proxy.ts (rutebeskyttelse - Next.js 16+)</h3>
+        <span class="time-estimate">~2 min</span>
+      </div>
+
+      <div class="code-file">
+        <div class="code-file-header">
+          <span>src/proxy.ts</span>
+          <button class="copy-btn" onclick="copyCode(this)">Kopier</button>
+        </div>
+        <pre><code>// src/proxy.ts (Next.js 16+)
+import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
+
+export default function proxy(request: NextRequest) {
+  const token = request.cookies.get("token")?.value
+  const path = request.nextUrl.pathname
+
+  // Beskyttede ruter
+  const protectedRoutes = ["/admin", "/dashboard", "/profile"]
+  const isProtected = protectedRoutes.some((route) => path.startsWith(route))
+
+  // Auth-ruter
+  const authRoutes = ["/login", "/register"]
+  const isAuthRoute = authRoutes.includes(path)
+
+  // Ikke innlogget → redirect til login
+  if (isProtected && !token) {
+    return NextResponse.redirect(new URL("/login", request.url))
+  }
+
+  // Innlogget → redirect bort fra auth-ruter
+  if (isAuthRoute && token) {
+    return NextResponse.redirect(new URL("/dashboard", request.url))
+  }
+
+  return NextResponse.next()
+}
+
+export const config = {
+  matcher: ["/admin/:path*", "/dashboard/:path*", "/profile/:path*", "/login", "/register"],
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- STEP 8 -->
+    <div class="step-card">
+      <div class="step-header">
+        <span class="step-number">8</span>
+        <h3>Opprett UI-komponenter</h3>
+        <span class="time-estimate">~3 min</span>
+      </div>
+
+      <h4>8.1 Button-komponent</h4>
+      <div class="code-file">
+        <div class="code-file-header">
+          <span>src/components/ui/button.tsx</span>
+          <button class="copy-btn" onclick="copyCode(this)">Kopier</button>
+        </div>
+        <pre><code>import { forwardRef, ButtonHTMLAttributes } from "react"
+import { cn } from "@/lib/utils"
+
+interface ButtonProps extends ButtonHTMLAttributes&lt;HTMLButtonElement&gt; {
+  variant?: "default" | "outline" | "ghost" | "destructive"
+  size?: "default" | "sm" | "lg"
+}
+
+const Button = forwardRef&lt;HTMLButtonElement, ButtonProps&gt;(
+  ({ className, variant = "default", size = "default", ...props }, ref) => {
+    return (
+      &lt;button
+        className={cn(
+          "inline-flex items-center justify-center rounded-md font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
+          {
+            "bg-blue-600 text-white hover:bg-blue-700": variant === "default",
+            "border border-gray-300 bg-transparent hover:bg-gray-100": variant === "outline",
+            "hover:bg-gray-100": variant === "ghost",
+            "bg-red-600 text-white hover:bg-red-700": variant === "destructive",
+          },
+          {
+            "h-10 px-4 py-2": size === "default",
+            "h-8 px-3 text-sm": size === "sm",
+            "h-12 px-6 text-lg": size === "lg",
+          },
+          className
+        )}
+        ref={ref}
+        {...props}
+      /&gt;
+    )
+  }
+)
+Button.displayName = "Button"
+
+export { Button }</code></pre>
+      </div>
+
+      <h4>8.2 Input-komponent</h4>
+      <div class="code-file">
+        <div class="code-file-header">
+          <span>src/components/ui/input.tsx</span>
+          <button class="copy-btn" onclick="copyCode(this)">Kopier</button>
+        </div>
+        <pre><code>import { forwardRef, InputHTMLAttributes } from "react"
+import { cn } from "@/lib/utils"
+
+interface InputProps extends InputHTMLAttributes&lt;HTMLInputElement&gt; {}
+
+const Input = forwardRef&lt;HTMLInputElement, InputProps&gt;(
+  ({ className, ...props }, ref) => {
+    return (
+      &lt;input
+        className={cn(
+          "flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50",
+          className
+        )}
+        ref={ref}
+        {...props}
+      /&gt;
+    )
+  }
+)
+Input.displayName = "Input"
+
+export { Input }</code></pre>
+      </div>
+
+      <h4>8.3 Header-komponent</h4>
+      <div class="code-file">
+        <div class="code-file-header">
+          <span>src/components/layout/header.tsx</span>
+          <button class="copy-btn" onclick="copyCode(this)">Kopier</button>
+        </div>
+        <pre><code>import Link from "next/link"
+
+export default function Header() {
+  return (
+    &lt;header className="bg-white border-b sticky top-0 z-50"&gt;
+      &lt;div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between"&gt;
+        &lt;Link href="/" className="text-xl font-bold text-blue-600"&gt;
+          Logo
+        &lt;/Link&gt;
+
+        &lt;nav className="hidden md:flex gap-6"&gt;
+          &lt;Link href="/" className="hover:text-blue-600 transition-colors"&gt;Hjem&lt;/Link&gt;
+          &lt;Link href="/om-oss" className="hover:text-blue-600 transition-colors"&gt;Om oss&lt;/Link&gt;
+          &lt;Link href="/tjenester" className="hover:text-blue-600 transition-colors"&gt;Tjenester&lt;/Link&gt;
+          &lt;Link href="/kontakt" className="hover:text-blue-600 transition-colors"&gt;Kontakt&lt;/Link&gt;
+        &lt;/nav&gt;
+
+        &lt;Link
+          href="/kontakt"
+          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+        &gt;
+          Kontakt oss
+        &lt;/Link&gt;
+      &lt;/div&gt;
+    &lt;/header&gt;
+  )
+}</code></pre>
+      </div>
+
+      <h4>8.4 Footer-komponent</h4>
+      <div class="code-file">
+        <div class="code-file-header">
+          <span>src/components/layout/footer.tsx</span>
+          <button class="copy-btn" onclick="copyCode(this)">Kopier</button>
+        </div>
+        <pre><code>import Link from "next/link"
+
+export default function Footer() {
+  return (
+    &lt;footer className="bg-gray-900 text-white py-12"&gt;
+      &lt;div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-3 gap-8"&gt;
+        &lt;div&gt;
+          &lt;h3 className="text-lg font-bold mb-4"&gt;Firmanavn&lt;/h3&gt;
+          &lt;p className="text-gray-400"&gt;
+            En kort beskrivelse av bedriften.
+          &lt;/p&gt;
+        &lt;/div&gt;
+
+        &lt;div&gt;
+          &lt;h3 className="text-lg font-bold mb-4"&gt;Kontakt&lt;/h3&gt;
+          &lt;p className="text-gray-400"&gt;post@eksempel.no&lt;/p&gt;
+          &lt;p className="text-gray-400"&gt;+47 123 45 678&lt;/p&gt;
+        &lt;/div&gt;
+
+        &lt;div&gt;
+          &lt;h3 className="text-lg font-bold mb-4"&gt;Lenker&lt;/h3&gt;
+          &lt;div className="flex flex-col gap-2"&gt;
+            &lt;Link href="/personvern" className="text-gray-400 hover:text-white transition-colors"&gt;
+              Personvern
+            &lt;/Link&gt;
+            &lt;Link href="/vilkar" className="text-gray-400 hover:text-white transition-colors"&gt;
+              Vilkår
+            &lt;/Link&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;div className="max-w-6xl mx-auto px-4 pt-8 mt-8 border-t border-gray-800 text-center text-gray-400"&gt;
+        © {new Date().getFullYear()} Firmanavn. Alle rettigheter reservert.
+        &lt;br /&gt;
+        &lt;span className="text-sm"&gt;Utviklet av &lt;a href="https://obligarconsulting.no" className="text-blue-400 hover:underline"&gt;Obligar Consulting&lt;/a&gt;&lt;/span&gt;
+      &lt;/div&gt;
+    &lt;/footer&gt;
+  )
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- STEP 9 -->
+    <div class="step-card">
+      <div class="step-header">
+        <span class="step-number">9</span>
+        <h3>Sett opp Supabase database</h3>
+        <span class="time-estimate">~5 min</span>
+      </div>
+
+      <ol>
+        <li>Gå til <a href="https://supabase.com" target="_blank">supabase.com</a> og opprett konto/logg inn</li>
+        <li>Klikk "New Project" og velg et navn</li>
+        <li>Vent til prosjektet er opprettet (~2 min)</li>
+        <li>Gå til Settings → API og kopier:
+          <ul>
+            <li><strong>Project URL</strong> → SUPABASE_PROJECT_URL</li>
+            <li><strong>anon public key</strong> → SUPABASE_API_KEY</li>
+          </ul>
+        </li>
+        <li>Gå til SQL Editor og kjør denne SQL-en:</li>
+      </ol>
+
+      <div class="code-file">
+        <div class="code-file-header">
+          <span>Supabase SQL</span>
+          <button class="copy-btn" onclick="copyCode(this)">Kopier</button>
+        </div>
+        <pre><code>-- Brukertabell
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  phone VARCHAR(50),
+  role VARCHAR(50) DEFAULT 'user',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Kontaktmeldinger
+CREATE TABLE contact_messages (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  phone VARCHAR(50),
+  message TEXT NOT NULL,
+  is_read BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Row Level Security
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
+
+-- Tillat alle operasjoner (tilpass etter behov)
+CREATE POLICY "Allow all" ON users FOR ALL USING (true);
+CREATE POLICY "Allow all" ON contact_messages FOR ALL USING (true);</code></pre>
+      </div>
+    </div>
+
+    <!-- STEP 10 -->
+    <div class="step-card">
+      <div class="step-header">
+        <span class="step-number">10</span>
+        <h3>Test prosjektet</h3>
+        <span class="time-estimate">~1 min</span>
+      </div>
+
+      <p>Start utviklingsserveren:</p>
+      <div class="terminal-box">
+        <code class="terminal-prompt">npm run dev</code>
+      </div>
+
+      <p>Åpne <a href="http://localhost:3000" target="_blank">http://localhost:3000</a> i nettleseren.</p>
+
+      <div class="info-box">
+        <strong>Sjekkliste - Alt fungerer?</strong>
+        <ul style="margin: 0.5rem 0;">
+          <li>✓ Siden laster uten feil</li>
+          <li>✓ Ingen TypeScript-feil i terminalen</li>
+          <li>✓ Header og footer vises</li>
+          <li>✓ Tailwind-styling fungerer</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- NEXT STEPS -->
+    <h2>Neste steg</h2>
+    <div class="topic-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+      <a href="sider.html" class="topic-card">
+        <h4 style="margin: 0;">Lag flere sider</h4>
+        <p style="margin: 0.5rem 0 0 0; color: #64748b; font-size: 0.9rem;">Om oss, Tjenester, Kontakt</p>
+      </a>
+      <a href="skjema.html" class="topic-card">
+        <h4 style="margin: 0;">Legg til kontaktskjema</h4>
+        <p style="margin: 0.5rem 0 0 0; color: #64748b; font-size: 0.9rem;">Med validering og toast</p>
+      </a>
+      <a href="admin.html" class="topic-card">
+        <h4 style="margin: 0;">Admin-panel</h4>
+        <p style="margin: 0.5rem 0 0 0; color: #64748b; font-size: 0.9rem;">Se meldinger, rediger innhold</p>
+      </a>
+    </div>
+
+    <div class="footer">
+      <p>
+        <a href="index.html">← Tilbake til oversikt</a> |
+        <a href="auto-setup.html">Prøv auto-setup →</a>
+      </p>
+      <p style="margin-top: 1rem; color: #64748b; font-size: 0.85rem;">
+        Utviklet av <a href="https://obligarconsulting.no">Obligar Consulting</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+  <script>
+    // Simple copy function if copy-code.js is not available
+    function copyCode(btn) {
+      const codeBlock = btn.closest('.code-file').querySelector('code');
+      navigator.clipboard.writeText(codeBlock.textContent).then(() => {
+        btn.textContent = 'Kopiert!';
+        setTimeout(() => btn.textContent = 'Kopier', 2000);
+      });
+    }
+  </script>
+</body>
+</html>

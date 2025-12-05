@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kontaktskjema med Validering - Next.js 15 Guide</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .form-preview {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 1.5rem 0;
+    }
+    .form-preview input,
+    .form-preview textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      margin-top: 0.25rem;
+    }
+    .form-preview label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+    .form-preview .error {
+      color: #dc2626;
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+    .file-badge {
+      display: inline-block;
+      background: #dbeafe;
+      color: #1e40af;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-family: monospace;
+      margin-bottom: 1rem;
+    }
+    .tech-stack {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin: 1rem 0;
+    }
+    .tech-badge {
+      background: #f1f5f9;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html">Ny Nettside</a>
+    <a href="sider.html">Flere Sider</a>
+    <a href="skjema.html"><strong>Kontaktskjema</strong></a>
+    <a href="admin.html">Admin</a>
+  </nav>
+
+  <div class="container">
+    <h1>Kontaktskjema med Validering</h1>
+
+    <blockquote>
+      <p>Komplett guide for å lage et kontaktskjema med klient-validering, server action og database-lagring.</p>
+    </blockquote>
+
+    <div class="tech-stack">
+      <span class="tech-badge">React Hook Form</span>
+      <span class="tech-badge">Zod</span>
+      <span class="tech-badge">Server Actions</span>
+      <span class="tech-badge">Supabase</span>
+      <span class="tech-badge">Toast notifications</span>
+    </div>
+
+    <!-- OVERVIEW -->
+    <h2>Oversikt</h2>
+    <p>Vi skal lage:</p>
+    <ol>
+      <li><strong>Zod-schema</strong> - Definer valideringsregler</li>
+      <li><strong>Server Action</strong> - Lagre i database</li>
+      <li><strong>Client Component</strong> - Skjema med validering</li>
+      <li><strong>Toast notifikasjon</strong> - Tilbakemelding til bruker</li>
+    </ol>
+
+    <!-- STEP 1: ZOD SCHEMA -->
+    <h2>Steg 1: Opprett Zod-schema</h2>
+
+    <div class="info-box">
+      <strong>Hvorfor Zod?</strong> Zod gir typesikker validering som fungerer både på klient og server.
+    </div>
+
+    <div class="file-badge">src/lib/validations/contact.ts</div>
+
+    <pre><code>import { z } from "zod"
+
+export const contactSchema = z.object({
+  name: z
+    .string()
+    .min(2, "Navn må være minst 2 tegn")
+    .max(100, "Navn kan ikke være mer enn 100 tegn"),
+
+  email: z
+    .string()
+    .email("Ugyldig e-postadresse"),
+
+  phone: z
+    .string()
+    .optional()
+    .refine(
+      (val) => !val || /^(\+47)?[0-9\s]{8,}$/.test(val.replace(/\s/g, "")),
+      "Ugyldig telefonnummer"
+    ),
+
+  message: z
+    .string()
+    .min(10, "Meldingen må være minst 10 tegn")
+    .max(1000, "Meldingen kan ikke være mer enn 1000 tegn"),
+})
+
+// TypeScript-type fra schema
+export type ContactFormData = z.infer&lt;typeof contactSchema&gt;</code></pre>
+
+    <p>Opprett mappen først:</p>
+    <pre><code>mkdir -p src/lib/validations</code></pre>
+
+    <!-- STEP 2: SERVER ACTION -->
+    <h2>Steg 2: Server Action for database</h2>
+
+    <p>Hvis du fulgte auto-setup, har du allerede <code>src/actions/contact.ts</code>. Ellers, opprett den:</p>
+
+    <div class="file-badge">src/actions/contact.ts</div>
+
+    <pre><code>"use server"
+
+import supabase from "@/config/supabase-config"
+import { contactSchema } from "@/lib/validations/contact"
+import { IApiResponse } from "@/interfaces"
+
+export async function submitContact(formData: {
+  name: string
+  email: string
+  phone?: string
+  message: string
+}): Promise&lt;IApiResponse&gt; {
+  try {
+    // Server-side validering
+    const validatedData = contactSchema.parse(formData)
+
+    // Lagre i database
+    const { error } = await supabase
+      .from("contact_messages")
+      .insert({
+        name: validatedData.name,
+        email: validatedData.email,
+        phone: validatedData.phone || null,
+        message: validatedData.message,
+      })
+
+    if (error) throw error
+
+    return {
+      success: true,
+      message: "Takk for din henvendelse! Vi svarer så snart vi kan.",
+    }
+  } catch (error) {
+    console.error("Contact form error:", error)
+
+    // Zod-valideringsfeil
+    if (error instanceof Error && error.name === "ZodError") {
+      return { success: false, message: "Ugyldig data. Sjekk feltene." }
+    }
+
+    return { success: false, message: "Noe gikk galt. Prøv igjen senere." }
+  }
+}</code></pre>
+
+    <!-- STEP 3: CLIENT COMPONENT -->
+    <h2>Steg 3: Kontaktskjema-komponent</h2>
+
+    <div class="file-badge">src/components/functional/contact-form.tsx</div>
+
+    <pre><code>"use client"
+
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import toast from "react-hot-toast"
+import { useState } from "react"
+import { contactSchema, ContactFormData } from "@/lib/validations/contact"
+import { submitContact } from "@/actions/contact"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+
+export default function ContactForm() {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm&lt;ContactFormData&gt;({
+    resolver: zodResolver(contactSchema),
+  })
+
+  const onSubmit = async (data: ContactFormData) => {
+    setIsSubmitting(true)
+
+    try {
+      const result = await submitContact(data)
+
+      if (result.success) {
+        toast.success(result.message || "Sendt!")
+        reset() // Tøm skjema
+      } else {
+        toast.error(result.message || "Noe gikk galt")
+      }
+    } catch {
+      toast.error("Kunne ikke sende melding. Prøv igjen.")
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit(onSubmit)} className="space-y-6"&gt;
+      {/* Navn */}
+      &lt;div&gt;
+        &lt;label htmlFor="name" className="block text-sm font-medium mb-1"&gt;
+          Navn *
+        &lt;/label&gt;
+        &lt;Input
+          id="name"
+          {...register("name")}
+          placeholder="Ola Nordmann"
+          aria-invalid={errors.name ? "true" : "false"}
+        /&gt;
+        {errors.name && (
+          &lt;p className="text-red-500 text-sm mt-1"&gt;{errors.name.message}&lt;/p&gt;
+        )}
+      &lt;/div&gt;
+
+      {/* E-post */}
+      &lt;div&gt;
+        &lt;label htmlFor="email" className="block text-sm font-medium mb-1"&gt;
+          E-post *
+        &lt;/label&gt;
+        &lt;Input
+          id="email"
+          type="email"
+          {...register("email")}
+          placeholder="ola@eksempel.no"
+          aria-invalid={errors.email ? "true" : "false"}
+        /&gt;
+        {errors.email && (
+          &lt;p className="text-red-500 text-sm mt-1"&gt;{errors.email.message}&lt;/p&gt;
+        )}
+      &lt;/div&gt;
+
+      {/* Telefon */}
+      &lt;div&gt;
+        &lt;label htmlFor="phone" className="block text-sm font-medium mb-1"&gt;
+          Telefon (valgfritt)
+        &lt;/label&gt;
+        &lt;Input
+          id="phone"
+          type="tel"
+          {...register("phone")}
+          placeholder="+47 123 45 678"
+        /&gt;
+        {errors.phone && (
+          &lt;p className="text-red-500 text-sm mt-1"&gt;{errors.phone.message}&lt;/p&gt;
+        )}
+      &lt;/div&gt;
+
+      {/* Melding */}
+      &lt;div&gt;
+        &lt;label htmlFor="message" className="block text-sm font-medium mb-1"&gt;
+          Melding *
+        &lt;/label&gt;
+        &lt;textarea
+          id="message"
+          {...register("message")}
+          rows={5}
+          placeholder="Skriv din melding her..."
+          className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          aria-invalid={errors.message ? "true" : "false"}
+        /&gt;
+        {errors.message && (
+          &lt;p className="text-red-500 text-sm mt-1"&gt;{errors.message.message}&lt;/p&gt;
+        )}
+      &lt;/div&gt;
+
+      {/* Submit */}
+      &lt;Button
+        type="submit"
+        disabled={isSubmitting}
+        className="w-full"
+        size="lg"
+      &gt;
+        {isSubmitting ? "Sender..." : "Send melding"}
+      &lt;/Button&gt;
+
+      &lt;p className="text-sm text-gray-500 text-center"&gt;
+        Ved å sende godtar du vår{" "}
+        &lt;a href="/personvern" className="text-blue-600 hover:underline"&gt;
+          personvernerklæring
+        &lt;/a&gt;
+      &lt;/p&gt;
+    &lt;/form&gt;
+  )
+}</code></pre>
+
+    <!-- STEP 4: USE IN PAGE -->
+    <h2>Steg 4: Bruk i kontakt-siden</h2>
+
+    <div class="file-badge">src/app/kontakt/page.tsx</div>
+
+    <pre><code>import ContactForm from "@/components/functional/contact-form"
+
+export const metadata = {
+  title: "Kontakt oss - Firmanavn",
+  description: "Ta kontakt med oss for spørsmål eller tilbud.",
+}
+
+export default function KontaktPage() {
+  return (
+    &lt;&gt;
+      {/* Hero */}
+      &lt;section className="bg-gray-100 py-16"&gt;
+        &lt;div className="max-w-6xl mx-auto px-4 text-center"&gt;
+          &lt;h1 className="text-4xl font-bold mb-4"&gt;Kontakt oss&lt;/h1&gt;
+          &lt;p className="text-xl text-gray-600"&gt;
+            Vi svarer vanligvis innen 24 timer.
+          &lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+
+      {/* Contact Section */}
+      &lt;section className="py-16"&gt;
+        &lt;div className="max-w-6xl mx-auto px-4"&gt;
+          &lt;div className="grid md:grid-cols-2 gap-12"&gt;
+            {/* Contact Info */}
+            &lt;div&gt;
+              &lt;h2 className="text-2xl font-bold mb-6"&gt;Kontaktinformasjon&lt;/h2&gt;
+
+              &lt;div className="space-y-6"&gt;
+                &lt;div&gt;
+                  &lt;h3 className="font-semibold mb-1"&gt;Adresse&lt;/h3&gt;
+                  &lt;p className="text-gray-600"&gt;
+                    Storgata 1&lt;br /&gt;
+                    0001 Oslo
+                  &lt;/p&gt;
+                &lt;/div&gt;
+
+                &lt;div&gt;
+                  &lt;h3 className="font-semibold mb-1"&gt;E-post&lt;/h3&gt;
+                  &lt;a
+                    href="mailto:post@eksempel.no"
+                    className="text-blue-600 hover:underline"
+                  &gt;
+                    post@eksempel.no
+                  &lt;/a&gt;
+                &lt;/div&gt;
+
+                &lt;div&gt;
+                  &lt;h3 className="font-semibold mb-1"&gt;Telefon&lt;/h3&gt;
+                  &lt;a
+                    href="tel:+4712345678"
+                    className="text-blue-600 hover:underline"
+                  &gt;
+                    +47 123 45 678
+                  &lt;/a&gt;
+                &lt;/div&gt;
+
+                &lt;div&gt;
+                  &lt;h3 className="font-semibold mb-1"&gt;Åpningstider&lt;/h3&gt;
+                  &lt;p className="text-gray-600"&gt;
+                    Man-Fre: 09:00 - 17:00&lt;br /&gt;
+                    Lør-Søn: Stengt
+                  &lt;/p&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+
+            {/* Form */}
+            &lt;div className="bg-gray-50 p-8 rounded-lg"&gt;
+              &lt;h2 className="text-2xl font-bold mb-6"&gt;Send oss en melding&lt;/h2&gt;
+              &lt;ContactForm /&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/section&gt;
+    &lt;/&gt;
+  )
+}</code></pre>
+
+    <!-- DATABASE -->
+    <h2>Steg 5: Database-tabell (hvis ikke opprettet)</h2>
+
+    <p>Kjør denne SQL-en i Supabase SQL Editor:</p>
+
+    <pre><code>CREATE TABLE IF NOT EXISTS contact_messages (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  phone VARCHAR(50),
+  message TEXT NOT NULL,
+  is_read BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Row Level Security
+ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
+
+-- Policy for insert (alle kan sende meldinger)
+CREATE POLICY "Allow insert" ON contact_messages
+  FOR INSERT WITH CHECK (true);
+
+-- Policy for select (bare admin kan lese)
+CREATE POLICY "Allow select for admin" ON contact_messages
+  FOR SELECT USING (true); -- Tilpass etter behov</code></pre>
+
+    <!-- OPTIONAL: EMAIL -->
+    <h2>Valgfritt: Send e-post-varsling</h2>
+
+    <div class="info-box">
+      <strong>Merk:</strong> Dette krever Nodemailer og en e-postkonto (f.eks. Gmail med App Password).
+    </div>
+
+    <div class="file-badge">src/lib/email.ts</div>
+
+    <pre><code>import nodemailer from "nodemailer"
+
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: "din-epost@gmail.com",
+    pass: process.env.NODEMAILER_APP_PASSWORD,
+  },
+})
+
+export async function sendContactNotification(data: {
+  name: string
+  email: string
+  phone?: string
+  message: string
+}) {
+  try {
+    await transporter.sendMail({
+      from: "din-epost@gmail.com",
+      to: "admin@firma.no",
+      subject: `Ny kontaktmelding fra ${data.name}`,
+      html: `
+        &lt;h2&gt;Ny kontaktmelding&lt;/h2&gt;
+        &lt;p&gt;&lt;strong&gt;Navn:&lt;/strong&gt; ${data.name}&lt;/p&gt;
+        &lt;p&gt;&lt;strong&gt;E-post:&lt;/strong&gt; ${data.email}&lt;/p&gt;
+        &lt;p&gt;&lt;strong&gt;Telefon:&lt;/strong&gt; ${data.phone || "Ikke oppgitt"}&lt;/p&gt;
+        &lt;p&gt;&lt;strong&gt;Melding:&lt;/strong&gt;&lt;/p&gt;
+        &lt;p&gt;${data.message}&lt;/p&gt;
+      `,
+    })
+    return true
+  } catch (error) {
+    console.error("Email error:", error)
+    return false
+  }
+}</code></pre>
+
+    <p>Legg til i Server Action:</p>
+
+    <pre><code>// I submitContact(), etter database-lagring:
+import { sendContactNotification } from "@/lib/email"
+
+// ...etter supabase.insert()
+await sendContactNotification(validatedData)</code></pre>
+
+    <!-- SPAM PROTECTION -->
+    <h2>Valgfritt: Spam-beskyttelse</h2>
+
+    <h3>Honeypot-felt (enkel)</h3>
+
+    <pre><code>// I skjema - legg til et skjult felt
+&lt;input
+  type="text"
+  name="website"
+  className="hidden"
+  tabIndex={-1}
+  autoComplete="off"
+  {...register("website")}
+/&gt;
+
+// I server action - avvis hvis fylt ut
+if (formData.website) {
+  return { success: false, message: "Spam detected" }
+}</code></pre>
+
+    <h3>Rate limiting (avansert)</h3>
+
+    <pre><code>// Bruk IP-basert rate limiting med Upstash Redis
+import { Ratelimit } from "@upstash/ratelimit"
+import { Redis } from "@upstash/redis"
+
+const ratelimit = new Ratelimit({
+  redis: Redis.fromEnv(),
+  limiter: Ratelimit.slidingWindow(5, "1 h"), // 5 per time
+})
+
+// I server action
+const { success } = await ratelimit.limit(ip)
+if (!success) {
+  return { success: false, message: "For mange forsøk. Prøv igjen senere." }
+}</code></pre>
+
+    <!-- TROUBLESHOOTING -->
+    <h2>Vanlige feil</h2>
+
+    <div class="warning-box">
+      <h4>Feil: "Cannot read properties of undefined (reading 'name')"</h4>
+      <p>Sjekk at du har <code>"use client"</code> øverst i ContactForm-komponenten.</p>
+    </div>
+
+    <div class="warning-box">
+      <h4>Feil: Toast vises ikke</h4>
+      <p>Sjekk at <code>&lt;Toaster /&gt;</code> er lagt til i <code>layout.tsx</code>:</p>
+      <pre><code>import { Toaster } from "react-hot-toast"
+
+// I body:
+&lt;Toaster position="top-right" /&gt;</code></pre>
+    </div>
+
+    <div class="warning-box">
+      <h4>Feil: Data lagres ikke i database</h4>
+      <p>Sjekk at:</p>
+      <ul>
+        <li>Supabase-nøkler er korrekte i <code>.env.local</code></li>
+        <li>Tabellen <code>contact_messages</code> finnes</li>
+        <li>Row Level Security er konfigurert riktig</li>
+      </ul>
+    </div>
+
+    <!-- NEXT STEPS -->
+    <h2>Neste steg</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+      <a href="admin.html" class="topic-card" style="display: block; padding: 1.5rem; background: white; border: 2px solid #e2e8f0; border-radius: 12px; text-decoration: none; color: inherit;">
+        <h4 style="margin: 0;">Admin-panel</h4>
+        <p style="margin: 0.5rem 0 0 0; color: #64748b; font-size: 0.9rem;">Se og administrer meldinger</p>
+      </a>
+      <a href="../feilmeldinger/index.html" class="topic-card" style="display: block; padding: 1.5rem; background: white; border: 2px solid #e2e8f0; border-radius: 12px; text-decoration: none; color: inherit;">
+        <h4 style="margin: 0;">Feilmeldinger</h4>
+        <p style="margin: 0.5rem 0 0 0; color: #64748b; font-size: 0.9rem;">Vanlige feil og løsninger</p>
+      </a>
+    </div>
+
+    <div class="footer">
+      <p>
+        <a href="sider.html">← Flere sider</a> |
+        <a href="admin.html">Admin-panel →</a>
+      </p>
+      <p style="margin-top: 1rem; color: #64748b; font-size: 0.85rem;">
+        Utviklet av <a href="https://obligarconsulting.no">Obligar Consulting</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

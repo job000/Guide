@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bransjemaler - Next.js 15 Guide</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .template-card {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 1.5rem;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .template-card:hover {
+      border-color: #3b82f6;
+      transform: translateY(-4px);
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+    .template-card .icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+    .template-card h3 {
+      margin: 0 0 0.5rem;
+    }
+    .feature-list {
+      text-align: left;
+      font-size: 0.9rem;
+      color: #64748b;
+    }
+    .feature-list li {
+      margin: 0.25rem 0;
+    }
+    .file-tree {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 1.25rem 1.5rem;
+      border-radius: 12px;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.9rem;
+      margin: 1.5rem 0;
+      line-height: 1.8;
+      white-space: pre;
+      overflow-x: auto;
+      border: 1px solid #334155;
+    }
+    .file-tree .folder { color: #60a5fa; font-weight: 600; }
+    .file-tree .file { color: #a5b4fc; }
+    .file-tree .comment { color: #94a3b8; font-style: italic; }
+    .checklist {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+    }
+    .checklist h4 {
+      margin-top: 0;
+    }
+    .checklist li {
+      margin: 0.5rem 0;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html">Ny Nettside</a>
+    <a href="booking.html">Booking</a>
+    <a href="maler.html"><strong>Bransjemaler</strong></a>
+  </nav>
+
+  <div class="container">
+    <h1>Bransjemaler</h1>
+
+    <blockquote>
+      <p>Ferdige maler og sjekklister for ulike kundetyper. Tilpass og lever raskt.</p>
+    </blockquote>
+
+    <!-- TEMPLATE OVERVIEW -->
+    <div class="template-grid">
+      <div class="template-card">
+        <div class="icon">🍽️</div>
+        <h3>Restaurant</h3>
+        <ul class="feature-list">
+          <li>Meny med kategorier</li>
+          <li>Bordbooking</li>
+          <li>Åpningstider</li>
+          <li>Galleri</li>
+        </ul>
+      </div>
+      <div class="template-card">
+        <div class="icon">🏋️</div>
+        <h3>Treningssenter</h3>
+        <ul class="feature-list">
+          <li>Timeplan/klasser</li>
+          <li>Medlemskap (Stripe)</li>
+          <li>Trenere</li>
+          <li>Priser</li>
+        </ul>
+      </div>
+      <div class="template-card">
+        <div class="icon">🛒</div>
+        <h3>Nettbutikk</h3>
+        <ul class="feature-list">
+          <li>Produktkatalog</li>
+          <li>Handlekurv</li>
+          <li>Checkout (Stripe)</li>
+          <li>Ordrehåndtering</li>
+        </ul>
+      </div>
+      <div class="template-card">
+        <div class="icon">💼</div>
+        <h3>Konsulent</h3>
+        <ul class="feature-list">
+          <li>Tjenester</li>
+          <li>Om oss / Team</li>
+          <li>Kontaktskjema</li>
+          <li>Blogg/artikler</li>
+        </ul>
+      </div>
+      <div class="template-card">
+        <div class="icon">💇</div>
+        <h3>Frisør/Salong</h3>
+        <ul class="feature-list">
+          <li>Behandlinger</li>
+          <li>Timebestilling</li>
+          <li>Ansatte/stilister</li>
+          <li>Prisliste</li>
+        </ul>
+      </div>
+      <div class="template-card">
+        <div class="icon">🏠</div>
+        <h3>Eiendom</h3>
+        <ul class="feature-list">
+          <li>Eiendomsliste</li>
+          <li>Filtrering</li>
+          <li>Visningsforespørsel</li>
+          <li>Kart-integrasjon</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- RESTAURANT -->
+    <h2 id="restaurant">🍽️ Restaurant-mal</h2>
+
+    <div class="file-tree"><span class="folder">src/app/</span>
+├── <span class="file">page.tsx</span>                 <span class="comment"># Forside med hero, featured dishes</span>
+├── <span class="folder">meny/</span>
+│   └── <span class="file">page.tsx</span>             <span class="comment"># Full meny med kategorier</span>
+├── <span class="folder">booking/</span>
+│   └── <span class="file">page.tsx</span>             <span class="comment"># Bordbestilling</span>
+├── <span class="folder">om-oss/</span>
+│   └── <span class="file">page.tsx</span>             <span class="comment"># Historie, kokken, filosofi</span>
+└── <span class="folder">kontakt/</span>
+    └── <span class="file">page.tsx</span>             <span class="comment"># Kart, åpningstider, kontakt</span></div>
+
+    <h3>Database-skjema</h3>
+    <pre><code>-- Restaurant-spesifikt
+CREATE TABLE menu_categories (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  description TEXT,
+  sort_order INTEGER DEFAULT 0
+);
+
+CREATE TABLE menu_items (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  category_id UUID REFERENCES menu_categories(id),
+  name TEXT NOT NULL,
+  description TEXT,
+  price INTEGER NOT NULL, -- i øre
+  image_url TEXT,
+  is_vegetarian BOOLEAN DEFAULT false,
+  is_vegan BOOLEAN DEFAULT false,
+  is_gluten_free BOOLEAN DEFAULT false,
+  is_available BOOLEAN DEFAULT true,
+  sort_order INTEGER DEFAULT 0
+);
+
+-- Eksempel på åpningstider
+INSERT INTO business_hours (day_of_week, open_time, close_time) VALUES
+(1, '11:00', '22:00'), -- Mandag
+(2, '11:00', '22:00'), -- Tirsdag
+(3, '11:00', '22:00'), -- Onsdag
+(4, '11:00', '23:00'), -- Torsdag
+(5, '11:00', '24:00'), -- Fredag
+(6, '12:00', '24:00'), -- Lørdag
+(0, '12:00', '21:00'); -- Søndag</code></pre>
+
+    <h3>Meny-komponent</h3>
+    <pre><code>// src/app/meny/page.tsx
+import supabase from "@/config/supabase-config"
+import Image from "next/image"
+
+interface MenuItem {
+  id: string
+  name: string
+  description: string
+  price: number
+  image_url: string
+  is_vegetarian: boolean
+  is_vegan: boolean
+  is_gluten_free: boolean
+}
+
+interface Category {
+  id: string
+  name: string
+  description: string
+  menu_items: MenuItem[]
+}
+
+export default async function MenyPage() {
+  const { data: categories } = await supabase
+    .from("menu_categories")
+    .select(`
+      *,
+      menu_items(*)
+    `)
+    .order("sort_order")
+
+  return (
+    &lt;div className="max-w-4xl mx-auto py-12 px-4"&gt;
+      &lt;h1 className="text-4xl font-bold text-center mb-12"&gt;Vår Meny&lt;/h1&gt;
+
+      {categories?.map((category: Category) => (
+        &lt;section key={category.id} className="mb-16"&gt;
+          &lt;h2 className="text-2xl font-bold mb-2"&gt;{category.name}&lt;/h2&gt;
+          {category.description && (
+            &lt;p className="text-gray-600 mb-6"&gt;{category.description}&lt;/p&gt;
+          )}
+
+          &lt;div className="space-y-6"&gt;
+            {category.menu_items?.map((item: MenuItem) => (
+              &lt;div key={item.id} className="flex gap-4 p-4 bg-white rounded-lg shadow-sm"&gt;
+                {item.image_url && (
+                  &lt;div className="relative w-24 h-24 flex-shrink-0"&gt;
+                    &lt;Image
+                      src={item.image_url}
+                      alt={item.name}
+                      fill
+                      className="object-cover rounded-lg"
+                    /&gt;
+                  &lt;/div&gt;
+                )}
+                &lt;div className="flex-1"&gt;
+                  &lt;div className="flex justify-between items-start"&gt;
+                    &lt;div&gt;
+                      &lt;h3 className="font-semibold"&gt;{item.name}&lt;/h3&gt;
+                      &lt;div className="flex gap-1 mt-1"&gt;
+                        {item.is_vegetarian && &lt;span title="Vegetar"&gt;🥬&lt;/span&gt;}
+                        {item.is_vegan && &lt;span title="Vegan"&gt;🌱&lt;/span&gt;}
+                        {item.is_gluten_free && &lt;span title="Glutenfri"&gt;🌾&lt;/span&gt;}
+                      &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;span className="font-bold text-lg"&gt;
+                      {(item.price / 100).toFixed(0)} kr
+                    &lt;/span&gt;
+                  &lt;/div&gt;
+                  &lt;p className="text-gray-600 text-sm mt-1"&gt;{item.description}&lt;/p&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            ))}
+          &lt;/div&gt;
+        &lt;/section&gt;
+      ))}
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <div class="checklist">
+      <h4>Sjekkliste: Restaurant</h4>
+      <ul>
+        <li>☐ Meny med priser og bilder</li>
+        <li>☐ Allergener/diettmerking (V, VG, GF)</li>
+        <li>☐ Bordbestilling med dato/tid/gjester</li>
+        <li>☐ Åpningstider (dynamisk fra DB)</li>
+        <li>☐ Google Maps-integrasjon</li>
+        <li>☐ Galleri med stemningsbilder</li>
+        <li>☐ SEO: LocalBusiness + Restaurant schema</li>
+        <li>☐ Mobiloptimalisert meny</li>
+      </ul>
+    </div>
+
+    <!-- GYM -->
+    <h2 id="treningssenter">🏋️ Treningssenter-mal</h2>
+
+    <div class="file-tree"><span class="folder">src/app/</span>
+├── <span class="file">page.tsx</span>                 <span class="comment"># Forside, hero, features</span>
+├── <span class="folder">timeplan/</span>
+│   └── <span class="file">page.tsx</span>             <span class="comment"># Ukentlig timeplan</span>
+├── <span class="folder">klasser/</span>
+│   ├── <span class="file">page.tsx</span>             <span class="comment"># Alle klasser</span>
+│   └── <span class="folder">[slug]/</span>
+│       └── <span class="file">page.tsx</span>         <span class="comment"># Klassebeskrivelse</span>
+├── <span class="folder">priser/</span>
+│   └── <span class="file">page.tsx</span>             <span class="comment"># Medlemskap og priser</span>
+├── <span class="folder">trenere/</span>
+│   └── <span class="file">page.tsx</span>             <span class="comment"># Våre trenere</span>
+└── <span class="folder">bli-medlem/</span>
+    └── <span class="file">page.tsx</span>             <span class="comment"># Registrering + Stripe</span></div>
+
+    <h3>Database-skjema</h3>
+    <pre><code>-- Treningssenter-spesifikt
+CREATE TABLE fitness_classes (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  description TEXT,
+  duration_minutes INTEGER DEFAULT 60,
+  intensity TEXT, -- low, medium, high
+  image_url TEXT,
+  is_active BOOLEAN DEFAULT true
+);
+
+CREATE TABLE trainers (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  title TEXT,
+  bio TEXT,
+  avatar_url TEXT,
+  specialties TEXT[],
+  is_active BOOLEAN DEFAULT true
+);
+
+CREATE TABLE class_schedule (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  class_id UUID REFERENCES fitness_classes(id),
+  trainer_id UUID REFERENCES trainers(id),
+  day_of_week INTEGER NOT NULL, -- 0-6
+  start_time TIME NOT NULL,
+  max_participants INTEGER DEFAULT 20,
+  room TEXT
+);
+
+CREATE TABLE class_registrations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  schedule_id UUID REFERENCES class_schedule(id),
+  user_id UUID REFERENCES auth.users(id),
+  date DATE NOT NULL,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(schedule_id, user_id, date)
+);
+
+-- Medlemskap
+CREATE TABLE membership_plans (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  price INTEGER NOT NULL, -- månedlig i øre
+  stripe_price_id TEXT,
+  features TEXT[],
+  is_popular BOOLEAN DEFAULT false
+);</code></pre>
+
+    <h3>Timeplan-komponent</h3>
+    <pre><code>// src/app/timeplan/page.tsx
+import supabase from "@/config/supabase-config"
+
+const DAYS = ["Søndag", "Mandag", "Tirsdag", "Onsdag", "Torsdag", "Fredag", "Lørdag"]
+
+interface ScheduleItem {
+  id: string
+  day_of_week: number
+  start_time: string
+  room: string
+  fitness_class: {
+    name: string
+    duration_minutes: number
+  }
+  trainer: {
+    name: string
+  }
+}
+
+export default async function TimeplanPage() {
+  const { data: schedule } = await supabase
+    .from("class_schedule")
+    .select(`
+      *,
+      fitness_class:fitness_classes(name, duration_minutes),
+      trainer:trainers(name)
+    `)
+    .order("start_time")
+
+  // Grupper etter ukedag
+  const byDay = DAYS.map((_, index) => ({
+    day: DAYS[index],
+    classes: schedule?.filter((s: ScheduleItem) => s.day_of_week === index) || [],
+  }))
+
+  return (
+    &lt;div className="max-w-6xl mx-auto py-12 px-4"&gt;
+      &lt;h1 className="text-4xl font-bold text-center mb-12"&gt;Timeplan&lt;/h1&gt;
+
+      &lt;div className="grid md:grid-cols-7 gap-4"&gt;
+        {byDay.slice(1).concat(byDay.slice(0, 1)).map(({ day, classes }) => (
+          &lt;div key={day} className="bg-white rounded-lg p-4 shadow-sm"&gt;
+            &lt;h3 className="font-bold text-center mb-4 pb-2 border-b"&gt;{day}&lt;/h3&gt;
+            &lt;div className="space-y-3"&gt;
+              {classes.length === 0 ? (
+                &lt;p className="text-gray-400 text-sm text-center"&gt;Ingen timer&lt;/p&gt;
+              ) : (
+                classes.map((item: ScheduleItem) => (
+                  &lt;div
+                    key={item.id}
+                    className="p-2 bg-blue-50 rounded text-sm"
+                  &gt;
+                    &lt;div className="font-medium"&gt;{item.fitness_class.name}&lt;/div&gt;
+                    &lt;div className="text-gray-600"&gt;
+                      {item.start_time.slice(0, 5)} ({item.fitness_class.duration_minutes} min)
+                    &lt;/div&gt;
+                    &lt;div className="text-gray-500"&gt;{item.trainer.name}&lt;/div&gt;
+                  &lt;/div&gt;
+                ))
+              )}
+            &lt;/div&gt;
+          &lt;/div&gt;
+        ))}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h3>Prisside med Stripe</h3>
+    <pre><code>// src/app/priser/page.tsx
+import supabase from "@/config/supabase-config"
+import { CheckCircle } from "lucide-react"
+import MembershipButton from "./membership-button"
+
+interface Plan {
+  id: string
+  name: string
+  price: number
+  stripe_price_id: string
+  features: string[]
+  is_popular: boolean
+}
+
+export default async function PriserPage() {
+  const { data: plans } = await supabase
+    .from("membership_plans")
+    .select("*")
+    .order("price")
+
+  return (
+    &lt;div className="max-w-5xl mx-auto py-12 px-4"&gt;
+      &lt;h1 className="text-4xl font-bold text-center mb-4"&gt;Medlemskap&lt;/h1&gt;
+      &lt;p className="text-center text-gray-600 mb-12"&gt;
+        Velg medlemskapet som passer deg best
+      &lt;/p&gt;
+
+      &lt;div className="grid md:grid-cols-3 gap-8"&gt;
+        {plans?.map((plan: Plan) => (
+          &lt;div
+            key={plan.id}
+            className={`bg-white rounded-2xl p-8 shadow-lg ${
+              plan.is_popular ? "ring-2 ring-blue-600 scale-105" : ""
+            }`}
+          &gt;
+            {plan.is_popular && (
+              &lt;div className="bg-blue-600 text-white text-sm font-medium px-3 py-1 rounded-full w-fit mb-4"&gt;
+                Mest populær
+              &lt;/div&gt;
+            )}
+            &lt;h2 className="text-2xl font-bold"&gt;{plan.name}&lt;/h2&gt;
+            &lt;div className="mt-4"&gt;
+              &lt;span className="text-4xl font-bold"&gt;
+                {(plan.price / 100).toFixed(0)} kr
+              &lt;/span&gt;
+              &lt;span className="text-gray-500"&gt;/mnd&lt;/span&gt;
+            &lt;/div&gt;
+
+            &lt;ul className="mt-6 space-y-3"&gt;
+              {plan.features.map((feature: string, i: number) => (
+                &lt;li key={i} className="flex items-center gap-2"&gt;
+                  &lt;CheckCircle className="w-5 h-5 text-green-500" /&gt;
+                  &lt;span&gt;{feature}&lt;/span&gt;
+                &lt;/li&gt;
+              ))}
+            &lt;/ul&gt;
+
+            &lt;MembershipButton
+              priceId={plan.stripe_price_id}
+              planName={plan.name}
+              isPopular={plan.is_popular}
+            /&gt;
+          &lt;/div&gt;
+        ))}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <div class="checklist">
+      <h4>Sjekkliste: Treningssenter</h4>
+      <ul>
+        <li>☐ Ukentlig timeplan</li>
+        <li>☐ Klassebeskrivelser med intensitet</li>
+        <li>☐ Påmelding til klasser (med maks deltakere)</li>
+        <li>☐ Trenerprofiler</li>
+        <li>☐ Medlemskap med Stripe-abonnement</li>
+        <li>☐ Prøveperiode/drop-in mulighet</li>
+        <li>☐ Åpningstider og fasiliteter</li>
+        <li>☐ SEO: LocalBusiness + SportsActivityLocation</li>
+      </ul>
+    </div>
+
+    <!-- E-COMMERCE -->
+    <h2 id="nettbutikk">🛒 Nettbutikk-mal</h2>
+
+    <div class="file-tree"><span class="folder">src/app/</span>
+├── <span class="file">page.tsx</span>                 <span class="comment"># Forside, featured products</span>
+├── <span class="folder">produkter/</span>
+│   ├── <span class="file">page.tsx</span>             <span class="comment"># Produktliste med filter</span>
+│   └── <span class="folder">[slug]/</span>
+│       └── <span class="file">page.tsx</span>         <span class="comment"># Produktdetaljer</span>
+├── <span class="folder">kategorier/</span>
+│   └── <span class="folder">[slug]/</span>
+│       └── <span class="file">page.tsx</span>         <span class="comment"># Kategoriside</span>
+├── <span class="folder">handlekurv/</span>
+│   └── <span class="file">page.tsx</span>             <span class="comment"># Kurvoversikt</span>
+├── <span class="folder">checkout/</span>
+│   └── <span class="file">page.tsx</span>             <span class="comment"># Betalingsside</span>
+└── <span class="folder">ordre/</span>
+    └── <span class="folder">[id]/</span>
+        └── <span class="file">page.tsx</span>         <span class="comment"># Ordrebekreftelse</span></div>
+
+    <h3>Database-skjema</h3>
+    <pre><code>-- Nettbutikk-spesifikt
+CREATE TABLE product_categories (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  description TEXT,
+  image_url TEXT,
+  parent_id UUID REFERENCES product_categories(id),
+  sort_order INTEGER DEFAULT 0
+);
+
+CREATE TABLE products (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  slug TEXT UNIQUE NOT NULL,
+  description TEXT,
+  price INTEGER NOT NULL, -- i øre
+  compare_at_price INTEGER, -- original pris (for salg)
+  category_id UUID REFERENCES product_categories(id),
+  images TEXT[], -- array av URL-er
+  sku TEXT,
+  stock_quantity INTEGER DEFAULT 0,
+  is_active BOOLEAN DEFAULT true,
+  is_featured BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE product_variants (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  product_id UUID REFERENCES products(id) ON DELETE CASCADE,
+  name TEXT NOT NULL, -- f.eks "Rød, Large"
+  sku TEXT,
+  price INTEGER,
+  stock_quantity INTEGER DEFAULT 0,
+  options JSONB -- {"color": "red", "size": "L"}
+);
+
+CREATE TABLE orders (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  order_number TEXT UNIQUE NOT NULL,
+  customer_email TEXT NOT NULL,
+  customer_name TEXT NOT NULL,
+  shipping_address JSONB,
+  billing_address JSONB,
+  items JSONB NOT NULL,
+  subtotal INTEGER NOT NULL,
+  shipping INTEGER DEFAULT 0,
+  total INTEGER NOT NULL,
+  status TEXT DEFAULT 'pending', -- pending, paid, shipped, delivered, cancelled
+  stripe_session_id TEXT,
+  tracking_number TEXT,
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Generer ordrenummer
+CREATE OR REPLACE FUNCTION generate_order_number()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.order_number := 'ORD-' || TO_CHAR(NOW(), 'YYYYMMDD') || '-' ||
+    LPAD(FLOOR(RANDOM() * 10000)::TEXT, 4, '0');
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER set_order_number
+BEFORE INSERT ON orders
+FOR EACH ROW EXECUTE FUNCTION generate_order_number();
+
+-- Indekser
+CREATE INDEX idx_products_category ON products(category_id);
+CREATE INDEX idx_products_active ON products(is_active);
+CREATE INDEX idx_products_featured ON products(is_featured);
+CREATE INDEX idx_orders_email ON orders(customer_email);
+CREATE INDEX idx_orders_status ON orders(status);</code></pre>
+
+    <h3>Produktkort-komponent</h3>
+    <pre><code>// src/components/functional/product-card.tsx
+import Image from "next/image"
+import Link from "next/link"
+import { IProduct } from "@/interfaces/product"
+import AddToCartButton from "./add-to-cart-button"
+
+interface ProductCardProps {
+  product: IProduct
+}
+
+export default function ProductCard({ product }: ProductCardProps) {
+  const isOnSale = product.compare_at_price && product.compare_at_price > product.price
+  const discount = isOnSale
+    ? Math.round((1 - product.price / product.compare_at_price!) * 100)
+    : 0
+
+  return (
+    &lt;div className="group bg-white rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow"&gt;
+      &lt;Link href={`/produkter/${product.slug}`}&gt;
+        &lt;div className="relative aspect-square"&gt;
+          &lt;Image
+            src={product.images[0] || "/placeholder.jpg"}
+            alt={product.name}
+            fill
+            className="object-cover group-hover:scale-105 transition-transform"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+          /&gt;
+          {isOnSale && (
+            &lt;div className="absolute top-2 left-2 bg-red-500 text-white text-sm font-bold px-2 py-1 rounded"&gt;
+              -{discount}%
+            &lt;/div&gt;
+          )}
+          {product.stock_quantity === 0 && (
+            &lt;div className="absolute inset-0 bg-black/50 flex items-center justify-center"&gt;
+              &lt;span className="text-white font-bold"&gt;Utsolgt&lt;/span&gt;
+            &lt;/div&gt;
+          )}
+        &lt;/div&gt;
+      &lt;/Link&gt;
+
+      &lt;div className="p-4"&gt;
+        &lt;Link href={`/produkter/${product.slug}`}&gt;
+          &lt;h3 className="font-medium hover:text-blue-600 transition-colors"&gt;
+            {product.name}
+          &lt;/h3&gt;
+        &lt;/Link&gt;
+
+        &lt;div className="flex items-center gap-2 mt-2"&gt;
+          &lt;span className="text-lg font-bold"&gt;
+            {(product.price / 100).toFixed(0)} kr
+          &lt;/span&gt;
+          {isOnSale && (
+            &lt;span className="text-sm text-gray-500 line-through"&gt;
+              {(product.compare_at_price! / 100).toFixed(0)} kr
+            &lt;/span&gt;
+          )}
+        &lt;/div&gt;
+
+        &lt;AddToCartButton product={product} className="mt-3 w-full" /&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h3>Produktfilter</h3>
+    <pre><code>// src/components/functional/product-filter.tsx
+"use client"
+
+import { useRouter, useSearchParams } from "next/navigation"
+import { IProductCategory } from "@/interfaces/product"
+
+interface ProductFilterProps {
+  categories: IProductCategory[]
+}
+
+export default function ProductFilter({ categories }: ProductFilterProps) {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const currentCategory = searchParams.get("kategori")
+  const currentSort = searchParams.get("sorter") || "newest"
+  const currentMinPrice = searchParams.get("minPris")
+  const currentMaxPrice = searchParams.get("maxPris")
+
+  const updateFilter = (key: string, value: string | null) => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (value) {
+      params.set(key, value)
+    } else {
+      params.delete(key)
+    }
+    router.push(`/produkter?${params.toString()}`)
+  }
+
+  return (
+    &lt;div className="bg-white p-4 rounded-lg shadow-sm space-y-6"&gt;
+      {/* Kategorier */}
+      &lt;div&gt;
+        &lt;h3 className="font-semibold mb-3"&gt;Kategorier&lt;/h3&gt;
+        &lt;div className="space-y-2"&gt;
+          &lt;button
+            onClick={() => updateFilter("kategori", null)}
+            className={`block w-full text-left px-2 py-1 rounded ${
+              !currentCategory ? "bg-blue-50 text-blue-600" : "hover:bg-gray-50"
+            }`}
+          &gt;
+            Alle produkter
+          &lt;/button&gt;
+          {categories.map((cat) => (
+            &lt;button
+              key={cat.id}
+              onClick={() => updateFilter("kategori", cat.slug)}
+              className={`block w-full text-left px-2 py-1 rounded ${
+                currentCategory === cat.slug
+                  ? "bg-blue-50 text-blue-600"
+                  : "hover:bg-gray-50"
+              }`}
+            &gt;
+              {cat.name}
+            &lt;/button&gt;
+          ))}
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      {/* Sortering */}
+      &lt;div&gt;
+        &lt;h3 className="font-semibold mb-3"&gt;Sorter etter&lt;/h3&gt;
+        &lt;select
+          value={currentSort}
+          onChange={(e) => updateFilter("sorter", e.target.value)}
+          className="w-full p-2 border rounded"
+        &gt;
+          &lt;option value="newest"&gt;Nyeste først&lt;/option&gt;
+          &lt;option value="price-asc"&gt;Pris: Lav til høy&lt;/option&gt;
+          &lt;option value="price-desc"&gt;Pris: Høy til lav&lt;/option&gt;
+          &lt;option value="name"&gt;Navn A-Å&lt;/option&gt;
+        &lt;/select&gt;
+      &lt;/div&gt;
+
+      {/* Prisfilter */}
+      &lt;div&gt;
+        &lt;h3 className="font-semibold mb-3"&gt;Pris&lt;/h3&gt;
+        &lt;div className="flex gap-2"&gt;
+          &lt;input
+            type="number"
+            placeholder="Min"
+            value={currentMinPrice || ""}
+            onChange={(e) => updateFilter("minPris", e.target.value || null)}
+            className="w-full p-2 border rounded"
+          /&gt;
+          &lt;input
+            type="number"
+            placeholder="Maks"
+            value={currentMaxPrice || ""}
+            onChange={(e) => updateFilter("maxPris", e.target.value || null)}
+            className="w-full p-2 border rounded"
+          /&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <div class="checklist">
+      <h4>Sjekkliste: Nettbutikk</h4>
+      <ul>
+        <li>☐ Produktkatalog med bilder</li>
+        <li>☐ Kategorier og filtrering</li>
+        <li>☐ Søkefunksjon</li>
+        <li>☐ Handlekurv (Zustand + localStorage)</li>
+        <li>☐ Checkout med Stripe</li>
+        <li>☐ Ordrebekreftelse og e-post</li>
+        <li>☐ Lagerstatus</li>
+        <li>☐ Varianter (størrelse, farge)</li>
+        <li>☐ SEO: Product schema for hvert produkt</li>
+        <li>☐ Admin: Ordrehåndtering</li>
+      </ul>
+    </div>
+
+    <!-- CONSULTANT -->
+    <h2 id="konsulent">💼 Konsulent/Byrå-mal</h2>
+
+    <div class="file-tree"><span class="folder">src/app/</span>
+├── <span class="file">page.tsx</span>                 <span class="comment"># Forside, hero, testimonials</span>
+├── <span class="folder">tjenester/</span>
+│   ├── <span class="file">page.tsx</span>             <span class="comment"># Alle tjenester</span>
+│   └── <span class="folder">[slug]/</span>
+│       └── <span class="file">page.tsx</span>         <span class="comment"># Tjenestebeskrivelse</span>
+├── <span class="folder">om-oss/</span>
+│   └── <span class="file">page.tsx</span>             <span class="comment"># Team, historie, verdier</span>
+├── <span class="folder">prosjekter/</span>
+│   ├── <span class="file">page.tsx</span>             <span class="comment"># Case studies</span>
+│   └── <span class="folder">[slug]/</span>
+│       └── <span class="file">page.tsx</span>         <span class="comment"># Prosjektdetaljer</span>
+├── <span class="folder">blogg/</span>
+│   ├── <span class="file">page.tsx</span>             <span class="comment"># Artikler</span>
+│   └── <span class="folder">[slug]/</span>
+│       └── <span class="file">page.tsx</span>         <span class="comment"># Blogginnlegg</span>
+└── <span class="folder">kontakt/</span>
+    └── <span class="file">page.tsx</span>             <span class="comment"># Kontaktskjema</span></div>
+
+    <div class="checklist">
+      <h4>Sjekkliste: Konsulent/Byrå</h4>
+      <ul>
+        <li>☐ Profesjonell forside med CTA</li>
+        <li>☐ Tjenestebeskrivelser</li>
+        <li>☐ Team-presentasjon med bilder</li>
+        <li>☐ Case studies / Prosjekter</li>
+        <li>☐ Kundelogos / Testimonials</li>
+        <li>☐ Blogg/Artikler (for SEO)</li>
+        <li>☐ Kontaktskjema med validering</li>
+        <li>☐ SEO: Organization + LocalBusiness schema</li>
+      </ul>
+    </div>
+
+    <!-- COMMON COMPONENTS -->
+    <h2>Felles komponenter alle trenger</h2>
+
+    <pre><code>// src/components/layout/header.tsx - Responsiv header med mobil-meny
+// src/components/layout/footer.tsx - Footer med lenker og kontakt
+// src/components/functional/contact-form.tsx - Kontaktskjema
+// src/components/functional/google-map.tsx - Google Maps embed
+// src/components/functional/testimonials.tsx - Kundeomtaler
+// src/components/functional/image-gallery.tsx - Bildegalleri
+// src/components/ui/button.tsx - shadcn/ui komponenter
+// src/components/ui/input.tsx
+// src/components/ui/textarea.tsx</code></pre>
+
+    <h3>Google Maps-embed</h3>
+    <pre><code>// src/components/functional/google-map.tsx
+interface GoogleMapProps {
+  address: string
+  className?: string
+}
+
+export default function GoogleMap({ address, className = "" }: GoogleMapProps) {
+  const encodedAddress = encodeURIComponent(address)
+
+  return (
+    &lt;iframe
+      src={`https://www.google.com/maps/embed/v1/place?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY}&q=${encodedAddress}`}
+      className={`w-full h-64 rounded-lg ${className}`}
+      style={{ border: 0 }}
+      allowFullScreen
+      loading="lazy"
+      referrerPolicy="no-referrer-when-downgrade"
+    /&gt;
+  )
+}</code></pre>
+
+    <h3>Kundeomtaler/Testimonials</h3>
+    <pre><code>// src/components/functional/testimonials.tsx
+interface Testimonial {
+  name: string
+  title: string
+  company: string
+  quote: string
+  avatar?: string
+}
+
+interface TestimonialsProps {
+  testimonials: Testimonial[]
+}
+
+export default function Testimonials({ testimonials }: TestimonialsProps) {
+  return (
+    &lt;section className="py-16 bg-gray-50"&gt;
+      &lt;div className="max-w-6xl mx-auto px-4"&gt;
+        &lt;h2 className="text-3xl font-bold text-center mb-12"&gt;
+          Hva kundene sier
+        &lt;/h2&gt;
+
+        &lt;div className="grid md:grid-cols-3 gap-8"&gt;
+          {testimonials.map((t, i) => (
+            &lt;div key={i} className="bg-white p-6 rounded-xl shadow-sm"&gt;
+              &lt;p className="text-gray-600 italic mb-4"&gt;&quot;{t.quote}&quot;&lt;/p&gt;
+              &lt;div className="flex items-center gap-3"&gt;
+                {t.avatar ? (
+                  &lt;img
+                    src={t.avatar}
+                    alt={t.name}
+                    className="w-12 h-12 rounded-full"
+                  /&gt;
+                ) : (
+                  &lt;div className="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold"&gt;
+                    {t.name.charAt(0)}
+                  &lt;/div&gt;
+                )}
+                &lt;div&gt;
+                  &lt;div className="font-medium"&gt;{t.name}&lt;/div&gt;
+                  &lt;div className="text-sm text-gray-500"&gt;
+                    {t.title}, {t.company}
+                  &lt;/div&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          ))}
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+  )
+}</code></pre>
+
+    <div class="footer">
+      <p>
+        <a href="booking.html">← Booking</a> |
+        <a href="index.html">Tilbake til start →</a>
+      </p>
+      <p style="margin-top: 1rem; color: #64748b; font-size: 0.85rem;">
+        Utviklet av <a href="https://obligarconsulting.no">Obligar Consulting</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

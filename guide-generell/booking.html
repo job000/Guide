@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Booking og Bestilling - Next.js 15 Guide</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .calendar-demo {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      padding: 1rem;
+      background: white;
+      border-radius: 12px;
+      border: 2px solid #e2e8f0;
+      margin: 1rem 0;
+    }
+    .calendar-demo .day {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+    .calendar-demo .day.available {
+      background: #dcfce7;
+      color: #166534;
+      cursor: pointer;
+    }
+    .calendar-demo .day.booked {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    .calendar-demo .day.selected {
+      background: #3b82f6;
+      color: white;
+    }
+    .time-slots {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin: 1rem 0;
+    }
+    .time-slot {
+      padding: 0.5rem 1rem;
+      background: #f1f5f9;
+      border-radius: 8px;
+      font-size: 0.9rem;
+    }
+    .time-slot.available { background: #dcfce7; }
+    .time-slot.booked { background: #fee2e2; text-decoration: line-through; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html">Ny Nettside</a>
+    <a href="betaling.html">Betaling</a>
+    <a href="booking.html"><strong>Booking</strong></a>
+    <a href="maler.html">Bransjemaler</a>
+  </nav>
+
+  <div class="container">
+    <h1>Booking og Bestilling</h1>
+
+    <blockquote>
+      <p>Implementer booking-system for restauranter, frisører, treningssentre, konsulenter og andre tjenester.</p>
+    </blockquote>
+
+    <!-- USE CASES -->
+    <h2>Bruksområder</h2>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 1rem 0;">
+      <div class="info-box" style="margin: 0;">
+        <strong>🍽️ Restaurant</strong>
+        <p style="margin: 0.5rem 0 0; font-size: 0.9rem;">Bordbooking med antall gjester og tidspunkt</p>
+      </div>
+      <div class="info-box" style="margin: 0;">
+        <strong>💇 Frisør/Salong</strong>
+        <p style="margin: 0.5rem 0 0; font-size: 0.9rem;">Timebestilling med tjeneste og ansatt</p>
+      </div>
+      <div class="info-box" style="margin: 0;">
+        <strong>🏋️ Treningssenter</strong>
+        <p style="margin: 0.5rem 0 0; font-size: 0.9rem;">Klassepåmelding og PT-timer</p>
+      </div>
+    </div>
+
+    <!-- DATABASE -->
+    <h2>1. Database-skjema</h2>
+
+    <pre><code>-- Supabase SQL
+
+-- Tjenester/tilbud
+CREATE TABLE services (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  description TEXT,
+  duration_minutes INTEGER NOT NULL DEFAULT 60,
+  price INTEGER, -- i øre
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Ansatte/ressurser (valgfritt)
+CREATE TABLE staff (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name TEXT NOT NULL,
+  email TEXT,
+  avatar_url TEXT,
+  is_active BOOLEAN DEFAULT true
+);
+
+-- Bookinger
+CREATE TABLE bookings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  service_id UUID REFERENCES services(id),
+  staff_id UUID REFERENCES staff(id),
+  customer_name TEXT NOT NULL,
+  customer_email TEXT NOT NULL,
+  customer_phone TEXT,
+  date DATE NOT NULL,
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL,
+  guests INTEGER DEFAULT 1,
+  status TEXT DEFAULT 'pending', -- pending, confirmed, cancelled
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Åpningstider
+CREATE TABLE business_hours (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  day_of_week INTEGER NOT NULL, -- 0=søndag, 1=mandag, etc
+  open_time TIME NOT NULL,
+  close_time TIME NOT NULL,
+  is_closed BOOLEAN DEFAULT false
+);
+
+-- Stengte dager (ferier, etc)
+CREATE TABLE blocked_dates (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  date DATE NOT NULL,
+  reason TEXT
+);
+
+-- Indekser
+CREATE INDEX idx_bookings_date ON bookings(date);
+CREATE INDEX idx_bookings_status ON bookings(status);
+CREATE INDEX idx_bookings_email ON bookings(customer_email);
+
+-- RLS Policies
+ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE services ENABLE ROW LEVEL SECURITY;
+
+-- Alle kan lese aktive tjenester
+CREATE POLICY "Public read services"
+ON services FOR SELECT
+USING (is_active = true);
+
+-- Alle kan opprette bookinger
+CREATE POLICY "Public create bookings"
+ON bookings FOR INSERT
+WITH CHECK (true);
+
+-- Kunder kan se egne bookinger
+CREATE POLICY "Customers read own bookings"
+ON bookings FOR SELECT
+USING (customer_email = current_setting('request.jwt.claims', true)::json->>'email');</code></pre>
+
+    <!-- INTERFACES -->
+    <h2>2. TypeScript Interfaces</h2>
+
+    <pre><code>// src/interfaces/booking.ts
+
+export interface IService {
+  id: string
+  name: string
+  description?: string
+  duration_minutes: number
+  price?: number
+  is_active: boolean
+}
+
+export interface IStaff {
+  id: string
+  name: string
+  email?: string
+  avatar_url?: string
+}
+
+export interface IBooking {
+  id: string
+  service_id: string
+  staff_id?: string
+  customer_name: string
+  customer_email: string
+  customer_phone?: string
+  date: string
+  start_time: string
+  end_time: string
+  guests: number
+  status: "pending" | "confirmed" | "cancelled"
+  notes?: string
+  created_at: string
+  // Relations
+  service?: IService
+  staff?: IStaff
+}
+
+export interface ITimeSlot {
+  time: string
+  available: boolean
+}
+
+export interface IBookingFormData {
+  service_id: string
+  staff_id?: string
+  date: string
+  start_time: string
+  customer_name: string
+  customer_email: string
+  customer_phone?: string
+  guests?: number
+  notes?: string
+}</code></pre>
+
+    <!-- SERVER ACTIONS -->
+    <h2>3. Server Actions</h2>
+
+    <pre><code>// src/actions/booking.ts
+"use server"
+
+import supabase from "@/config/supabase-config"
+import { IApiResponse } from "@/interfaces"
+import { IBooking, IBookingFormData, IService, ITimeSlot } from "@/interfaces/booking"
+
+// Hent alle tjenester
+export async function getServices(): Promise&lt;IApiResponse&lt;IService[]&gt;&gt; {
+  const { data, error } = await supabase
+    .from("services")
+    .select("*")
+    .eq("is_active", true)
+    .order("name")
+
+  if (error) {
+    return { success: false, message: "Kunne ikke hente tjenester" }
+  }
+
+  return { success: true, data }
+}
+
+// Hent ledige tider for en dato
+export async function getAvailableSlots(
+  date: string,
+  serviceId: string,
+  staffId?: string
+): Promise&lt;IApiResponse&lt;ITimeSlot[]&gt;&gt; {
+  try {
+    // Hent tjenestens varighet
+    const { data: service } = await supabase
+      .from("services")
+      .select("duration_minutes")
+      .eq("id", serviceId)
+      .single()
+
+    if (!service) {
+      return { success: false, message: "Tjeneste ikke funnet" }
+    }
+
+    // Hent ukedagen
+    const dayOfWeek = new Date(date).getDay()
+
+    // Hent åpningstider
+    const { data: hours } = await supabase
+      .from("business_hours")
+      .select("*")
+      .eq("day_of_week", dayOfWeek)
+      .single()
+
+    if (!hours || hours.is_closed) {
+      return { success: true, data: [] } // Stengt denne dagen
+    }
+
+    // Sjekk om datoen er blokkert
+    const { data: blocked } = await supabase
+      .from("blocked_dates")
+      .select("id")
+      .eq("date", date)
+      .single()
+
+    if (blocked) {
+      return { success: true, data: [] } // Blokkert dato
+    }
+
+    // Hent eksisterende bookinger
+    const bookingQuery = supabase
+      .from("bookings")
+      .select("start_time, end_time")
+      .eq("date", date)
+      .neq("status", "cancelled")
+
+    if (staffId) {
+      bookingQuery.eq("staff_id", staffId)
+    }
+
+    const { data: existingBookings } = await bookingQuery
+
+    // Generer tidsluker
+    const slots: ITimeSlot[] = []
+    const duration = service.duration_minutes
+    const openTime = parseTime(hours.open_time)
+    const closeTime = parseTime(hours.close_time)
+
+    let currentTime = openTime
+
+    while (currentTime + duration <= closeTime) {
+      const timeString = formatTime(currentTime)
+      const endTimeMinutes = currentTime + duration
+
+      // Sjekk om tiden kolliderer med eksisterende booking
+      const isBooked = existingBookings?.some((booking) => {
+        const bookingStart = parseTime(booking.start_time)
+        const bookingEnd = parseTime(booking.end_time)
+        return (
+          (currentTime >= bookingStart && currentTime < bookingEnd) ||
+          (endTimeMinutes > bookingStart && endTimeMinutes <= bookingEnd)
+        )
+      })
+
+      slots.push({
+        time: timeString,
+        available: !isBooked,
+      })
+
+      currentTime += 30 // 30 min intervaller
+    }
+
+    return { success: true, data: slots }
+  } catch (error) {
+    console.error("Error getting slots:", error)
+    return { success: false, message: "Kunne ikke hente ledige tider" }
+  }
+}
+
+// Opprett booking
+export async function createBooking(
+  data: IBookingFormData
+): Promise&lt;IApiResponse&lt;IBooking&gt;&gt; {
+  try {
+    // Hent tjenestens varighet
+    const { data: service } = await supabase
+      .from("services")
+      .select("duration_minutes")
+      .eq("id", data.service_id)
+      .single()
+
+    if (!service) {
+      return { success: false, message: "Tjeneste ikke funnet" }
+    }
+
+    // Beregn sluttid
+    const startMinutes = parseTime(data.start_time)
+    const endMinutes = startMinutes + service.duration_minutes
+    const endTime = formatTime(endMinutes)
+
+    // Dobbeltsjekk at tiden er ledig
+    const { data: existingBooking } = await supabase
+      .from("bookings")
+      .select("id")
+      .eq("date", data.date)
+      .eq("start_time", data.start_time)
+      .neq("status", "cancelled")
+      .single()
+
+    if (existingBooking) {
+      return { success: false, message: "Tiden er dessverre ikke lenger ledig" }
+    }
+
+    // Opprett booking
+    const { data: booking, error } = await supabase
+      .from("bookings")
+      .insert({
+        ...data,
+        end_time: endTime,
+        status: "pending",
+      })
+      .select()
+      .single()
+
+    if (error) throw error
+
+    // TODO: Send bekreftelsesmail
+    // await sendBookingConfirmation(booking)
+
+    return {
+      success: true,
+      message: "Booking opprettet! Du vil motta bekreftelse på e-post.",
+      data: booking,
+    }
+  } catch (error) {
+    console.error("Booking error:", error)
+    return { success: false, message: "Kunne ikke opprette booking" }
+  }
+}
+
+// Avbryt booking
+export async function cancelBooking(
+  bookingId: string,
+  email: string
+): Promise&lt;IApiResponse&gt; {
+  const { error } = await supabase
+    .from("bookings")
+    .update({ status: "cancelled" })
+    .eq("id", bookingId)
+    .eq("customer_email", email)
+
+  if (error) {
+    return { success: false, message: "Kunne ikke avbryte booking" }
+  }
+
+  return { success: true, message: "Booking avbrutt" }
+}
+
+// Hjelpefunksjoner
+function parseTime(time: string): number {
+  const [hours, minutes] = time.split(":").map(Number)
+  return hours * 60 + minutes
+}
+
+function formatTime(minutes: number): string {
+  const hours = Math.floor(minutes / 60)
+  const mins = minutes % 60
+  return `${hours.toString().padStart(2, "0")}:${mins.toString().padStart(2, "0")}`
+}</code></pre>
+
+    <!-- BOOKING FORM -->
+    <h2>4. Booking-skjema komponent</h2>
+
+    <pre><code>// src/components/functional/booking-form.tsx
+"use client"
+
+import { useState, useEffect } from "react"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { z } from "zod"
+import toast from "react-hot-toast"
+import { format, addDays } from "date-fns"
+import { nb } from "date-fns/locale"
+import { Calendar } from "@/components/ui/calendar"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  getServices,
+  getAvailableSlots,
+  createBooking,
+} from "@/actions/booking"
+import { IService, ITimeSlot } from "@/interfaces/booking"
+
+const bookingSchema = z.object({
+  service_id: z.string().min(1, "Velg en tjeneste"),
+  date: z.string().min(1, "Velg en dato"),
+  start_time: z.string().min(1, "Velg et tidspunkt"),
+  customer_name: z.string().min(2, "Navn må ha minst 2 tegn"),
+  customer_email: z.string().email("Ugyldig e-postadresse"),
+  customer_phone: z.string().optional(),
+  guests: z.number().min(1).max(20).optional(),
+  notes: z.string().optional(),
+})
+
+type BookingFormData = z.infer&lt;typeof bookingSchema&gt;
+
+interface BookingFormProps {
+  showGuests?: boolean // For restaurant
+}
+
+export default function BookingForm({ showGuests = false }: BookingFormProps) {
+  const [services, setServices] = useState&lt;IService[]&gt;([])
+  const [slots, setSlots] = useState&lt;ITimeSlot[]&gt;([])
+  const [selectedDate, setSelectedDate] = useState&lt;Date | undefined&gt;()
+  const [isLoading, setIsLoading] = useState(false)
+  const [step, setStep] = useState(1) // 1: tjeneste, 2: dato/tid, 3: detaljer
+
+  const form = useForm&lt;BookingFormData&gt;({
+    resolver: zodResolver(bookingSchema),
+    defaultValues: {
+      guests: 2,
+    },
+  })
+
+  const selectedServiceId = form.watch("service_id")
+  const selectedTime = form.watch("start_time")
+
+  // Hent tjenester ved lasting
+  useEffect(() => {
+    async function loadServices() {
+      const result = await getServices()
+      if (result.success && result.data) {
+        setServices(result.data)
+      }
+    }
+    loadServices()
+  }, [])
+
+  // Hent ledige tider når dato endres
+  useEffect(() => {
+    async function loadSlots() {
+      if (!selectedDate || !selectedServiceId) return
+
+      const dateStr = format(selectedDate, "yyyy-MM-dd")
+      form.setValue("date", dateStr)
+      form.setValue("start_time", "")
+
+      const result = await getAvailableSlots(dateStr, selectedServiceId)
+      if (result.success && result.data) {
+        setSlots(result.data)
+      }
+    }
+    loadSlots()
+  }, [selectedDate, selectedServiceId, form])
+
+  const onSubmit = async (data: BookingFormData) => {
+    setIsLoading(true)
+
+    try {
+      const result = await createBooking(data)
+
+      if (result.success) {
+        toast.success(result.message || "Booking bekreftet!")
+        form.reset()
+        setStep(1)
+        setSelectedDate(undefined)
+        setSlots([])
+      } else {
+        toast.error(result.message || "Noe gikk galt")
+      }
+    } catch {
+      toast.error("Kunne ikke opprette booking")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const selectedService = services.find((s) => s.id === selectedServiceId)
+
+  return (
+    &lt;form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6"&gt;
+      {/* Steg 1: Velg tjeneste */}
+      {step === 1 && (
+        &lt;div className="space-y-4"&gt;
+          &lt;h3 className="text-lg font-semibold"&gt;Velg tjeneste&lt;/h3>
+
+          &lt;div className="grid gap-3"&gt;
+            {services.map((service) => (
+              &lt;button
+                key={service.id}
+                type="button"
+                onClick={() => {
+                  form.setValue("service_id", service.id)
+                  setStep(2)
+                }}
+                className={`p-4 border rounded-lg text-left hover:border-blue-500 transition-colors ${
+                  selectedServiceId === service.id
+                    ? "border-blue-500 bg-blue-50"
+                    : "border-gray-200"
+                }`}
+              &gt;
+                &lt;div className="font-medium"&gt;{service.name}&lt;/div&gt;
+                {service.description && (
+                  &lt;div className="text-sm text-gray-600"&gt;{service.description}&lt;/div&gt;
+                )}
+                &lt;div className="text-sm text-gray-500 mt-1"&gt;
+                  {service.duration_minutes} min
+                  {service.price && ` • ${(service.price / 100).toFixed(0)} kr`}
+                &lt;/div&gt;
+              &lt;/button&gt;
+            ))}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      )}
+
+      {/* Steg 2: Velg dato og tid */}
+      {step === 2 && (
+        &lt;div className="space-y-4"&gt;
+          &lt;div className="flex items-center gap-2"&gt;
+            &lt;button
+              type="button"
+              onClick={() => setStep(1)}
+              className="text-blue-600 hover:underline"
+            &gt;
+              ← Tilbake
+            &lt;/button&gt;
+            &lt;h3 className="text-lg font-semibold"&gt;Velg dato og tid&lt;/h3&gt;
+          &lt;/div&gt;
+
+          &lt;div className="bg-gray-50 p-3 rounded-lg"&gt;
+            &lt;strong&gt;{selectedService?.name}&lt;/strong&gt; ({selectedService?.duration_minutes} min)
+          &lt;/div&gt;
+
+          &lt;div className="grid md:grid-cols-2 gap-6"&gt;
+            {/* Kalender */}
+            &lt;div&gt;
+              &lt;Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={setSelectedDate}
+                disabled={(date) => date < new Date() || date > addDays(new Date(), 60)}
+                locale={nb}
+                className="rounded-md border"
+              /&gt;
+            &lt;/div&gt;
+
+            {/* Tidsluker */}
+            &lt;div&gt;
+              {selectedDate && (
+                &lt;&gt;
+                  &lt;h4 className="font-medium mb-3"&gt;
+                    Ledige tider {format(selectedDate, "d. MMMM", { locale: nb })}
+                  &lt;/h4&gt;
+
+                  {slots.length === 0 ? (
+                    &lt;p className="text-gray-500"&gt;Ingen ledige tider denne dagen&lt;/p&gt;
+                  ) : (
+                    &lt;div className="grid grid-cols-3 gap-2"&gt;
+                      {slots.map((slot) => (
+                        &lt;button
+                          key={slot.time}
+                          type="button"
+                          disabled={!slot.available}
+                          onClick={() => {
+                            form.setValue("start_time", slot.time)
+                            setStep(3)
+                          }}
+                          className={`p-2 rounded text-sm font-medium transition-colors ${
+                            !slot.available
+                              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                              : selectedTime === slot.time
+                              ? "bg-blue-600 text-white"
+                              : "bg-white border hover:border-blue-500"
+                          }`}
+                        &gt;
+                          {slot.time}
+                        &lt;/button&gt;
+                      ))}
+                    &lt;/div&gt;
+                  )}
+                &lt;/&gt;
+              )}
+
+              {!selectedDate && (
+                &lt;p className="text-gray-500"&gt;Velg en dato for å se ledige tider&lt;/p&gt;
+              )}
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      )}
+
+      {/* Steg 3: Kontaktinformasjon */}
+      {step === 3 && (
+        &lt;div className="space-y-4"&gt;
+          &lt;div className="flex items-center gap-2"&gt;
+            &lt;button
+              type="button"
+              onClick={() => setStep(2)}
+              className="text-blue-600 hover:underline"
+            &gt;
+              ← Tilbake
+            &lt;/button&gt;
+            &lt;h3 className="text-lg font-semibold"&gt;Dine opplysninger&lt;/h3&gt;
+          &lt;/div&gt;
+
+          &lt;div className="bg-gray-50 p-3 rounded-lg"&gt;
+            &lt;strong&gt;{selectedService?.name}&lt;/strong&gt;&lt;br /&gt;
+            {selectedDate && format(selectedDate, "EEEE d. MMMM yyyy", { locale: nb })} kl. {selectedTime}
+          &lt;/div&gt;
+
+          &lt;div className="grid gap-4"&gt;
+            &lt;div&gt;
+              &lt;label className="block text-sm font-medium mb-1"&gt;Navn *&lt;/label&gt;
+              &lt;Input {...form.register("customer_name")} placeholder="Ditt navn" /&gt;
+              {form.formState.errors.customer_name && (
+                &lt;p className="text-red-500 text-sm mt-1"&gt;
+                  {form.formState.errors.customer_name.message}
+                &lt;/p&gt;
+              )}
+            &lt;/div&gt;
+
+            &lt;div&gt;
+              &lt;label className="block text-sm font-medium mb-1"&gt;E-post *&lt;/label&gt;
+              &lt;Input
+                {...form.register("customer_email")}
+                type="email"
+                placeholder="din@epost.no"
+              /&gt;
+              {form.formState.errors.customer_email && (
+                &lt;p className="text-red-500 text-sm mt-1"&gt;
+                  {form.formState.errors.customer_email.message}
+                &lt;/p&gt;
+              )}
+            &lt;/div&gt;
+
+            &lt;div&gt;
+              &lt;label className="block text-sm font-medium mb-1"&gt;Telefon&lt;/label&gt;
+              &lt;Input
+                {...form.register("customer_phone")}
+                type="tel"
+                placeholder="12345678"
+              /&gt;
+            &lt;/div&gt;
+
+            {showGuests && (
+              &lt;div&gt;
+                &lt;label className="block text-sm font-medium mb-1"&gt;Antall gjester&lt;/label&gt;
+                &lt;Select
+                  value={form.watch("guests")?.toString()}
+                  onValueChange={(v) => form.setValue("guests", parseInt(v))}
+                &gt;
+                  &lt;SelectTrigger&gt;
+                    &lt;SelectValue placeholder="Velg antall" /&gt;
+                  &lt;/SelectTrigger&gt;
+                  &lt;SelectContent&gt;
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 15, 20].map((n) => (
+                      &lt;SelectItem key={n} value={n.toString()}&gt;
+                        {n} {n === 1 ? "gjest" : "gjester"}
+                      &lt;/SelectItem&gt;
+                    ))}
+                  &lt;/SelectContent&gt;
+                &lt;/Select&gt;
+              &lt;/div&gt;
+            )}
+
+            &lt;div&gt;
+              &lt;label className="block text-sm font-medium mb-1"&gt;Beskjed (valgfritt)&lt;/label&gt;
+              &lt;Textarea
+                {...form.register("notes")}
+                placeholder="Spesielle ønsker eller allergier..."
+                rows={3}
+              /&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+
+          &lt;Button type="submit" disabled={isLoading} className="w-full"&gt;
+            {isLoading ? "Sender..." : "Bekreft booking"}
+          &lt;/Button&gt;
+        &lt;/div&gt;
+      )}
+    &lt;/form&gt;
+  )
+}</code></pre>
+
+    <!-- ADMIN -->
+    <h2>5. Admin: Håndter bookinger</h2>
+
+    <pre><code>// src/app/admin/bookinger/page.tsx
+import supabase from "@/config/supabase-config"
+import BookingsList from "./bookings-list"
+
+export default async function AdminBookingsPage() {
+  const { data: bookings } = await supabase
+    .from("bookings")
+    .select(`
+      *,
+      service:services(name, duration_minutes)
+    `)
+    .gte("date", new Date().toISOString().split("T")[0])
+    .order("date", { ascending: true })
+    .order("start_time", { ascending: true })
+    .limit(50)
+
+  return (
+    &lt;div&gt;
+      &lt;h1 className="text-2xl font-bold mb-6"&gt;Bookinger&lt;/h1&gt;
+      &lt;BookingsList initialBookings={bookings || []} /&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <pre><code>// src/app/admin/bookinger/bookings-list.tsx
+"use client"
+
+import { useState } from "react"
+import { format } from "date-fns"
+import { nb } from "date-fns/locale"
+import toast from "react-hot-toast"
+import { IBooking } from "@/interfaces/booking"
+import { updateBookingStatus } from "@/actions/booking"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+
+interface Props {
+  initialBookings: IBooking[]
+}
+
+export default function BookingsList({ initialBookings }: Props) {
+  const [bookings, setBookings] = useState(initialBookings)
+
+  const handleStatusChange = async (id: string, status: string) => {
+    const result = await updateBookingStatus(id, status)
+
+    if (result.success) {
+      setBookings((prev) =>
+        prev.map((b) => (b.id === id ? { ...b, status: status as IBooking["status"] } : b))
+      )
+      toast.success("Status oppdatert")
+    } else {
+      toast.error(result.message || "Kunne ikke oppdatere status")
+    }
+  }
+
+  const statusColors = {
+    pending: "bg-yellow-100 text-yellow-800",
+    confirmed: "bg-green-100 text-green-800",
+    cancelled: "bg-red-100 text-red-800",
+  }
+
+  return (
+    &lt;div className="space-y-4"&gt;
+      {bookings.length === 0 ? (
+        &lt;p className="text-gray-500"&gt;Ingen kommende bookinger&lt;/p&gt;
+      ) : (
+        bookings.map((booking) => (
+          &lt;div
+            key={booking.id}
+            className="bg-white border rounded-lg p-4 flex items-center justify-between"
+          &gt;
+            &lt;div&gt;
+              &lt;div className="font-medium"&gt;{booking.customer_name}&lt;/div&gt;
+              &lt;div className="text-sm text-gray-600"&gt;
+                {booking.service?.name} •{" "}
+                {format(new Date(booking.date), "EEE d. MMM", { locale: nb })} kl.{" "}
+                {booking.start_time.slice(0, 5)}
+              &lt;/div&gt;
+              &lt;div className="text-sm text-gray-500"&gt;
+                {booking.customer_email}
+                {booking.customer_phone && ` • ${booking.customer_phone}`}
+              &lt;/div&gt;
+              {booking.notes && (
+                &lt;div className="text-sm text-gray-500 mt-1 italic"&gt;
+                  &quot;{booking.notes}&quot;
+                &lt;/div&gt;
+              )}
+            &lt;/div&gt;
+
+            &lt;div className="flex items-center gap-2"&gt;
+              &lt;Badge className={statusColors[booking.status]}&gt;
+                {booking.status === "pending" && "Venter"}
+                {booking.status === "confirmed" && "Bekreftet"}
+                {booking.status === "cancelled" && "Avbrutt"}
+              &lt;/Badge&gt;
+
+              {booking.status === "pending" && (
+                &lt;&gt;
+                  &lt;Button
+                    size="sm"
+                    onClick={() => handleStatusChange(booking.id, "confirmed")}
+                  &gt;
+                    Bekreft
+                  &lt;/Button&gt;
+                  &lt;Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleStatusChange(booking.id, "cancelled")}
+                  &gt;
+                    Avbryt
+                  &lt;/Button&gt;
+                &lt;/&gt;
+              )}
+            &lt;/div&gt;
+          &lt;/div&gt;
+        ))
+      )}
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- EMAIL -->
+    <h2>6. E-postbekreftelse (valgfritt)</h2>
+
+    <pre><code>// src/lib/email.ts
+import { Resend } from "resend"
+import { IBooking } from "@/interfaces/booking"
+
+const resend = new Resend(process.env.RESEND_API_KEY)
+
+export async function sendBookingConfirmation(booking: IBooking) {
+  await resend.emails.send({
+    from: "noreply@dittdomene.no",
+    to: booking.customer_email,
+    subject: `Booking bekreftet - ${booking.service?.name}`,
+    html: `
+      &lt;h1&gt;Takk for din booking!&lt;/h1&gt;
+      &lt;p&gt;&lt;strong&gt;Tjeneste:&lt;/strong&gt; ${booking.service?.name}&lt;/p&gt;
+      &lt;p&gt;&lt;strong&gt;Dato:&lt;/strong&gt; ${booking.date}&lt;/p&gt;
+      &lt;p&gt;&lt;strong&gt;Tid:&lt;/strong&gt; ${booking.start_time} - ${booking.end_time}&lt;/p&gt;
+      ${booking.notes ? `&lt;p&gt;&lt;strong&gt;Merknad:&lt;/strong&gt; ${booking.notes}&lt;/p&gt;` : ""}
+      &lt;p&gt;Vi ser frem til å se deg!&lt;/p&gt;
+    `,
+  })
+}</code></pre>
+
+    <!-- CALENDAR INTEGRATION -->
+    <h2>7. Google Calendar-integrasjon (valgfritt)</h2>
+
+    <pre><code>// Legg til i booking-bekreftelsen
+function generateGoogleCalendarLink(booking: IBooking): string {
+  const startDate = new Date(`${booking.date}T${booking.start_time}`)
+  const endDate = new Date(`${booking.date}T${booking.end_time}`)
+
+  const params = new URLSearchParams({
+    action: "TEMPLATE",
+    text: booking.service?.name || "Booking",
+    dates: `${formatGoogleDate(startDate)}/${formatGoogleDate(endDate)}`,
+    details: booking.notes || "",
+  })
+
+  return `https://calendar.google.com/calendar/render?${params.toString()}`
+}
+
+function formatGoogleDate(date: Date): string {
+  return date.toISOString().replace(/[-:]/g, "").split(".")[0] + "Z"
+}
+
+// Bruk i bekreftelsesmail eller suksess-side:
+// &lt;a href={generateGoogleCalendarLink(booking)}&gt;Legg til i Google Calendar&lt;/a&gt;</code></pre>
+
+    <!-- TIPS -->
+    <h2>Tips for ulike bransjer</h2>
+
+    <div class="info-box">
+      <strong>🍽️ Restaurant:</strong>
+      <ul style="margin: 0.5rem 0;">
+        <li>Legg til <code>guests</code>-felt (antall gjester)</li>
+        <li>Vurder bordnummerering og kapasitet</li>
+        <li>Sett maks antall bookinger per tidsperiode</li>
+      </ul>
+    </div>
+
+    <div class="info-box">
+      <strong>💇 Frisør/Salong:</strong>
+      <ul style="margin: 0.5rem 0;">
+        <li>Legg til ansatt-valg (<code>staff_id</code>)</li>
+        <li>Ulike varigheter per tjeneste</li>
+        <li>Kombiner tjenester (klipp + farge)</li>
+      </ul>
+    </div>
+
+    <div class="info-box">
+      <strong>🏋️ Treningssenter:</strong>
+      <ul style="margin: 0.5rem 0;">
+        <li>Maks deltakere per klasse</li>
+        <li>Venteliste-funksjonalitet</li>
+        <li>Koble til medlemskap/abonnement</li>
+      </ul>
+    </div>
+
+    <div class="footer">
+      <p>
+        <a href="betaling.html">← Betaling</a> |
+        <a href="maler.html">Bransjemaler →</a>
+      </p>
+      <p style="margin-top: 1rem; color: #64748b; font-size: 0.85rem;">
+        Utviklet av <a href="https://obligarconsulting.no">Obligar Consulting</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CMS-guide - Headless CMS for kunder</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .cms-card {
+      background: linear-gradient(135deg, #f8fafc 0%, #fff 100%);
+      border: 1px solid var(--gray-200);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .cms-card h3 {
+      margin-top: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .cms-badge {
+      font-size: 0.7rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 20px;
+      font-weight: 600;
+    }
+    .badge-recommended {
+      background: #dcfce7;
+      color: #166534;
+    }
+    .badge-advanced {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+    .badge-simple {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    .comparison-table {
+      overflow-x: auto;
+    }
+    .comparison-table table {
+      min-width: 700px;
+    }
+    .check {
+      color: #22c55e;
+      font-weight: bold;
+    }
+    .cross {
+      color: #ef4444;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html">Hurtigstart</a>
+    <a href="prosjektstruktur.html">Struktur</a>
+    <a href="prosjektmaler.html">Maler</a>
+    <a href="cms-guide.html"><strong>CMS</strong></a>
+    <a href="docker-deploy.html">Deploy</a>
+  </nav>
+
+  <div class="container">
+    <h1>CMS-guide for Kundeprosjekter</h1>
+
+    <blockquote>
+      <p>La kunden redigere innhold selv med et Headless CMS. Sammenligning av alternativer og oppsett-guider.</p>
+    </blockquote>
+
+    <div class="info-box">
+      <strong>Hva er Headless CMS?</strong> Et CMS som kun håndterer innhold (backend), mens du bygger frontend selv med Next.js. Kunden får et enkelt grensesnitt for å redigere tekst, bilder og data.
+    </div>
+
+    <h2>Når trenger kunden CMS?</h2>
+    <p class="section-desc">
+      Vurder kundens behov før du velger CMS-løsning. Ikke alle trenger et fullverdig CMS.
+    </p>
+    <table>
+      <tr>
+        <th>Trenger CMS</th>
+        <th>Trenger IKKE CMS</th>
+      </tr>
+      <tr>
+        <td>Oppdaterer innhold ofte (blogg, nyheter)</td>
+        <td>Statisk nettside som sjelden endres</td>
+      </tr>
+      <tr>
+        <td>Vil administrere produkter/tjenester selv</td>
+        <td>Utvikler gjør alle endringer</td>
+      </tr>
+      <tr>
+        <td>Flere personer skal redigere</td>
+        <td>Liten bedrift, en kontaktperson</td>
+      </tr>
+      <tr>
+        <td>Trenger kontroll over kontaktmeldinger</td>
+        <td>Meldinger går kun til e-post</td>
+      </tr>
+    </table>
+
+    <h2>CMS-alternativer sammenligning</h2>
+    <p class="section-desc">
+      Oversikt over de mest populære headless CMS-løsningene for Next.js-prosjekter.
+    </p>
+    <div class="comparison-table">
+      <table>
+        <thead>
+          <tr>
+            <th>CMS</th>
+            <th>Pris</th>
+            <th>Hosting</th>
+            <th>Oppsett</th>
+            <th>Norsk</th>
+            <th>Beste for</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Egen Admin (Supabase)</strong></td>
+            <td>Gratis</td>
+            <td>Inkludert</td>
+            <td>30 min</td>
+            <td><span class="check">✓</span></td>
+            <td>Enkle sider, full kontroll</td>
+          </tr>
+          <tr>
+            <td><strong>Payload CMS</strong></td>
+            <td>Gratis</td>
+            <td>Self-hosted</td>
+            <td>1-2 timer</td>
+            <td><span class="check">✓</span></td>
+            <td>TypeScript-prosjekter</td>
+          </tr>
+          <tr>
+            <td><strong>Strapi</strong></td>
+            <td>Gratis</td>
+            <td>Self-hosted</td>
+            <td>1-2 timer</td>
+            <td><span class="check">✓</span></td>
+            <td>Komplekse datastrukturer</td>
+          </tr>
+          <tr>
+            <td><strong>Sanity</strong></td>
+            <td>Freemium</td>
+            <td>Cloud</td>
+            <td>1 time</td>
+            <td><span class="check">✓</span></td>
+            <td>Rikt innhold, real-time</td>
+          </tr>
+          <tr>
+            <td><strong>Directus</strong></td>
+            <td>Gratis</td>
+            <td>Self-hosted</td>
+            <td>1 time</td>
+            <td><span class="cross">✗</span></td>
+            <td>Eksisterende databaser</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ALTERNATIV 1: EGEN ADMIN -->
+    <div class="cms-card">
+      <h3>Alternativ 1: Egen Admin med Supabase <span class="cms-badge badge-recommended">Anbefalt</span></h3>
+      <p>Bygg en enkel admin-side selv. Bruker samme Supabase-database som nettsiden.</p>
+
+      <h4>Fordeler</h4>
+      <ul>
+        <li>Ingen ekstra kostnader eller hosting</li>
+        <li>Full kontroll over design og funksjonalitet</li>
+        <li>Skreddersydd for kundens behov</li>
+        <li>Ingen ekstern avhengighet</li>
+      </ul>
+
+      <h4>Ulemper</h4>
+      <ul>
+        <li>Må bygges fra scratch (tar 2-4 timer ekstra)</li>
+        <li>Begrenset funksjonalitet sammenlignet med ferdig CMS</li>
+      </ul>
+
+      <h4>Beste for</h4>
+      <p>Enkle nettsider med få innholdstyper (tjenester, kontaktmeldinger, nyheter).</p>
+    </div>
+
+    <h3>Oppsett: Egen Admin med Supabase</h3>
+    <p class="section-desc">
+      Komplett admin-dashboard for å håndtere kontaktmeldinger og innhold.
+    </p>
+
+    <pre><code>// src/app/(admin)/admin/page.tsx
+import { getMessages } from "@/actions/contact"
+import { getContent } from "@/actions/content"
+import Link from "next/link"
+import { Mail, FileText, Eye } from "lucide-react"
+
+export default async function AdminDashboard() {
+  const { data: messages } = await getMessages()
+  const { data: services } = await getContent("service", false)
+
+  const unreadCount = messages?.filter((m) =&gt; !m.is_read).length || 0
+
+  return (
+    &lt;div className="p-6"&gt;
+      &lt;h1 className="text-2xl font-bold mb-6"&gt;Admin Dashboard&lt;/h1&gt;
+
+      &lt;div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8"&gt;
+        {/* Meldinger-kort */}
+        &lt;Link
+          href="/admin/meldinger"
+          className="bg-white p-6 rounded-lg border shadow-sm hover:shadow-md transition-shadow"
+        &gt;
+          &lt;div className="flex items-center justify-between"&gt;
+            &lt;div&gt;
+              &lt;p className="text-gray-500 text-sm"&gt;Nye meldinger&lt;/p&gt;
+              &lt;p className="text-3xl font-bold"&gt;{unreadCount}&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;Mail className="text-blue-500" size={32} /&gt;
+          &lt;/div&gt;
+        &lt;/Link&gt;
+
+        {/* Tjenester-kort */}
+        &lt;Link
+          href="/admin/innhold"
+          className="bg-white p-6 rounded-lg border shadow-sm hover:shadow-md transition-shadow"
+        &gt;
+          &lt;div className="flex items-center justify-between"&gt;
+            &lt;div&gt;
+              &lt;p className="text-gray-500 text-sm"&gt;Tjenester&lt;/p&gt;
+              &lt;p className="text-3xl font-bold"&gt;{services?.length || 0}&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;FileText className="text-green-500" size={32} /&gt;
+          &lt;/div&gt;
+        &lt;/Link&gt;
+
+        {/* Se nettside */}
+        &lt;a
+          href="/"
+          target="_blank"
+          className="bg-white p-6 rounded-lg border shadow-sm hover:shadow-md transition-shadow"
+        &gt;
+          &lt;div className="flex items-center justify-between"&gt;
+            &lt;div&gt;
+              &lt;p className="text-gray-500 text-sm"&gt;Se nettside&lt;/p&gt;
+              &lt;p className="text-lg font-medium"&gt;Åpne →&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;Eye className="text-purple-500" size={32} /&gt;
+          &lt;/div&gt;
+        &lt;/a&gt;
+      &lt;/div&gt;
+
+      {/* Siste meldinger */}
+      &lt;div className="bg-white rounded-lg border p-6"&gt;
+        &lt;h2 className="text-lg font-semibold mb-4"&gt;Siste meldinger&lt;/h2&gt;
+        {messages?.slice(0, 5).map((msg) =&gt; (
+          &lt;div
+            key={msg.id}
+            className={`p-3 border-b last:border-0 ${!msg.is_read ? "bg-blue-50" : ""}`}
+          &gt;
+            &lt;div className="flex justify-between"&gt;
+              &lt;span className="font-medium"&gt;{msg.name}&lt;/span&gt;
+              &lt;span className="text-sm text-gray-500"&gt;
+                {new Date(msg.created_at).toLocaleDateString("no-NO")}
+              &lt;/span&gt;
+            &lt;/div&gt;
+            &lt;p className="text-gray-600 text-sm truncate"&gt;{msg.message}&lt;/p&gt;
+          &lt;/div&gt;
+        ))}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <p class="section-desc">
+      Meldingshåndtering med liste og detalj-visning. Brukere kan markere meldinger som lest.
+      <br><strong>Krever:</strong> <code>npm install lucide-react react-hot-toast</code> (allerede i hurtigstart).
+    </p>
+
+    <pre><code>// src/app/(admin)/admin/meldinger/page.tsx
+"use client"
+
+import { useState, useEffect } from "react"
+import { getMessages, markAsRead } from "@/actions/contact"
+import { Mail, MailOpen, Trash2 } from "lucide-react"
+import toast from "react-hot-toast"
+
+interface Message {
+  id: number
+  name: string
+  email: string
+  phone?: string
+  message: string
+  is_read: boolean
+  created_at: string
+}
+
+export default function MessagesPage() {
+  const [messages, setMessages] = useState&lt;Message[]&gt;([])
+  const [selected, setSelected] = useState&lt;Message | null&gt;(null)
+
+  useEffect(() =&gt; {
+    loadMessages()
+  }, [])
+
+  const loadMessages = async () =&gt; {
+    const { data } = await getMessages()
+    setMessages(data || [])
+  }
+
+  const handleRead = async (id: number) =&gt; {
+    await markAsRead(id)
+    loadMessages()
+    toast.success("Markert som lest")
+  }
+
+  return (
+    &lt;div className="p-6"&gt;
+      &lt;h1 className="text-2xl font-bold mb-6"&gt;Kontaktmeldinger&lt;/h1&gt;
+
+      &lt;div className="grid grid-cols-1 md:grid-cols-2 gap-6"&gt;
+        {/* Liste */}
+        &lt;div className="bg-white rounded-lg border"&gt;
+          {messages.map((msg) =&gt; (
+            &lt;div
+              key={msg.id}
+              onClick={() =&gt; setSelected(msg)}
+              className={`p-4 border-b cursor-pointer hover:bg-gray-50 ${
+                selected?.id === msg.id ? "bg-blue-50" : ""
+              } ${!msg.is_read ? "font-medium" : ""}`}
+            &gt;
+              &lt;div className="flex items-center gap-2"&gt;
+                {msg.is_read ? (
+                  &lt;MailOpen size={16} className="text-gray-400" /&gt;
+                ) : (
+                  &lt;Mail size={16} className="text-blue-500" /&gt;
+                )}
+                &lt;span&gt;{msg.name}&lt;/span&gt;
+              &lt;/div&gt;
+              &lt;p className="text-sm text-gray-500 truncate"&gt;{msg.message}&lt;/p&gt;
+            &lt;/div&gt;
+          ))}
+        &lt;/div&gt;
+
+        {/* Detaljer */}
+        &lt;div className="bg-white rounded-lg border p-6"&gt;
+          {selected ? (
+            &lt;&gt;
+              &lt;div className="flex justify-between items-start mb-4"&gt;
+                &lt;div&gt;
+                  &lt;h2 className="text-xl font-semibold"&gt;{selected.name}&lt;/h2&gt;
+                  &lt;p className="text-gray-500"&gt;{selected.email}&lt;/p&gt;
+                  {selected.phone && &lt;p className="text-gray-500"&gt;{selected.phone}&lt;/p&gt;}
+                &lt;/div&gt;
+                {!selected.is_read && (
+                  &lt;button
+                    onClick={() =&gt; handleRead(selected.id)}
+                    className="text-sm bg-blue-100 text-blue-700 px-3 py-1 rounded"
+                  &gt;
+                    Marker som lest
+                  &lt;/button&gt;
+                )}
+              &lt;/div&gt;
+              &lt;div className="bg-gray-50 p-4 rounded"&gt;
+                &lt;p className="whitespace-pre-wrap"&gt;{selected.message}&lt;/p&gt;
+              &lt;/div&gt;
+              &lt;p className="text-sm text-gray-400 mt-4"&gt;
+                Mottatt: {new Date(selected.created_at).toLocaleString("no-NO")}
+              &lt;/p&gt;
+            &lt;/&gt;
+          ) : (
+            &lt;p className="text-gray-500"&gt;Velg en melding for å se detaljer&lt;/p&gt;
+          )}
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <p class="section-desc">
+      Admin-layout med sidebar-navigasjon. Sjekker at bruker er innlogget via cookie.
+    </p>
+
+    <pre><code>// src/app/(admin)/layout.tsx
+import { redirect } from "next/navigation"
+import { cookies } from "next/headers"
+import Link from "next/link"
+import { Home, Mail, FileText, LogOut } from "lucide-react"
+
+export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const cookieStore = await cookies()
+  const token = cookieStore.get("token")
+
+  if (!token) {
+    redirect("/login")
+  }
+
+  return (
+    &lt;div className="min-h-screen bg-gray-100"&gt;
+      {/* Sidebar */}
+      &lt;aside className="fixed left-0 top-0 h-full w-64 bg-gray-900 text-white p-4"&gt;
+        &lt;h2 className="text-xl font-bold mb-8"&gt;Admin&lt;/h2&gt;
+
+        &lt;nav className="space-y-2"&gt;
+          &lt;Link
+            href="/admin"
+            className="flex items-center gap-2 p-2 rounded hover:bg-gray-800"
+          &gt;
+            &lt;Home size={20} /&gt; Dashboard
+          &lt;/Link&gt;
+          &lt;Link
+            href="/admin/meldinger"
+            className="flex items-center gap-2 p-2 rounded hover:bg-gray-800"
+          &gt;
+            &lt;Mail size={20} /&gt; Meldinger
+          &lt;/Link&gt;
+          &lt;Link
+            href="/admin/innhold"
+            className="flex items-center gap-2 p-2 rounded hover:bg-gray-800"
+          &gt;
+            &lt;FileText size={20} /&gt; Innhold
+          &lt;/Link&gt;
+        &lt;/nav&gt;
+
+        &lt;div className="absolute bottom-4 left-4 right-4"&gt;
+          &lt;form action="/api/logout" method="POST"&gt;
+            &lt;button className="flex items-center gap-2 p-2 w-full rounded hover:bg-gray-800"&gt;
+              &lt;LogOut size={20} /&gt; Logg ut
+            &lt;/button&gt;
+          &lt;/form&gt;
+        &lt;/div&gt;
+      &lt;/aside&gt;
+
+      {/* Main content */}
+      &lt;main className="ml-64"&gt;
+        {children}
+      &lt;/main&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- ALTERNATIV 2: PAYLOAD CMS -->
+    <div class="cms-card">
+      <h3>Alternativ 2: Payload CMS <span class="cms-badge badge-advanced">TypeScript-native</span></h3>
+      <p>Open source CMS bygget med TypeScript. Kan integreres direkte i Next.js-prosjektet.</p>
+
+      <h4>Fordeler</h4>
+      <ul>
+        <li>TypeScript-first - perfekt for Next.js</li>
+        <li>Kan kjøre i samme prosjekt som nettsiden</li>
+        <li>Moderne og raskt admin-grensesnitt</li>
+        <li>Gratis og open source</li>
+      </ul>
+
+      <h4>Ulemper</h4>
+      <ul>
+        <li>Krever egen database (MongoDB eller Postgres)</li>
+        <li>Noe mer komplisert oppsett</li>
+      </ul>
+    </div>
+
+    <h3>Oppsett: Payload CMS med Next.js</h3>
+    <p class="section-desc">
+      Payload CMS kan integreres direkte i Next.js-prosjektet. Krever Node.js 18+ og PostgreSQL/MongoDB.
+      <br><strong>Installasjon (Mac):</strong> Følg kommandoene under. Postgres kan installeres med <code>brew install postgresql@15</code>.
+    </p>
+    <pre><code># Opprett nytt prosjekt med Payload
+npx create-payload-app@latest kundenavn-cms
+
+# Eller legg til i eksisterende Next.js-prosjekt
+npm install payload @payloadcms/next @payloadcms/db-postgres @payloadcms/richtext-lexical</code></pre>
+
+    <p class="section-desc">
+      Payload-konfigurasjon med collections (innholdstyper). Definer felter for hver type innhold kunden skal redigere.
+    </p>
+
+    <pre><code>// payload.config.ts
+import { buildConfig } from "payload"
+import { postgresAdapter } from "@payloadcms/db-postgres"
+import { lexicalEditor } from "@payloadcms/richtext-lexical"
+
+export default buildConfig({
+  admin: {
+    user: "users",
+  },
+  editor: lexicalEditor(),
+  db: postgresAdapter({
+    pool: {
+      connectionString: process.env.DATABASE_URL,
+    },
+  }),
+  collections: [
+    {
+      slug: "users",
+      auth: true,
+      fields: [
+        { name: "name", type: "text", required: true },
+      ],
+    },
+    {
+      slug: "pages",
+      admin: {
+        useAsTitle: "title",
+      },
+      fields: [
+        { name: "title", type: "text", required: true },
+        { name: "slug", type: "text", required: true },
+        { name: "content", type: "richText" },
+      ],
+    },
+    {
+      slug: "services",
+      admin: {
+        useAsTitle: "title",
+      },
+      fields: [
+        { name: "title", type: "text", required: true },
+        { name: "description", type: "textarea" },
+        { name: "price", type: "number" },
+        { name: "image", type: "upload", relationTo: "media" },
+      ],
+    },
+    {
+      slug: "media",
+      upload: true,
+      fields: [
+        { name: "alt", type: "text" },
+      ],
+    },
+  ],
+})</code></pre>
+
+    <!-- ALTERNATIV 3: STRAPI -->
+    <div class="cms-card">
+      <h3>Alternativ 3: Strapi <span class="cms-badge badge-simple">Mest populært</span></h3>
+      <p>Verdens mest populære open source headless CMS. Kjører som egen server.</p>
+
+      <h4>Fordeler</h4>
+      <ul>
+        <li>Brukervennlig admin-grensesnitt</li>
+        <li>Stort community og mange plugins</li>
+        <li>Fleksibel innholdsmodellering</li>
+        <li>REST og GraphQL API</li>
+      </ul>
+
+      <h4>Ulemper</h4>
+      <ul>
+        <li>Kjører som separat server (ekstra hosting)</li>
+        <li>Bruker JavaScript (ikke TypeScript-first)</li>
+      </ul>
+    </div>
+
+    <h3>Oppsett: Strapi</h3>
+    <p class="section-desc">
+      Strapi kjører som egen server på port 1337. Kan bruke SQLite (quickstart) eller PostgreSQL.
+      <br><strong>Krever:</strong> Node.js 18+ og npm. Ingen ekstra installasjon på Mac.
+    </p>
+    <pre><code># Opprett Strapi-prosjekt
+npx create-strapi-app@latest kundenavn-cms --quickstart
+
+# Starter på http://localhost:1337/admin</code></pre>
+
+    <p class="section-desc">
+      Hjelpefunksjon for å hente data fra Strapi API. Bruker Next.js caching med revalidate.
+    </p>
+
+    <pre><code>// Next.js: Hent data fra Strapi
+// src/lib/strapi.ts
+const STRAPI_URL = process.env.STRAPI_URL || "http://localhost:1337"
+const STRAPI_TOKEN = process.env.STRAPI_TOKEN
+
+export async function fetchStrapi(endpoint: string) {
+  const res = await fetch(`${STRAPI_URL}/api${endpoint}`, {
+    headers: {
+      Authorization: `Bearer ${STRAPI_TOKEN}`,
+    },
+    next: { revalidate: 60 }, // Cache i 60 sekunder
+  })
+
+  if (!res.ok) throw new Error("Strapi fetch failed")
+
+  return res.json()
+}
+
+// Bruk i side
+// const { data: services } = await fetchStrapi("/services?populate=*")</code></pre>
+
+    <h2>Anbefaling etter prosjekttype</h2>
+    <p class="section-desc">
+      Velg CMS basert på prosjektets kompleksitet og kundens tekniske ferdigheter.
+    </p>
+    <table>
+      <thead>
+        <tr>
+          <th>Prosjekttype</th>
+          <th>Anbefalt CMS</th>
+          <th>Begrunnelse</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Enkel bedriftsside (3-5 sider)</td>
+          <td><strong>Egen Admin</strong></td>
+          <td>Minst kompleksitet, ingen ekstra hosting</td>
+        </tr>
+        <tr>
+          <td>Nettside med blogg</td>
+          <td><strong>Payload CMS</strong></td>
+          <td>God rich text editor, TypeScript</td>
+        </tr>
+        <tr>
+          <td>Nettbutikk/restaurant</td>
+          <td><strong>Strapi</strong></td>
+          <td>Komplekse relasjoner, mange produkter</td>
+        </tr>
+        <tr>
+          <td>Markedsføringsside</td>
+          <td><strong>Sanity</strong></td>
+          <td>Real-time preview, markedsføringsteam</td>
+        </tr>
+        <tr>
+          <td>Eksisterende database</td>
+          <td><strong>Directus</strong></td>
+          <td>Wrapper rundt eksisterende DB</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Hosting av CMS</h2>
+    <p class="section-desc">
+      Strapi/Payload må hostes separat fra Vercel (som kun støtter serverless). Her er de beste alternativene.
+    </p>
+
+    <div class="structure-card">
+      <h4>Gratis alternativer</h4>
+      <ul>
+        <li><strong>Railway</strong> - $5 kreditt/mnd, enkel deploy</li>
+        <li><strong>Render</strong> - Gratis tier med auto-sleep</li>
+        <li><strong>Fly.io</strong> - Generøs gratis tier</li>
+      </ul>
+    </div>
+
+    <div class="structure-card">
+      <h4>Betalte alternativer</h4>
+      <ul>
+        <li><strong>DigitalOcean App Platform</strong> - Fra $5/mnd</li>
+        <li><strong>Strapi Cloud</strong> - Managed hosting fra $29/mnd</li>
+        <li><strong>Payload Cloud</strong> - Managed hosting fra $35/mnd</li>
+      </ul>
+    </div>
+
+    <h2>Docker Compose for CMS</h2>
+    <p class="section-desc">
+      Kjør både Next.js og Strapi med Docker Compose.
+      <br><strong>Krever (Mac):</strong> <code>brew install --cask docker</code> eller last ned Docker Desktop fra docker.com.
+    </p>
+
+    <pre><code># docker-compose.yml
+version: "3.8"
+
+services:
+  # Next.js frontend
+  web:
+    build: ./web
+    ports:
+      - "3000:3000"
+    environment:
+      - STRAPI_URL=http://strapi:1337
+      - STRAPI_TOKEN=${STRAPI_TOKEN}
+    depends_on:
+      - strapi
+
+  # Strapi CMS
+  strapi:
+    build: ./cms
+    ports:
+      - "1337:1337"
+    environment:
+      - DATABASE_CLIENT=postgres
+      - DATABASE_URL=postgres://strapi:password@db:5432/strapi
+    depends_on:
+      - db
+
+  # PostgreSQL database
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=strapi
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=strapi
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:</code></pre>
+
+    <div class="success-box">
+      <strong>Tips!</strong> Start med "Egen Admin" for enkle prosjekter. Oppgrader til Payload/Strapi når kunden trenger mer funksjonalitet.
+    </div>
+
+    <div class="footer">
+      <p><a href="prosjektstruktur.html">← Prosjektstruktur</a> | <a href="docker-deploy.html">Docker/Deploy →</a></p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

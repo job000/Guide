@@ -1,0 +1,1689 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Komponent-bibliotek - Obligar Consulting</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .component-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+    .component-card {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+    .component-card:hover {
+      border-color: #3b82f6;
+      box-shadow: 0 8px 24px rgba(59, 130, 246, 0.15);
+      transform: translateY(-2px);
+    }
+    .component-card-header {
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      padding: 1rem;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    .component-card-header h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      color: #1e293b;
+    }
+    .component-card-preview {
+      padding: 2rem;
+      background: white;
+      min-height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .component-card-footer {
+      padding: 1rem;
+      background: #f8fafc;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      gap: 0.5rem;
+    }
+    .component-card-footer a {
+      flex: 1;
+      text-align: center;
+      padding: 0.5rem;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+    }
+    .component-card-footer a:hover {
+      background: #3b82f6;
+      color: white;
+      border-color: #3b82f6;
+    }
+    .component-detail {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 2rem 0;
+    }
+    .component-detail-header {
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      color: white;
+      padding: 1.5rem;
+    }
+    .component-detail-header h3 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.5rem;
+    }
+    .component-detail-preview {
+      padding: 3rem;
+      background: #f8fafc;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    .component-detail-code {
+      background: #1e293b;
+      padding: 0;
+    }
+    .component-detail-code pre {
+      margin: 0;
+      max-height: 500px;
+      overflow-y: auto;
+    }
+    .component-detail-props {
+      padding: 1.5rem;
+      background: white;
+    }
+    .component-detail-props table {
+      width: 100%;
+    }
+    .section-nav {
+      position: sticky;
+      top: 1rem;
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .section-nav h3 {
+      margin: 0 0 1rem 0;
+      font-size: 1.1rem;
+    }
+    .section-nav ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .section-nav li {
+      margin: 0.5rem 0;
+    }
+    .section-nav a {
+      color: #64748b;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .section-nav a:hover {
+      color: #3b82f6;
+    }
+    .category-header {
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      border-left: 4px solid #3b82f6;
+      padding: 1rem 1.5rem;
+      margin: 3rem 0 1.5rem 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .category-header h2 {
+      margin: 0;
+      color: #1e293b;
+    }
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    .tab {
+      padding: 0.75rem 1.5rem;
+      background: none;
+      border: none;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+      font-weight: 500;
+      color: #64748b;
+      transition: all 0.2s;
+    }
+    .tab.active {
+      color: #3b82f6;
+      border-bottom-color: #3b82f6;
+    }
+    .tab:hover {
+      color: #3b82f6;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html">Ny Nettside</a>
+    <a href="tilpasning.html">Tilpasning</a>
+    <a href="komponenter.html"><strong>Komponenter</strong></a>
+    <a href="maler.html">Maler</a>
+  </nav>
+
+  <div class="container">
+    <h1>Komponent-bibliotek</h1>
+
+    <blockquote>
+      <p>Komplett bibliotek med copy-paste komponenter for Next.js + Tailwind. Alle komponenter er testet og klare til bruk.</p>
+    </blockquote>
+
+    <div class="success-box">
+      <h3 style="margin-top: 0;">Slik bruker du biblioteket</h3>
+      <ol style="margin: 0.5rem 0 0 0;">
+        <li>Finn komponenten du trenger under</li>
+        <li>Kopier koden</li>
+        <li>Lim inn i <code>src/components/</code></li>
+        <li>Importer og bruk i dine sider</li>
+      </ol>
+    </div>
+
+    <div class="section-nav">
+      <h3>Innhold</h3>
+      <ul>
+        <li><a href="#ui-components">UI Komponenter</a></li>
+        <li><a href="#layout-components">Layout Komponenter</a></li>
+        <li><a href="#functional-components">Funksjonelle Komponenter</a></li>
+      </ul>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- UI COMPONENTS -->
+    <!-- ============================================ -->
+    <div class="category-header" id="ui-components">
+      <h2>UI Komponenter</h2>
+    </div>
+
+    <div class="component-grid">
+      <div class="component-card">
+        <div class="component-card-header">
+          <h3>Button</h3>
+        </div>
+        <div class="component-card-preview">
+          <button style="background: #3b82f6; color: white; padding: 0.5rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
+            Klikk meg
+          </button>
+        </div>
+        <div class="component-card-footer">
+          <a href="#button">Se kode</a>
+        </div>
+      </div>
+
+      <div class="component-card">
+        <div class="component-card-header">
+          <h3>Input</h3>
+        </div>
+        <div class="component-card-preview">
+          <input type="text" placeholder="Skriv her..." style="border: 2px solid #e2e8f0; padding: 0.5rem 1rem; border-radius: 6px; width: 100%;">
+        </div>
+        <div class="component-card-footer">
+          <a href="#input">Se kode</a>
+        </div>
+      </div>
+
+      <div class="component-card">
+        <div class="component-card-header">
+          <h3>Card</h3>
+        </div>
+        <div class="component-card-preview">
+          <div style="background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 1rem; width: 100%;">
+            <div style="font-weight: 600; margin-bottom: 0.5rem;">Kort tittel</div>
+            <div style="color: #64748b; font-size: 0.875rem;">Kort innhold her</div>
+          </div>
+        </div>
+        <div class="component-card-footer">
+          <a href="#card">Se kode</a>
+        </div>
+      </div>
+
+      <div class="component-card">
+        <div class="component-card-header">
+          <h3>Badge</h3>
+        </div>
+        <div class="component-card-preview">
+          <span style="background: #dbeafe; color: #1e40af; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500;">
+            Ny
+          </span>
+        </div>
+        <div class="component-card-footer">
+          <a href="#badge">Se kode</a>
+        </div>
+      </div>
+
+      <div class="component-card">
+        <div class="component-card-header">
+          <h3>Alert</h3>
+        </div>
+        <div class="component-card-preview">
+          <div style="background: #dcfce7; border: 2px solid #16a34a; color: #166534; padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.875rem; width: 100%;">
+            Suksess melding!
+          </div>
+        </div>
+        <div class="component-card-footer">
+          <a href="#alert">Se kode</a>
+        </div>
+      </div>
+
+      <div class="component-card">
+        <div class="component-card-header">
+          <h3>Modal</h3>
+        </div>
+        <div class="component-card-preview">
+          <div style="background: white; border: 2px solid #e2e8f0; border-radius: 8px; padding: 1.5rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 200px;">
+            <div style="font-weight: 600; margin-bottom: 0.5rem;">Modal tittel</div>
+            <div style="color: #64748b; font-size: 0.875rem;">Dialog innhold</div>
+          </div>
+        </div>
+        <div class="component-card-footer">
+          <a href="#modal">Se kode</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUTTON COMPONENT -->
+    <div class="component-detail" id="button">
+      <div class="component-detail-header">
+        <h3>Button</h3>
+        <p style="margin: 0; opacity: 0.9;">Gjenbrukbar knapp med flere varianter</p>
+      </div>
+      <div class="component-detail-preview">
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;">
+          <button style="background: #3b82f6; color: white; padding: 0.5rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
+            Primary
+          </button>
+          <button style="background: #64748b; color: white; padding: 0.5rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
+            Secondary
+          </button>
+          <button style="background: #16a34a; color: white; padding: 0.5rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
+            Success
+          </button>
+          <button style="background: #dc2626; color: white; padding: 0.5rem 1.5rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 500;">
+            Danger
+          </button>
+          <button style="background: none; color: #3b82f6; padding: 0.5rem 1.5rem; border: 2px solid #3b82f6; border-radius: 6px; cursor: pointer; font-weight: 500;">
+            Outline
+          </button>
+        </div>
+      </div>
+      <div class="component-detail-code">
+        <pre><code>// src/components/ui/button.tsx
+import { ButtonHTMLAttributes, ReactNode } from 'react'
+
+interface ButtonProps extends ButtonHTMLAttributes&lt;HTMLButtonElement&gt; {
+  children: ReactNode
+  variant?: 'primary' | 'secondary' | 'success' | 'danger' | 'outline'
+  size?: 'sm' | 'md' | 'lg'
+  fullWidth?: boolean
+}
+
+export default function Button({
+  children,
+  variant = 'primary',
+  size = 'md',
+  fullWidth = false,
+  className = '',
+  ...props
+}: ButtonProps) {
+  const baseStyles = 'font-medium rounded-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed'
+
+  const variants = {
+    primary: 'bg-blue-500 hover:bg-blue-600 text-white',
+    secondary: 'bg-gray-500 hover:bg-gray-600 text-white',
+    success: 'bg-green-600 hover:bg-green-700 text-white',
+    danger: 'bg-red-600 hover:bg-red-700 text-white',
+    outline: 'bg-transparent border-2 border-blue-500 text-blue-500 hover:bg-blue-50',
+  }
+
+  const sizes = {
+    sm: 'px-3 py-1.5 text-sm',
+    md: 'px-6 py-2.5 text-base',
+    lg: 'px-8 py-3 text-lg',
+  }
+
+  const widthClass = fullWidth ? 'w-full' : ''
+
+  return (
+    &lt;button
+      className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${widthClass} ${className}`}
+      {...props}
+    &gt;
+      {children}
+    &lt;/button&gt;
+  )
+}
+
+// ===== BRUKSEKSEMPEL =====
+
+import Button from '@/components/ui/button'
+
+export default function Page() {
+  return (
+    &lt;div&gt;
+      &lt;Button&gt;Default&lt;/Button&gt;
+      &lt;Button variant="success"&gt;Lagre&lt;/Button&gt;
+      &lt;Button variant="danger" size="lg"&gt;Slett&lt;/Button&gt;
+      &lt;Button variant="outline" fullWidth&gt;Full bredde&lt;/Button&gt;
+      &lt;Button onClick={() => alert('Klikket!')}&gt;Med onClick&lt;/Button&gt;
+      &lt;Button disabled&gt;Deaktivert&lt;/Button&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+      </div>
+      <div class="component-detail-props">
+        <h4>Props</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Prop</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Beskrivelse</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>children</code></td>
+              <td>ReactNode</td>
+              <td>-</td>
+              <td>Innhold i knappen</td>
+            </tr>
+            <tr>
+              <td><code>variant</code></td>
+              <td>'primary' | 'secondary' | 'success' | 'danger' | 'outline'</td>
+              <td>'primary'</td>
+              <td>Visuell stil</td>
+            </tr>
+            <tr>
+              <td><code>size</code></td>
+              <td>'sm' | 'md' | 'lg'</td>
+              <td>'md'</td>
+              <td>Størrelse</td>
+            </tr>
+            <tr>
+              <td><code>fullWidth</code></td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>Full bredde</td>
+            </tr>
+            <tr>
+              <td><code>disabled</code></td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>Deaktiver knapp</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- INPUT COMPONENT -->
+    <div class="component-detail" id="input">
+      <div class="component-detail-header">
+        <h3>Input</h3>
+        <p style="margin: 0; opacity: 0.9;">Inputfelt for skjemaer</p>
+      </div>
+      <div class="component-detail-preview">
+        <div style="max-width: 500px; margin: 0 auto; display: flex; flex-direction: column; gap: 1rem;">
+          <input type="text" placeholder="Text input" style="border: 2px solid #e2e8f0; padding: 0.5rem 1rem; border-radius: 6px; width: 100%;">
+          <input type="email" placeholder="Email input" style="border: 2px solid #e2e8f0; padding: 0.5rem 1rem; border-radius: 6px; width: 100%;">
+          <input type="password" placeholder="Password input" style="border: 2px solid #e2e8f0; padding: 0.5rem 1rem; border-radius: 6px; width: 100%;">
+          <input type="text" placeholder="Error state" style="border: 2px solid #dc2626; padding: 0.5rem 1rem; border-radius: 6px; width: 100%;">
+        </div>
+      </div>
+      <div class="component-detail-code">
+        <pre><code>// src/components/ui/input.tsx
+import { InputHTMLAttributes, forwardRef } from 'react'
+
+interface InputProps extends InputHTMLAttributes&lt;HTMLInputElement&gt; {
+  label?: string
+  error?: string
+  helpText?: string
+}
+
+const Input = forwardRef&lt;HTMLInputElement, InputProps&gt;(
+  ({ label, error, helpText, className = '', ...props }, ref) => {
+    return (
+      &lt;div className="w-full"&gt;
+        {label && (
+          &lt;label className="block text-sm font-medium text-gray-700 mb-1.5"&gt;
+            {label}
+          &lt;/label&gt;
+        )}
+        &lt;input
+          ref={ref}
+          className={`
+            w-full px-4 py-2.5
+            border-2 rounded-lg
+            transition-all duration-200
+            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+            disabled:bg-gray-100 disabled:cursor-not-allowed
+            ${error ? 'border-red-500' : 'border-gray-200 hover:border-gray-300'}
+            ${className}
+          `}
+          {...props}
+        /&gt;
+        {error && (
+          &lt;p className="mt-1.5 text-sm text-red-600"&gt;{error}&lt;/p&gt;
+        )}
+        {helpText && !error && (
+          &lt;p className="mt-1.5 text-sm text-gray-500"&gt;{helpText}&lt;/p&gt;
+        )}
+      &lt;/div&gt;
+    )
+  }
+)
+
+Input.displayName = 'Input'
+
+export default Input
+
+// ===== BRUKSEKSEMPEL =====
+
+"use client"
+import { useState } from 'react'
+import Input from '@/components/ui/input'
+
+export default function Page() {
+  const [email, setEmail] = useState('')
+  const [error, setError] = useState('')
+
+  const handleChange = (e: React.ChangeEvent&lt;HTMLInputElement&gt;) => {
+    setEmail(e.target.value)
+    if (!e.target.value.includes('@')) {
+      setError('Ugyldig e-postadresse')
+    } else {
+      setError('')
+    }
+  }
+
+  return (
+    &lt;div className="max-w-md mx-auto p-8"&gt;
+      &lt;Input
+        label="Navn"
+        placeholder="Ola Nordmann"
+        type="text"
+      /&gt;
+
+      &lt;Input
+        label="E-post"
+        placeholder="ola@example.com"
+        type="email"
+        value={email}
+        onChange={handleChange}
+        error={error}
+      /&gt;
+
+      &lt;Input
+        label="Passord"
+        type="password"
+        helpText="Minimum 8 tegn"
+      /&gt;
+
+      &lt;Input
+        label="Telefon"
+        type="tel"
+        placeholder="+47 123 45 678"
+      /&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+      </div>
+      <div class="component-detail-props">
+        <h4>Props</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Prop</th>
+              <th>Type</th>
+              <th>Default</th>
+              <th>Beskrivelse</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>label</code></td>
+              <td>string</td>
+              <td>-</td>
+              <td>Label over input</td>
+            </tr>
+            <tr>
+              <td><code>error</code></td>
+              <td>string</td>
+              <td>-</td>
+              <td>Feilmelding (viser rød kant)</td>
+            </tr>
+            <tr>
+              <td><code>helpText</code></td>
+              <td>string</td>
+              <td>-</td>
+              <td>Hjelpetekst under input</td>
+            </tr>
+            <tr>
+              <td><code>type</code></td>
+              <td>string</td>
+              <td>'text'</td>
+              <td>HTML input type</td>
+            </tr>
+            <tr>
+              <td><code>disabled</code></td>
+              <td>boolean</td>
+              <td>false</td>
+              <td>Deaktiver input</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CARD COMPONENT -->
+    <div class="component-detail" id="card">
+      <div class="component-detail-header">
+        <h3>Card</h3>
+        <p style="margin: 0; opacity: 0.9;">Kortkomponent for innhold</p>
+      </div>
+      <div class="component-detail-preview">
+        <div style="max-width: 350px; margin: 0 auto;">
+          <div style="background: white; border: 2px solid #e2e8f0; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+            <div style="aspect-ratio: 16/9; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);"></div>
+            <div style="padding: 1.5rem;">
+              <div style="font-weight: 600; font-size: 1.25rem; margin-bottom: 0.5rem;">Card Title</div>
+              <div style="color: #64748b; margin-bottom: 1rem;">Dette er beskrivelsen av kortet. Den kan inneholde hva som helst.</div>
+              <button style="background: #3b82f6; color: white; padding: 0.5rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; width: 100%;">
+                Les mer
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="component-detail-code">
+        <pre><code>// src/components/ui/card.tsx
+import { ReactNode } from 'react'
+import Image from 'next/image'
+
+interface CardProps {
+  title: string
+  description?: string
+  image?: string
+  children?: ReactNode
+  footer?: ReactNode
+  className?: string
+}
+
+export default function Card({
+  title,
+  description,
+  image,
+  children,
+  footer,
+  className = ''
+}: CardProps) {
+  return (
+    &lt;div className={`bg-white border-2 border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300 ${className}`}&gt;
+      {image && (
+        &lt;div className="relative w-full aspect-video"&gt;
+          &lt;Image
+            src={image}
+            alt={title}
+            fill
+            className="object-cover"
+          /&gt;
+        &lt;/div&gt;
+      )}
+      &lt;div className="p-6"&gt;
+        &lt;h3 className="text-xl font-bold text-gray-900 mb-2"&gt;{title}&lt;/h3&gt;
+        {description && (
+          &lt;p className="text-gray-600 mb-4"&gt;{description}&lt;/p&gt;
+        )}
+        {children}
+      &lt;/div&gt;
+      {footer && (
+        &lt;div className="px-6 py-4 bg-gray-50 border-t border-gray-200"&gt;
+          {footer}
+        &lt;/div&gt;
+      )}
+    &lt;/div&gt;
+  )
+}
+
+// ===== BRUKSEKSEMPEL =====
+
+import Card from '@/components/ui/card'
+import Button from '@/components/ui/button'
+
+export default function Page() {
+  return (
+    &lt;div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-8"&gt;
+      {/* Enkelt kort */}
+      &lt;Card
+        title="Enkel tittel"
+        description="Dette er en enkel beskrivelse"
+      /&gt;
+
+      {/* Kort med bilde */}
+      &lt;Card
+        title="Bloggpost"
+        description="Les om vårt siste prosjekt"
+        image="/blog-image.jpg"
+        footer={&lt;Button variant="outline" fullWidth&gt;Les mer&lt;/Button&gt;}
+      /&gt;
+
+      {/* Kort med custom innhold */}
+      &lt;Card title="Produktkort"&gt;
+        &lt;p className="text-gray-600 mb-2"&gt;Pris: 199 kr&lt;/p&gt;
+        &lt;p className="text-sm text-green-600 mb-4"&gt;På lager&lt;/p&gt;
+        &lt;Button fullWidth&gt;Legg i handlekurv&lt;/Button&gt;
+      &lt;/Card&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- BADGE COMPONENT -->
+    <div class="component-detail" id="badge">
+      <div class="component-detail-header">
+        <h3>Badge</h3>
+        <p style="margin: 0; opacity: 0.9;">Små merkelapper for status og kategorier</p>
+      </div>
+      <div class="component-detail-preview">
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;">
+          <span style="background: #dbeafe; color: #1e40af; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500;">Info</span>
+          <span style="background: #dcfce7; color: #166534; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500;">Success</span>
+          <span style="background: #fef3c7; color: #92400e; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500;">Warning</span>
+          <span style="background: #fee2e2; color: #991b1b; padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem; font-weight: 500;">Danger</span>
+        </div>
+      </div>
+      <div class="component-detail-code">
+        <pre><code>// src/components/ui/badge.tsx
+import { ReactNode } from 'react'
+
+interface BadgeProps {
+  children: ReactNode
+  variant?: 'info' | 'success' | 'warning' | 'danger' | 'neutral'
+  size?: 'sm' | 'md' | 'lg'
+}
+
+export default function Badge({
+  children,
+  variant = 'info',
+  size = 'md'
+}: BadgeProps) {
+  const variants = {
+    info: 'bg-blue-100 text-blue-800',
+    success: 'bg-green-100 text-green-800',
+    warning: 'bg-yellow-100 text-yellow-800',
+    danger: 'bg-red-100 text-red-800',
+    neutral: 'bg-gray-100 text-gray-800',
+  }
+
+  const sizes = {
+    sm: 'text-xs px-2 py-0.5',
+    md: 'text-sm px-3 py-1',
+    lg: 'text-base px-4 py-1.5',
+  }
+
+  return (
+    &lt;span className={`inline-flex items-center font-medium rounded-full ${variants[variant]} ${sizes[size]}`}&gt;
+      {children}
+    &lt;/span&gt;
+  )
+}
+
+// ===== BRUKSEKSEMPEL =====
+
+import Badge from '@/components/ui/badge'
+
+export default function Page() {
+  return (
+    &lt;div className="flex gap-2 flex-wrap"&gt;
+      &lt;Badge&gt;Default&lt;/Badge&gt;
+      &lt;Badge variant="success"&gt;Aktiv&lt;/Badge&gt;
+      &lt;Badge variant="warning"&gt;Venter&lt;/Badge&gt;
+      &lt;Badge variant="danger"&gt;Avvist&lt;/Badge&gt;
+      &lt;Badge variant="neutral" size="lg"&gt;Stor badge&lt;/Badge&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- ALERT COMPONENT -->
+    <div class="component-detail" id="alert">
+      <div class="component-detail-header">
+        <h3>Alert</h3>
+        <p style="margin: 0; opacity: 0.9;">Meldingsbokser for varsler og info</p>
+      </div>
+      <div class="component-detail-preview">
+        <div style="max-width: 600px; margin: 0 auto; display: flex; flex-direction: column; gap: 1rem;">
+          <div style="background: #dbeafe; border: 2px solid #3b82f6; color: #1e40af; padding: 1rem; border-radius: 8px;">
+            <strong>Info:</strong> Dette er en informasjonsmelding.
+          </div>
+          <div style="background: #dcfce7; border: 2px solid #16a34a; color: #166534; padding: 1rem; border-radius: 8px;">
+            <strong>Suksess:</strong> Handling fullført!
+          </div>
+          <div style="background: #fef3c7; border: 2px solid #f59e0b; color: #92400e; padding: 1rem; border-radius: 8px;">
+            <strong>Advarsel:</strong> Vær oppmerksom på dette.
+          </div>
+          <div style="background: #fee2e2; border: 2px solid #dc2626; color: #991b1b; padding: 1rem; border-radius: 8px;">
+            <strong>Feil:</strong> Noe gikk galt.
+          </div>
+        </div>
+      </div>
+      <div class="component-detail-code">
+        <pre><code>// src/components/ui/alert.tsx
+import { ReactNode } from 'react'
+
+interface AlertProps {
+  children: ReactNode
+  variant?: 'info' | 'success' | 'warning' | 'danger'
+  title?: string
+  onClose?: () => void
+}
+
+export default function Alert({
+  children,
+  variant = 'info',
+  title,
+  onClose
+}: AlertProps) {
+  const variants = {
+    info: {
+      bg: 'bg-blue-50',
+      border: 'border-blue-500',
+      text: 'text-blue-800',
+      titleText: 'text-blue-900'
+    },
+    success: {
+      bg: 'bg-green-50',
+      border: 'border-green-500',
+      text: 'text-green-800',
+      titleText: 'text-green-900'
+    },
+    warning: {
+      bg: 'bg-yellow-50',
+      border: 'border-yellow-500',
+      text: 'text-yellow-800',
+      titleText: 'text-yellow-900'
+    },
+    danger: {
+      bg: 'bg-red-50',
+      border: 'border-red-500',
+      text: 'text-red-800',
+      titleText: 'text-red-900'
+    }
+  }
+
+  const styles = variants[variant]
+
+  return (
+    &lt;div className={`${styles.bg} ${styles.border} ${styles.text} border-2 rounded-lg p-4 relative`}&gt;
+      {onClose && (
+        &lt;button
+          onClick={onClose}
+          className="absolute top-3 right-3 hover:opacity-70"
+        &gt;
+          &times;
+        &lt;/button&gt;
+      )}
+      {title && (
+        &lt;h4 className={`font-bold mb-2 ${styles.titleText}`}&gt;{title}&lt;/h4&gt;
+      )}
+      &lt;div&gt;{children}&lt;/div&gt;
+    &lt;/div&gt;
+  )
+}
+
+// ===== BRUKSEKSEMPEL =====
+
+"use client"
+import { useState } from 'react'
+import Alert from '@/components/ui/alert'
+
+export default function Page() {
+  const [showAlert, setShowAlert] = useState(true)
+
+  return (
+    &lt;div className="max-w-2xl mx-auto p-8 space-y-4"&gt;
+      &lt;Alert variant="info" title="Viktig informasjon"&gt;
+        Husk å lagre arbeidet ditt.
+      &lt;/Alert&gt;
+
+      &lt;Alert variant="success"&gt;
+        Skjema sendt!
+      &lt;/Alert&gt;
+
+      {showAlert && (
+        &lt;Alert
+          variant="warning"
+          title="Advarsel"
+          onClose={() => setShowAlert(false)}
+        &gt;
+          Dette kan ikke angres.
+        &lt;/Alert&gt;
+      )}
+    &lt;/div&gt;
+  )
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- MODAL COMPONENT -->
+    <div class="component-detail" id="modal">
+      <div class="component-detail-header">
+        <h3>Modal</h3>
+        <p style="margin: 0; opacity: 0.9;">Dialog/popup vindu</p>
+      </div>
+      <div class="component-detail-code">
+        <pre><code>// src/components/ui/modal.tsx
+"use client"
+import { ReactNode, useEffect } from 'react'
+
+interface ModalProps {
+  isOpen: boolean
+  onClose: () => void
+  title?: string
+  children: ReactNode
+  footer?: ReactNode
+  size?: 'sm' | 'md' | 'lg' | 'xl'
+}
+
+export default function Modal({
+  isOpen,
+  onClose,
+  title,
+  children,
+  footer,
+  size = 'md'
+}: ModalProps) {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = 'unset'
+    }
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [isOpen])
+
+  if (!isOpen) return null
+
+  const sizes = {
+    sm: 'max-w-md',
+    md: 'max-w-lg',
+    lg: 'max-w-2xl',
+    xl: 'max-w-4xl'
+  }
+
+  return (
+    &lt;div className="fixed inset-0 z-50 overflow-y-auto"&gt;
+      {/* Backdrop */}
+      &lt;div
+        className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
+        onClick={onClose}
+      /&gt;
+
+      {/* Modal */}
+      &lt;div className="flex min-h-full items-center justify-center p-4"&gt;
+        &lt;div className={`relative bg-white rounded-xl shadow-xl ${sizes[size]} w-full`}&gt;
+          {/* Header */}
+          {title && (
+            &lt;div className="flex items-center justify-between p-6 border-b border-gray-200"&gt;
+              &lt;h3 className="text-xl font-bold text-gray-900"&gt;{title}&lt;/h3&gt;
+              &lt;button
+                onClick={onClose}
+                className="text-gray-400 hover:text-gray-600 text-2xl leading-none"
+              &gt;
+                &times;
+              &lt;/button&gt;
+            &lt;/div&gt;
+          )}
+
+          {/* Content */}
+          &lt;div className="p-6"&gt;
+            {children}
+          &lt;/div&gt;
+
+          {/* Footer */}
+          {footer && (
+            &lt;div className="flex items-center justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50"&gt;
+              {footer}
+            &lt;/div&gt;
+          )}
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}
+
+// ===== BRUKSEKSEMPEL =====
+
+"use client"
+import { useState } from 'react'
+import Modal from '@/components/ui/modal'
+import Button from '@/components/ui/button'
+
+export default function Page() {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    &lt;div className="p-8"&gt;
+      &lt;Button onClick={() => setIsOpen(true)}&gt;
+        Åpne modal
+      &lt;/Button&gt;
+
+      &lt;Modal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        title="Bekreft handling"
+        footer={
+          &lt;&gt;
+            &lt;Button variant="outline" onClick={() => setIsOpen(false)}&gt;
+              Avbryt
+            &lt;/Button&gt;
+            &lt;Button variant="danger"&gt;
+              Slett
+            &lt;/Button&gt;
+          &lt;/&gt;
+        }
+      &gt;
+        &lt;p&gt;Er du sikker på at du vil slette dette? Denne handlingen kan ikke angres.&lt;/p&gt;
+      &lt;/Modal&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- LAYOUT COMPONENTS -->
+    <!-- ============================================ -->
+    <div class="category-header" id="layout-components">
+      <h2>Layout Komponenter</h2>
+    </div>
+
+    <!-- HERO SECTION -->
+    <div class="component-detail" id="hero">
+      <div class="component-detail-header">
+        <h3>Hero Section</h3>
+        <p style="margin: 0; opacity: 0.9;">Tre varianter av hero-seksjoner</p>
+      </div>
+      <div class="component-detail-code">
+        <pre><code>// src/components/sections/hero.tsx
+
+// ===== VARIANT 1: Sentrert med bakgrunnsbilde =====
+export function HeroCentered() {
+  return (
+    &lt;section className="relative h-screen flex items-center justify-center"&gt;
+      {/* Background image */}
+      &lt;div className="absolute inset-0 z-0"&gt;
+        &lt;Image
+          src="/hero-bg.jpg"
+          alt="Hero background"
+          fill
+          className="object-cover"
+          priority
+        /&gt;
+        &lt;div className="absolute inset-0 bg-black bg-opacity-50" /&gt;
+      &lt;/div&gt;
+
+      {/* Content */}
+      &lt;div className="relative z-10 text-center text-white px-4 max-w-4xl"&gt;
+        &lt;h1 className="text-5xl md:text-7xl font-bold mb-6"&gt;
+          Velkommen til vår nettside
+        &lt;/h1&gt;
+        &lt;p className="text-xl md:text-2xl mb-8 text-gray-200"&gt;
+          Vi leverer løsninger som gjør en forskjell
+        &lt;/p&gt;
+        &lt;div className="flex gap-4 justify-center flex-wrap"&gt;
+          &lt;Button size="lg"&gt;Kom i gang&lt;/Button&gt;
+          &lt;Button size="lg" variant="outline"&gt;Les mer&lt;/Button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+  )
+}
+
+// ===== VARIANT 2: Split med bilde =====
+export function HeroSplit() {
+  return (
+    &lt;section className="min-h-screen grid md:grid-cols-2"&gt;
+      {/* Left: Content */}
+      &lt;div className="flex items-center justify-center p-8 md:p-16"&gt;
+        &lt;div className="max-w-xl"&gt;
+          &lt;h1 className="text-4xl md:text-6xl font-bold mb-6"&gt;
+            Bygg fremtidens løsninger
+          &lt;/h1&gt;
+          &lt;p className="text-lg md:text-xl text-gray-600 mb-8"&gt;
+            Med vår ekspertise kan du realisere dine visjoner.
+          &lt;/p&gt;
+          &lt;Button size="lg"&gt;Start i dag&lt;/Button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      {/* Right: Image */}
+      &lt;div className="relative min-h-[400px] md:min-h-0"&gt;
+        &lt;Image
+          src="/hero-image.jpg"
+          alt="Hero"
+          fill
+          className="object-cover"
+        /&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+  )
+}
+
+// ===== VARIANT 3: Gradient med søkefelt =====
+export function HeroGradient() {
+  return (
+    &lt;section className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600"&gt;
+      &lt;div className="text-center text-white px-4 max-w-3xl"&gt;
+        &lt;h1 className="text-5xl md:text-7xl font-bold mb-6"&gt;
+          Finn drømmejobben
+        &lt;/h1&gt;
+        &lt;p className="text-xl md:text-2xl mb-8"&gt;
+          Tusenvis av jobber venter på deg
+        &lt;/p&gt;
+
+        {/* Search bar */}
+        &lt;div className="bg-white rounded-lg p-2 shadow-xl max-w-2xl mx-auto"&gt;
+          &lt;div className="flex gap-2"&gt;
+            &lt;input
+              type="text"
+              placeholder="Søk etter jobb..."
+              className="flex-1 px-4 py-3 rounded text-gray-900 focus:outline-none"
+            /&gt;
+            &lt;Button&gt;Søk&lt;/Button&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+  )
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- FEATURE GRID -->
+    <div class="component-detail" id="features">
+      <div class="component-detail-header">
+        <h3>Feature Grid</h3>
+        <p style="margin: 0; opacity: 0.9;">Vis funksjoner eller tjenester i rutenett</p>
+      </div>
+      <div class="component-detail-code">
+        <pre><code>// src/components/sections/features.tsx
+
+interface Feature {
+  icon: string
+  title: string
+  description: string
+}
+
+const features: Feature[] = [
+  {
+    icon: '⚡',
+    title: 'Lynrask',
+    description: 'Optimalisert for hastighet og ytelse'
+  },
+  {
+    icon: '🔒',
+    title: 'Sikker',
+    description: 'Enterprise-grade sikkerhet'
+  },
+  {
+    icon: '📱',
+    title: 'Responsiv',
+    description: 'Fungerer på alle enheter'
+  },
+  {
+    icon: '🎨',
+    title: 'Tilpassbar',
+    description: 'Full kontroll over design'
+  },
+]
+
+export default function Features() {
+  return (
+    &lt;section className="py-20 px-4"&gt;
+      &lt;div className="container mx-auto max-w-6xl"&gt;
+        &lt;div className="text-center mb-16"&gt;
+          &lt;h2 className="text-4xl font-bold mb-4"&gt;Hvorfor velge oss?&lt;/h2&gt;
+          &lt;p className="text-xl text-gray-600"&gt;
+            Vi leverer kvalitet i verdensklasse
+          &lt;/p&gt;
+        &lt;/div&gt;
+
+        &lt;div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8"&gt;
+          {features.map((feature, index) => (
+            &lt;div
+              key={index}
+              className="text-center p-6 rounded-xl border-2 border-gray-200 hover:border-blue-500 hover:shadow-lg transition-all duration-300"
+            &gt;
+              &lt;div className="text-5xl mb-4"&gt;{feature.icon}&lt;/div&gt;
+              &lt;h3 className="text-xl font-bold mb-2"&gt;{feature.title}&lt;/h3&gt;
+              &lt;p className="text-gray-600"&gt;{feature.description}&lt;/p&gt;
+            &lt;/div&gt;
+          ))}
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+  )
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- PRICING TABLE -->
+    <div class="component-detail" id="pricing">
+      <div class="component-detail-header">
+        <h3>Pricing Table</h3>
+        <p style="margin: 0; opacity: 0.9;">Pristabell med tre nivåer</p>
+      </div>
+      <div class="component-detail-code">
+        <pre><code>// src/components/sections/pricing.tsx
+
+interface PricingTier {
+  name: string
+  price: string
+  description: string
+  features: string[]
+  highlighted?: boolean
+}
+
+const tiers: PricingTier[] = [
+  {
+    name: 'Starter',
+    price: '99',
+    description: 'Perfekt for småbedrifter',
+    features: [
+      '10 brukere',
+      '100 GB lagring',
+      'E-post support',
+      'Grunnleggende analyse'
+    ]
+  },
+  {
+    name: 'Pro',
+    price: '299',
+    description: 'For voksende bedrifter',
+    features: [
+      '50 brukere',
+      '500 GB lagring',
+      'Prioritert support',
+      'Avansert analyse',
+      'API tilgang'
+    ],
+    highlighted: true
+  },
+  {
+    name: 'Enterprise',
+    price: '999',
+    description: 'For store organisasjoner',
+    features: [
+      'Ubegrenset brukere',
+      'Ubegrenset lagring',
+      '24/7 support',
+      'Custom løsninger',
+      'Dedikert account manager'
+    ]
+  }
+]
+
+export default function Pricing() {
+  return (
+    &lt;section className="py-20 px-4 bg-gray-50"&gt;
+      &lt;div className="container mx-auto max-w-6xl"&gt;
+        &lt;div className="text-center mb-16"&gt;
+          &lt;h2 className="text-4xl font-bold mb-4"&gt;Velg din plan&lt;/h2&gt;
+          &lt;p className="text-xl text-gray-600"&gt;
+            Fleksible priser for alle behov
+          &lt;/p&gt;
+        &lt;/div&gt;
+
+        &lt;div className="grid md:grid-cols-3 gap-8"&gt;
+          {tiers.map((tier, index) => (
+            &lt;div
+              key={index}
+              className={`
+                bg-white rounded-xl p-8
+                ${tier.highlighted
+                  ? 'border-4 border-blue-500 shadow-2xl transform scale-105'
+                  : 'border-2 border-gray-200'
+                }
+              `}
+            &gt;
+              {tier.highlighted && (
+                &lt;div className="bg-blue-500 text-white text-sm font-bold px-4 py-1 rounded-full inline-block mb-4"&gt;
+                  POPULÆR
+                &lt;/div&gt;
+              )}
+
+              &lt;h3 className="text-2xl font-bold mb-2"&gt;{tier.name}&lt;/h3&gt;
+              &lt;p className="text-gray-600 mb-6"&gt;{tier.description}&lt;/p&gt;
+
+              &lt;div className="mb-6"&gt;
+                &lt;span className="text-5xl font-bold"&gt;{tier.price}&lt;/span&gt;
+                &lt;span className="text-gray-600"&gt; kr/mnd&lt;/span&gt;
+              &lt;/div&gt;
+
+              &lt;ul className="space-y-3 mb-8"&gt;
+                {tier.features.map((feature, idx) => (
+                  &lt;li key={idx} className="flex items-start"&gt;
+                    &lt;span className="text-green-500 mr-2"&gt;✓&lt;/span&gt;
+                    &lt;span&gt;{feature}&lt;/span&gt;
+                  &lt;/li&gt;
+                ))}
+              &lt;/ul&gt;
+
+              &lt;Button
+                variant={tier.highlighted ? 'primary' : 'outline'}
+                fullWidth
+              &gt;
+                Velg {tier.name}
+              &lt;/Button&gt;
+            &lt;/div&gt;
+          ))}
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+  )
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- CTA SECTION -->
+    <div class="component-detail" id="cta">
+      <div class="component-detail-header">
+        <h3>CTA Section</h3>
+        <p style="margin: 0; opacity: 0.9;">Call-to-action seksjon</p>
+      </div>
+      <div class="component-detail-code">
+        <pre><code>// src/components/sections/cta.tsx
+
+export default function CTA() {
+  return (
+    &lt;section className="py-20 px-4 bg-gradient-to-r from-blue-600 to-purple-600"&gt;
+      &lt;div className="container mx-auto max-w-4xl text-center text-white"&gt;
+        &lt;h2 className="text-4xl md:text-5xl font-bold mb-6"&gt;
+          Klar til å komme i gang?
+        &lt;/h2&gt;
+        &lt;p className="text-xl mb-8 text-blue-100"&gt;
+          Bli med tusenvis av fornøyde kunder i dag
+        &lt;/p&gt;
+        &lt;div className="flex gap-4 justify-center flex-wrap"&gt;
+          &lt;Button size="lg" className="bg-white text-blue-600 hover:bg-gray-100"&gt;
+            Start gratis prøveperiode
+          &lt;/Button&gt;
+          &lt;Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-blue-600"&gt;
+            Kontakt salg
+          &lt;/Button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+  )
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- FUNCTIONAL COMPONENTS -->
+    <!-- ============================================ -->
+    <div class="category-header" id="functional-components">
+      <h2>Funksjonelle Komponenter</h2>
+    </div>
+
+    <!-- CONTACT FORM -->
+    <div class="component-detail" id="contact-form">
+      <div class="component-detail-header">
+        <h3>Contact Form</h3>
+        <p style="margin: 0; opacity: 0.9;">Komplett kontaktskjema med validering</p>
+      </div>
+      <div class="component-detail-code">
+        <pre><code>// src/components/forms/contact-form.tsx
+"use client"
+import { useState } from 'react'
+import Input from '@/components/ui/input'
+import Button from '@/components/ui/button'
+import Alert from '@/components/ui/alert'
+
+interface FormData {
+  name: string
+  email: string
+  phone: string
+  message: string
+}
+
+export default function ContactForm() {
+  const [formData, setFormData] = useState&lt;FormData&gt;({
+    name: '',
+    email: '',
+    phone: '',
+    message: ''
+  })
+  const [errors, setErrors] = useState&lt;Partial&lt;FormData&gt;&gt;({})
+  const [status, setStatus] = useState&lt;'idle' | 'loading' | 'success' | 'error'&gt;('idle')
+
+  const validate = () => {
+    const newErrors: Partial&lt;FormData&gt; = {}
+
+    if (!formData.name.trim()) {
+      newErrors.name = 'Navn er påkrevd'
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = 'E-post er påkrevd'
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Ugyldig e-postadresse'
+    }
+
+    if (!formData.message.trim()) {
+      newErrors.message = 'Melding er påkrevd'
+    }
+
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+
+    if (!validate()) return
+
+    setStatus('loading')
+
+    try {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      })
+
+      if (response.ok) {
+        setStatus('success')
+        setFormData({ name: '', email: '', phone: '', message: '' })
+      } else {
+        setStatus('error')
+      }
+    } catch (error) {
+      setStatus('error')
+    }
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit} className="max-w-2xl mx-auto space-y-6"&gt;
+      {status === 'success' && (
+        &lt;Alert variant="success" onClose={() => setStatus('idle')}&gt;
+          Takk for din henvendelse! Vi svarer så snart som mulig.
+        &lt;/Alert&gt;
+      )}
+
+      {status === 'error' && (
+        &lt;Alert variant="danger" onClose={() => setStatus('idle')}&gt;
+          Noe gikk galt. Vennligst prøv igjen senere.
+        &lt;/Alert&gt;
+      )}
+
+      &lt;Input
+        label="Navn *"
+        value={formData.name}
+        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+        error={errors.name}
+        placeholder="Ditt navn"
+      /&gt;
+
+      &lt;Input
+        label="E-post *"
+        type="email"
+        value={formData.email}
+        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+        error={errors.email}
+        placeholder="din@epost.no"
+      /&gt;
+
+      &lt;Input
+        label="Telefon"
+        type="tel"
+        value={formData.phone}
+        onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+        placeholder="+47 123 45 678"
+      /&gt;
+
+      &lt;div&gt;
+        &lt;label className="block text-sm font-medium text-gray-700 mb-1.5"&gt;
+          Melding *
+        &lt;/label&gt;
+        &lt;textarea
+          value={formData.message}
+          onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+          rows={5}
+          className={`
+            w-full px-4 py-2.5 border-2 rounded-lg
+            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent
+            ${errors.message ? 'border-red-500' : 'border-gray-200'}
+          `}
+          placeholder="Din melding..."
+        /&gt;
+        {errors.message && (
+          &lt;p className="mt-1.5 text-sm text-red-600"&gt;{errors.message}&lt;/p&gt;
+        )}
+      &lt;/div&gt;
+
+      &lt;Button
+        type="submit"
+        fullWidth
+        disabled={status === 'loading'}
+      &gt;
+        {status === 'loading' ? 'Sender...' : 'Send melding'}
+      &lt;/Button&gt;
+    &lt;/form&gt;
+  )
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- LOADING SPINNER -->
+    <div class="component-detail" id="loading">
+      <div class="component-detail-header">
+        <h3>Loading Spinner</h3>
+        <p style="margin: 0; opacity: 0.9;">Laste-indikator</p>
+      </div>
+      <div class="component-detail-code">
+        <pre><code>// src/components/ui/loading.tsx
+
+interface LoadingProps {
+  size?: 'sm' | 'md' | 'lg'
+  text?: string
+}
+
+export default function Loading({ size = 'md', text }: LoadingProps) {
+  const sizes = {
+    sm: 'w-6 h-6 border-2',
+    md: 'w-12 h-12 border-4',
+    lg: 'w-16 h-16 border-4'
+  }
+
+  return (
+    &lt;div className="flex flex-col items-center justify-center gap-4"&gt;
+      &lt;div
+        className={`
+          ${sizes[size]}
+          border-blue-500 border-t-transparent
+          rounded-full animate-spin
+        `}
+      /&gt;
+      {text && (
+        &lt;p className="text-gray-600 animate-pulse"&gt;{text}&lt;/p&gt;
+      )}
+    &lt;/div&gt;
+  )
+}
+
+// ===== BRUKSEKSEMPEL =====
+
+import Loading from '@/components/ui/loading'
+
+export default function Page() {
+  const isLoading = true
+
+  if (isLoading) {
+    return (
+      &lt;div className="min-h-screen flex items-center justify-center"&gt;
+        &lt;Loading size="lg" text="Laster inn..." /&gt;
+      &lt;/div&gt;
+    )
+  }
+
+  return &lt;div&gt;Innhold&lt;/div&gt;
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- PAGINATION -->
+    <div class="component-detail" id="pagination">
+      <div class="component-detail-header">
+        <h3>Pagination</h3>
+        <p style="margin: 0; opacity: 0.9;">Sidenummerering</p>
+      </div>
+      <div class="component-detail-code">
+        <pre><code>// src/components/ui/pagination.tsx
+"use client"
+
+interface PaginationProps {
+  currentPage: number
+  totalPages: number
+  onPageChange: (page: number) => void
+}
+
+export default function Pagination({
+  currentPage,
+  totalPages,
+  onPageChange
+}: PaginationProps) {
+  const pages = Array.from({ length: totalPages }, (_, i) => i + 1)
+
+  return (
+    &lt;div className="flex items-center justify-center gap-2"&gt;
+      &lt;button
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+        className="px-4 py-2 rounded-lg border-2 border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:border-blue-500"
+      &gt;
+        Forrige
+      &lt;/button&gt;
+
+      {pages.map(page => (
+        &lt;button
+          key={page}
+          onClick={() => onPageChange(page)}
+          className={`
+            px-4 py-2 rounded-lg border-2
+            ${currentPage === page
+              ? 'bg-blue-500 text-white border-blue-500'
+              : 'border-gray-200 hover:border-blue-500'
+            }
+          `}
+        &gt;
+          {page}
+        &lt;/button&gt;
+      ))}
+
+      &lt;button
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+        className="px-4 py-2 rounded-lg border-2 border-gray-200 disabled:opacity-50 disabled:cursor-not-allowed hover:border-blue-500"
+      &gt;
+        Neste
+      &lt;/button&gt;
+    &lt;/div&gt;
+  )
+}
+
+// ===== BRUKSEKSEMPEL =====
+
+"use client"
+import { useState } from 'react'
+import Pagination from '@/components/ui/pagination'
+
+export default function Page() {
+  const [currentPage, setCurrentPage] = useState(1)
+  const totalPages = 10
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Side {currentPage} av {totalPages}&lt;/p&gt;
+      &lt;Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+      /&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+      </div>
+    </div>
+
+    <div class="success-box" style="margin-top: 4rem;">
+      <h3 style="margin-top: 0;">Du har nå tilgang til alle komponentene!</h3>
+      <p>Kopier koden du trenger og tilpass den til ditt prosjekt. Alle komponenter er:</p>
+      <ul style="margin: 0.5rem 0 0 0;">
+        <li>Fullt responsive (mobile-first)</li>
+        <li>Tilgjengelige (a11y-vennlige)</li>
+        <li>TypeScript-typede</li>
+        <li>Tailwind-optimaliserte</li>
+        <li>Testet og produksjonsklare</li>
+      </ul>
+    </div>
+
+    <h2>Neste steg</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Ressurs</th>
+          <th>Beskrivelse</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="tilpasning.html">Tilpasningsguide</a></td>
+          <td>Lær hvordan du tilpasser komponenter til kundens merkevare</td>
+        </tr>
+        <tr>
+          <td><a href="maler.html">Bransjemaler</a></td>
+          <td>Komplette maler for restaurant, gym, konsulent, etc.</td>
+        </tr>
+        <tr>
+          <td><a href="sider.html">Standard sider</a></td>
+          <td>Om oss, kontakt, personvern - alt du trenger</td>
+        </tr>
+        <tr>
+          <td><a href="../grunnleggende/tailwind.html">Tailwind CSS</a></td>
+          <td>Forstå Tailwind-klassene brukt i komponentene</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="footer">
+      <p><a href="tilpasning.html">← Tilpasning</a> | <a href="maler.html">Bransjemaler →</a></p>
+      <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+        <a href="https://obligarconsulting.no" target="_blank" style="color: #2563eb;">Obligar Consulting</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

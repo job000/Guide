@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Docker og Deployment - Next.js Guide</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html">Hurtigstart</a>
+    <a href="prosjektstruktur.html">Struktur</a>
+    <a href="cms-guide.html">CMS</a>
+    <a href="docker-deploy.html"><strong>Deploy</strong></a>
+    <a href="sjekkliste.html">Sjekkliste</a>
+  </nav>
+
+  <div class="container">
+    <h1>Docker og Deployment</h1>
+
+    <blockquote>
+      <p>Fra lokal utvikling til produksjon på under 30 minutter.</p>
+    </blockquote>
+
+    <div class="info-box">
+      <strong>Tre deployment-alternativer:</strong> Vercel (enklest), Docker + VPS (fleksibelt), eller Railway (balansert).
+    </div>
+
+    <!-- VERCEL DEPLOYMENT -->
+    <h2>Alternativ 1: Vercel (Anbefalt for nybegynnere)</h2>
+
+    <p class="section-desc">
+      Vercel er laget av Next.js-teamet og gir zero-config deployment. Perfekt for raske leveringer.
+    </p>
+
+    <div class="step">
+      <span class="step-number">1</span>
+      <div>
+        <strong>Push til GitHub</strong>
+        <pre><code># Initialiser git og push
+git init
+git add .
+git commit -m "Initial commit"
+git branch -M main
+git remote add origin https://github.com/ditt-brukernavn/prosjekt.git
+git push -u origin main</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <span class="step-number">2</span>
+      <div>
+        <strong>Koble til Vercel</strong>
+        <ol>
+          <li>Gå til <a href="https://vercel.com" target="_blank">vercel.com</a></li>
+          <li>Logg inn med GitHub</li>
+          <li>Klikk "New Project"</li>
+          <li>Importer repository</li>
+          <li>Legg til miljøvariabler (Environment Variables)</li>
+        </ol>
+      </div>
+    </div>
+
+    <div class="step">
+      <span class="step-number">3</span>
+      <div>
+        <strong>Miljøvariabler i Vercel</strong>
+        <pre><code>SUPABASE_PROJECT_URL=https://xxx.supabase.co
+SUPABASE_API_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+JWT_SECRET=min-super-hemmelige-noekkel-32-tegn</code></pre>
+      </div>
+    </div>
+
+    <div class="success-box">
+      <strong>Ferdig!</strong> Vercel bygger og deployer automatisk ved hver push til main.
+    </div>
+
+    <!-- DOCKER DEPLOYMENT -->
+    <h2>Alternativ 2: Docker + VPS</h2>
+
+    <p class="section-desc">
+      For full kontroll over infrastruktur. Krever VPS (DigitalOcean, Hetzner, etc.) med Docker installert.
+    </p>
+
+    <h3>Dockerfile</h3>
+    <p class="section-desc">
+      Multi-stage build for minimal image-størrelse (~150MB vs ~1GB).
+    </p>
+    <pre><code># Dockerfile
+FROM node:20-alpine AS base
+
+# Installer avhengigheter
+FROM base AS deps
+RUN apk add --no-cache libc6-compat
+WORKDIR /app
+COPY package.json package-lock.json* ./
+RUN npm ci
+
+# Bygg applikasjonen
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+
+# Sett miljøvariabler for build
+ENV NEXT_TELEMETRY_DISABLED 1
+
+RUN npm run build
+
+# Produksjonsimage
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
+
+# Opprett non-root bruker
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+COPY --from=builder /app/public ./public
+
+# Kopier standalone output
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
+EXPOSE 3000
+
+ENV PORT 3000
+ENV HOSTNAME "0.0.0.0"
+
+CMD ["node", "server.js"]</code></pre>
+
+    <h3>next.config.ts for standalone</h3>
+    <p class="section-desc">
+      Aktiver standalone-modus for mindre Docker-images.
+    </p>
+    <pre><code>// next.config.ts
+import type { NextConfig } from "next"
+
+const nextConfig: NextConfig = {
+  output: "standalone",
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "**.supabase.co",
+      },
+    ],
+  },
+}
+
+export default nextConfig</code></pre>
+
+    <h3>docker-compose.yml</h3>
+    <p class="section-desc">
+      Orkestrering av Next.js-app med Nginx reverse proxy og SSL.
+    </p>
+    <pre><code># docker-compose.yml
+version: "3.8"
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    env_file:
+      - .env.production
+    networks:
+      - webnet
+
+  nginx:
+    image: nginx:alpine
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
+      - ./certbot/www:/var/www/certbot:ro
+    depends_on:
+      - app
+    networks:
+      - webnet
+
+  certbot:
+    image: certbot/certbot
+    volumes:
+      - ./certbot/conf:/etc/letsencrypt
+      - ./certbot/www:/var/www/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 12h & wait $${!}; done;'"
+
+networks:
+  webnet:</code></pre>
+
+    <h3>nginx.conf</h3>
+    <p class="section-desc">
+      Nginx-konfigurasjon med SSL, gzip-komprimering og caching.
+    </p>
+    <pre><code># nginx.conf
+events {
+    worker_connections 1024;
+}
+
+http {
+    # Gzip komprimering
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript;
+    gzip_min_length 1000;
+
+    # Upstream til Next.js
+    upstream nextjs {
+        server app:3000;
+    }
+
+    # Redirect HTTP til HTTPS
+    server {
+        listen 80;
+        server_name ditt-domene.no www.ditt-domene.no;
+
+        location /.well-known/acme-challenge/ {
+            root /var/www/certbot;
+        }
+
+        location / {
+            return 301 https://$host$request_uri;
+        }
+    }
+
+    # HTTPS server
+    server {
+        listen 443 ssl http2;
+        server_name ditt-domene.no www.ditt-domene.no;
+
+        ssl_certificate /etc/letsencrypt/live/ditt-domene.no/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/ditt-domene.no/privkey.pem;
+
+        # Sikkerhet
+        ssl_protocols TLSv1.2 TLSv1.3;
+        ssl_prefer_server_ciphers off;
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header X-Content-Type-Options "nosniff" always;
+
+        # Statiske filer caching
+        location /_next/static {
+            proxy_pass http://nextjs;
+            proxy_cache_valid 60m;
+            add_header Cache-Control "public, max-age=31536000, immutable";
+        }
+
+        # Alle andre requests
+        location / {
+            proxy_pass http://nextjs;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_cache_bypass $http_upgrade;
+        }
+    }
+}</code></pre>
+
+    <h3>Deploy-kommandoer</h3>
+    <p class="section-desc">
+      Kjør disse på VPS-serveren din etter SSH-innlogging.
+    </p>
+    <pre><code># 1. Klon repository
+git clone https://github.com/ditt-brukernavn/prosjekt.git
+cd prosjekt
+
+# 2. Opprett .env.production
+cat > .env.production << EOF
+SUPABASE_PROJECT_URL=https://xxx.supabase.co
+SUPABASE_API_KEY=din-api-key
+JWT_SECRET=din-jwt-secret
+EOF
+
+# 3. Skaff SSL-sertifikat (første gang)
+docker compose run --rm certbot certonly \
+  --webroot --webroot-path=/var/www/certbot \
+  -d ditt-domene.no -d www.ditt-domene.no \
+  --email din@epost.no --agree-tos
+
+# 4. Start alt
+docker compose up -d --build
+
+# 5. Se logger
+docker compose logs -f app</code></pre>
+
+    <!-- RAILWAY DEPLOYMENT -->
+    <h2>Alternativ 3: Railway (Balansert)</h2>
+
+    <p class="section-desc">
+      Railway gir Docker-fleksibilitet med Vercel-enkelhet. Støtter databaser og cron jobs.
+    </p>
+
+    <div class="step">
+      <span class="step-number">1</span>
+      <div>
+        <strong>Installer Railway CLI</strong>
+        <pre><code>npm install -g @railway/cli
+railway login</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <span class="step-number">2</span>
+      <div>
+        <strong>Initialiser og deploy</strong>
+        <pre><code># I prosjektmappen
+railway init
+railway up</code></pre>
+      </div>
+    </div>
+
+    <div class="step">
+      <span class="step-number">3</span>
+      <div>
+        <strong>Legg til miljøvariabler</strong>
+        <pre><code>railway variables set SUPABASE_PROJECT_URL=https://xxx.supabase.co
+railway variables set SUPABASE_API_KEY=din-key
+railway variables set JWT_SECRET=din-secret</code></pre>
+      </div>
+    </div>
+
+    <!-- SAMMENLIGNING -->
+    <h2>Sammenligning</h2>
+    <table>
+      <tr>
+        <th>Funksjon</th>
+        <th>Vercel</th>
+        <th>Docker+VPS</th>
+        <th>Railway</th>
+      </tr>
+      <tr>
+        <td>Oppsett-tid</td>
+        <td>5 min</td>
+        <td>30-60 min</td>
+        <td>10 min</td>
+      </tr>
+      <tr>
+        <td>Pris (liten app)</td>
+        <td>Gratis</td>
+        <td>$5-10/mnd</td>
+        <td>$5/mnd</td>
+      </tr>
+      <tr>
+        <td>Skalering</td>
+        <td>Automatisk</td>
+        <td>Manuell</td>
+        <td>Automatisk</td>
+      </tr>
+      <tr>
+        <td>Kontroll</td>
+        <td>Begrenset</td>
+        <td>Full</td>
+        <td>Medium</td>
+      </tr>
+      <tr>
+        <td>Custom domain</td>
+        <td>Inkludert</td>
+        <td>Manuelt</td>
+        <td>Inkludert</td>
+      </tr>
+      <tr>
+        <td>SSL</td>
+        <td>Automatisk</td>
+        <td>Certbot</td>
+        <td>Automatisk</td>
+      </tr>
+    </table>
+
+    <h2>GitHub Actions (CI/CD)</h2>
+
+    <p class="section-desc">
+      Automatisk bygging og testing ved hver push. Fungerer med alle deployment-metoder.
+    </p>
+    <pre><code># .github/workflows/ci.yml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run linter
+        run: npm run lint
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Build
+        run: npm run build
+        env:
+          SUPABASE_PROJECT_URL: ${{ secrets.SUPABASE_PROJECT_URL }}
+          SUPABASE_API_KEY: ${{ secrets.SUPABASE_API_KEY }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}</code></pre>
+
+    <h2>Produksjonssjekkliste</h2>
+    <ul>
+      <li><input type="checkbox"> Miljøvariabler satt i produksjon</li>
+      <li><input type="checkbox"> SSL-sertifikat aktivert (HTTPS)</li>
+      <li><input type="checkbox"> Custom domain konfigurert</li>
+      <li><input type="checkbox"> Error monitoring (Sentry) satt opp</li>
+      <li><input type="checkbox"> Analytics (Vercel Analytics / Plausible)</li>
+      <li><input type="checkbox"> Backup-strategi for database</li>
+      <li><input type="checkbox"> Rate limiting på API-endepunkter</li>
+    </ul>
+
+    <div class="warning-box">
+      <strong>Viktig!</strong> Aldri commit .env-filer til git. Bruk GitHub Secrets eller deployment-plattformens variabler.
+    </div>
+
+    <div class="footer">
+      <p><a href="prosjektmaler.html">← Maler</a> | <a href="sjekkliste.html">Sjekkliste →</a></p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

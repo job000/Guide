@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prosjektstruktur - Nytt kundeprosjekt</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    /* Visuell mappestruktur */
+    .folder-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+    .folder-card {
+      background: linear-gradient(135deg, #f8fafc 0%, #fff 100%);
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.25rem;
+      transition: all 0.2s;
+    }
+    .folder-card:hover {
+      border-color: #3b82f6;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    }
+    .folder-card.important {
+      border-color: #10b981;
+      background: linear-gradient(135deg, #ecfdf5 0%, #fff 100%);
+    }
+    .folder-card h4 {
+      margin: 0 0 0.5rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1rem;
+    }
+    .folder-card h4 .icon {
+      font-size: 1.25rem;
+    }
+    .folder-card p {
+      margin: 0 0 0.75rem 0;
+      color: #64748b;
+      font-size: 0.9rem;
+    }
+    .folder-card .files {
+      background: #f1f5f9;
+      border-radius: 6px;
+      padding: 0.75rem;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 0.8rem;
+    }
+    .folder-card .files code {
+      display: block;
+      color: #475569;
+      padding: 0.15rem 0;
+    }
+    .folder-card .files code.highlight {
+      color: #059669;
+      font-weight: 600;
+    }
+
+    /* Steg-kort */
+    .step-card {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid #3b82f6;
+      border-radius: 8px;
+      padding: 1.25rem;
+      margin: 1rem 0;
+    }
+    .step-card h4 {
+      margin: 0 0 0.5rem 0;
+      color: #1e40af;
+    }
+
+    /* Kommando-bokser */
+    .cmd-box {
+      background: #0f172a;
+      color: #e2e8f0;
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem 0;
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 0.85rem;
+      overflow-x: auto;
+    }
+    .cmd-box .comment {
+      color: #64748b;
+    }
+    .cmd-box .cmd {
+      color: #34d399;
+    }
+
+    /* Tips-boks */
+    .tip-box {
+      background: linear-gradient(135deg, #fef3c7 0%, #fffbeb 100%);
+      border: 1px solid #f59e0b;
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1rem 0;
+    }
+    .tip-box strong {
+      color: #92400e;
+    }
+
+    /* Badge */
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .badge-green { background: #dcfce7; color: #166534; }
+    .badge-blue { background: #dbeafe; color: #1e40af; }
+    .badge-purple { background: #f3e8ff; color: #7c3aed; }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html">Hurtigstart</a>
+    <a href="prosjektstruktur.html"><strong>Struktur</strong></a>
+    <a href="prosjektmaler.html">Maler</a>
+    <a href="cms-guide.html">CMS</a>
+    <a href="docker-deploy.html">Deploy</a>
+  </nav>
+
+  <div class="container">
+    <h1>Prosjektstruktur for Kundeprosjekter</h1>
+
+    <blockquote>
+      <p>Visuell guide til mappestrukturen. Forstå hva hver mappe gjør og hvordan filene henger sammen.</p>
+    </blockquote>
+
+    <!-- STEG 1: OPPRETT PROSJEKT -->
+    <h2>Steg 1: Opprett prosjektet (2 min)</h2>
+
+    <div class="step-card">
+      <h4>1.1 Kjor i Terminal (Mac)</h4>
+      <p>Apne Terminal og kjor denne kommandoen:</p>
+    </div>
+
+    <div class="cmd-box">
+<span class="comment"># Opprett Next.js-prosjekt med alle innstillinger</span>
+<span class="cmd">npx create-next-app@latest kundenavn --typescript --tailwind --eslint --app --src-dir --import-alias "@/*"</span>
+
+<span class="comment"># Ga inn i mappen</span>
+<span class="cmd">cd kundenavn</span>
+    </div>
+
+    <div class="step-card">
+      <h4>1.2 Installer pakker</h4>
+      <p>Kopier og lim inn - dette installerer alt du trenger:</p>
+    </div>
+
+    <div class="cmd-box">
+<span class="comment"># Hovedpakker</span>
+<span class="cmd">npm install @supabase/supabase-js zustand react-hook-form @hookform/resolvers zod bcryptjs jsonwebtoken js-cookie react-hot-toast lucide-react dayjs clsx tailwind-merge</span>
+
+<span class="comment"># TypeScript-typer</span>
+<span class="cmd">npm install -D @types/bcryptjs @types/jsonwebtoken @types/js-cookie</span>
+    </div>
+
+    <div class="step-card">
+      <h4>1.3 Opprett mapper</h4>
+      <p>Lag mappestrukturen med en kommando:</p>
+    </div>
+
+    <div class="cmd-box">
+<span class="cmd">mkdir -p src/{actions,components/{ui,layout,forms,sections},config,interfaces,lib,store} src/app/\(public\) src/app/\(admin\)/admin public/images</span>
+    </div>
+
+    <!-- VISUELL MAPPESTRUKTUR -->
+    <h2>Steg 2: Forstå mappestrukturen</h2>
+    <p class="section-desc">
+      Hver mappe har et spesifikt formål. Gronne kort er de viktigste filene.
+    </p>
+
+    <div class="folder-grid">
+      <!-- src/app -->
+      <div class="folder-card important">
+        <h4><span class="icon">📁</span> src/app/ <span class="badge badge-green">SIDER</span></h4>
+        <p>Alle nettsidene dine. Mappenavn = URL.</p>
+        <div class="files">
+          <code class="highlight">page.tsx → /</code>
+          <code>om-oss/page.tsx → /om-oss</code>
+          <code>kontakt/page.tsx → /kontakt</code>
+          <code class="highlight">layout.tsx → Wrapper</code>
+          <code>globals.css → Styling</code>
+        </div>
+      </div>
+
+      <!-- src/components -->
+      <div class="folder-card">
+        <h4><span class="icon">🧩</span> src/components/ <span class="badge badge-blue">UI</span></h4>
+        <p>Gjenbrukbare komponenter som brukes på tvers av sider.</p>
+        <div class="files">
+          <code>layout/header.tsx</code>
+          <code>layout/footer.tsx</code>
+          <code>ui/button.tsx</code>
+          <code>forms/contact-form.tsx</code>
+          <code>sections/hero.tsx</code>
+        </div>
+      </div>
+
+      <!-- src/actions -->
+      <div class="folder-card important">
+        <h4><span class="icon">⚡</span> src/actions/ <span class="badge badge-purple">BACKEND</span></h4>
+        <p>Server Actions - all backend-logikk. Kjorer pa serveren.</p>
+        <div class="files">
+          <code class="highlight">contact.ts → Skjema</code>
+          <code class="highlight">auth.ts → Innlogging</code>
+          <code>content.ts → Hent data</code>
+          <code>uploads.ts → Filer</code>
+        </div>
+      </div>
+
+      <!-- src/config -->
+      <div class="folder-card important">
+        <h4><span class="icon">⚙️</span> src/config/ <span class="badge badge-green">OPPSETT</span></h4>
+        <p>Konfigurasjonsfiler. Endre for hver kunde.</p>
+        <div class="files">
+          <code class="highlight">site-config.ts → Kundeinfo</code>
+          <code class="highlight">supabase-config.ts → Database</code>
+        </div>
+      </div>
+
+      <!-- src/interfaces -->
+      <div class="folder-card">
+        <h4><span class="icon">📝</span> src/interfaces/</h4>
+        <p>TypeScript-typer for bedre autofullføring.</p>
+        <div class="files">
+          <code>index.ts → IUser, IContent...</code>
+        </div>
+      </div>
+
+      <!-- src/lib -->
+      <div class="folder-card">
+        <h4><span class="icon">🔧</span> src/lib/</h4>
+        <p>Hjelpefunksjoner som brukes overalt.</p>
+        <div class="files">
+          <code>utils.ts → cn(), formatDate()</code>
+        </div>
+      </div>
+
+      <!-- src/store -->
+      <div class="folder-card">
+        <h4><span class="icon">📦</span> src/store/</h4>
+        <p>Global state med Zustand.</p>
+        <div class="files">
+          <code>users-store.ts → Brukerdata</code>
+        </div>
+      </div>
+
+      <!-- public -->
+      <div class="folder-card">
+        <h4><span class="icon">🖼️</span> public/</h4>
+        <p>Statiske filer - bilder, ikoner, fonts.</p>
+        <div class="files">
+          <code>images/logo.svg</code>
+          <code>images/hero.jpg</code>
+          <code>favicon.ico</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="tip-box">
+      <strong>💡 Tips:</strong> Filnavnet <code>page.tsx</code> er spesielt i Next.js - det blir automatisk en side. Mappenavnet blir URL-en.
+    </div>
+
+    <!-- VIKTIGE ROTFILER -->
+    <h2>Viktige filer i rotmappen</h2>
+
+    <table>
+      <tr>
+        <th>Fil</th>
+        <th>Hva den gjor</th>
+        <th>Endre?</th>
+      </tr>
+      <tr>
+        <td><code>.env.local</code></td>
+        <td>Hemmelige nokler (Supabase, JWT)</td>
+        <td>✅ Alltid</td>
+      </tr>
+      <tr>
+        <td><code>proxy.ts</code></td>
+        <td>Beskytter admin-sider (Next.js 16+)</td>
+        <td>⚠️ Sjelden</td>
+      </tr>
+      <tr>
+        <td><code>next.config.ts</code></td>
+        <td>Next.js-innstillinger</td>
+        <td>⚠️ Sjelden</td>
+      </tr>
+      <tr>
+        <td><code>tailwind.config.ts</code></td>
+        <td>Farger og fonts</td>
+        <td>✅ For branding</td>
+      </tr>
+      <tr>
+        <td><code>package.json</code></td>
+        <td>Avhengigheter</td>
+        <td>❌ Automatisk</td>
+      </tr>
+    </table>
+
+    <!-- STEG 3: OPPRETT FILER -->
+    <h2>Steg 3: Opprett kjernefiler</h2>
+    <p class="section-desc">
+      Kopier disse filene inn i prosjektet. Start med de markert som <span class="badge badge-green">VIKTIG</span>.
+    </p>
+
+    <h3>3.1 Kundekonfigurasjon <span class="badge badge-green">VIKTIG</span></h3>
+    <p class="section-desc">
+      <strong>Hva:</strong> All kundeinfo pa ett sted. Endre kun denne filen for ny kunde.<br>
+      <strong>Hvor:</strong> <code>src/config/site-config.ts</code>
+    </p>
+
+    <pre><code>// src/config/site-config.ts
+export const siteConfig = {
+  // 👤 Bedriftsinformasjon
+  name: "Kundenavn AS",
+  description: "Kort beskrivelse for Google-sok",
+  url: "https://kundenavn.no",
+
+  // 📞 Kontaktinfo
+  contact: {
+    email: "post@kundenavn.no",
+    phone: "+47 123 45 678",
+    address: "Gateadresse 1, 0000 Oslo",
+  },
+
+  // 🔗 Sosiale medier (sett tom streng hvis ikke brukes)
+  social: {
+    facebook: "https://facebook.com/kundenavn",
+    instagram: "https://instagram.com/kundenavn",
+    linkedin: "",
+  },
+
+  // 📍 Navigasjon - legg til/fjern sider her
+  navigation: [
+    { name: "Hjem", href: "/" },
+    { name: "Tjenester", href: "/tjenester" },
+    { name: "Om oss", href: "/om-oss" },
+    { name: "Kontakt", href: "/kontakt" },
+  ],
+
+  // 🎨 Farger (Tailwind-klassenavn uten "bg-" eller "text-")
+  colors: {
+    primary: "blue-600",
+    primaryHover: "blue-700",
+    accent: "emerald-500",
+  },
+}</code></pre>
+
+    <h3>3.2 Miljøvariabler <span class="badge badge-green">VIKTIG</span></h3>
+    <p class="section-desc">
+      <strong>Hva:</strong> Hemmelige nokler. Aldri del eller commit til git!<br>
+      <strong>Hvor:</strong> <code>.env.local</code> (i rotmappen)
+    </p>
+
+    <pre><code># .env.local - ALDRI COMMIT DENNE FILEN!
+
+# Supabase (hent fra supabase.com > Settings > API)
+SUPABASE_PROJECT_URL=https://abc123.supabase.co
+SUPABASE_API_KEY=eyJhbGciOiJIUzI1NiIs...
+
+# JWT Secret (lag en tilfeldig streng pa 32+ tegn)
+JWT_SECRET=min-hemmelige-nokkel-som-er-lang-nok-123</code></pre>
+
+    <h3>3.3 Supabase-tilkobling <span class="badge badge-green">VIKTIG</span></h3>
+    <p class="section-desc">
+      <strong>Hva:</strong> Kobler til databasen.<br>
+      <strong>Hvor:</strong> <code>src/config/supabase-config.ts</code>
+    </p>
+
+    <pre><code>// src/config/supabase-config.ts
+import { createClient } from "@supabase/supabase-js"
+
+const supabaseUrl = process.env.SUPABASE_PROJECT_URL!
+const supabaseKey = process.env.SUPABASE_API_KEY!
+
+export const supabase = createClient(supabaseUrl, supabaseKey)</code></pre>
+
+    <h3>3.4 Utils - hjelpefunksjoner</h3>
+    <p class="section-desc">
+      <strong>Hva:</strong> Nyttige funksjoner som brukes overalt.<br>
+      <strong>Hvor:</strong> <code>src/lib/utils.ts</code>
+    </p>
+
+    <pre><code>// src/lib/utils.ts
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+// Kombiner Tailwind-klasser smart (unngår konflikter)
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+
+// Formater dato til norsk format: "15. januar 2024"
+export function formatDate(date: string | Date): string {
+  return new Date(date).toLocaleDateString("nb-NO", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  })
+}
+
+// Lag URL-vennlig slug: "Min Tittel" → "min-tittel"
+export function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/[æ]/g, "ae")
+    .replace(/[ø]/g, "o")
+    .replace(/[å]/g, "a")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "")
+}</code></pre>
+
+    <h3>3.5 TypeScript-typer</h3>
+    <p class="section-desc">
+      <strong>Hva:</strong> Definerer datastrukturer for bedre autofullføring i VS Code.<br>
+      <strong>Hvor:</strong> <code>src/interfaces/index.ts</code>
+    </p>
+
+    <pre><code>// src/interfaces/index.ts
+
+// Bruker (for innlogging/admin)
+export interface IUser {
+  id: number
+  name: string
+  email: string
+  role: "admin" | "editor" | "user"
+  created_at: string
+}
+
+// Kontaktskjema-melding
+export interface IContactMessage {
+  id: number
+  name: string
+  email: string
+  phone?: string
+  message: string
+  is_read: boolean
+  created_at: string
+}
+
+// Generisk innhold (tjenester, artikler, etc.)
+export interface IContent {
+  id: number
+  type: "service" | "project" | "article"
+  title: string
+  slug: string
+  description?: string
+  image_url?: string
+  is_active: boolean
+  sort_order: number
+  created_at: string
+}
+
+// API-respons (alle server actions returnerer dette)
+export interface IApiResponse&lt;T = unknown&gt; {
+  success: boolean
+  message?: string
+  data?: T
+}</code></pre>
+
+    <h3>3.6 Proxy - rutebeskyttelse (Next.js 16+)</h3>
+    <p class="section-desc">
+      <strong>Hva:</strong> Beskytter /admin-sider. Sender til /login hvis ikke innlogget.<br>
+      <strong>Hvor:</strong> <code>src/proxy.ts</code>
+    </p>
+
+    <pre><code>// src/proxy.ts (Next.js 16+)
+import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
+
+export default function proxy(request: NextRequest) {
+  const token = request.cookies.get("token")?.value
+  const path = request.nextUrl.pathname
+
+  // Beskytt alle /admin-ruter
+  if (path.startsWith("/admin") && !token) {
+    return NextResponse.redirect(new URL("/login", request.url))
+  }
+
+  // Hvis innlogget, ikke vis login-siden
+  if (path === "/login" && token) {
+    return NextResponse.redirect(new URL("/admin", request.url))
+  }
+
+  return NextResponse.next()
+}
+
+export const config = {
+  matcher: ["/admin/:path*", "/login"],
+}</code></pre>
+
+    <!-- FLYT-DIAGRAM -->
+    <h2>Hvordan filene henger sammen</h2>
+    <p class="section-desc">
+      Slik flyter data gjennom applikasjonen:
+    </p>
+
+    <div class="info-box">
+      <strong>Bruker besøker /kontakt:</strong><br><br>
+      1. <code>layout.tsx</code> → Laster Header + Footer<br>
+      2. <code>kontakt/page.tsx</code> → Viser kontaktside<br>
+      3. <code>contact-form.tsx</code> → Viser skjemaet<br>
+      4. Bruker sender → <code>actions/contact.ts</code><br>
+      5. Server Action → Lagrer i <strong>Supabase</strong><br>
+      6. Respons → Toast-melding til bruker
+    </div>
+
+    <!-- SJEKKLISTE -->
+    <h2>Sjekkliste: Nytt prosjekt</h2>
+
+    <div class="success-box">
+      <h4>Før du starter koding:</h4>
+      <ul>
+        <li>☐ <code>npx create-next-app</code> kjørt</li>
+        <li>☐ Alle npm-pakker installert</li>
+        <li>☐ Mapper opprettet</li>
+        <li>☐ <code>.env.local</code> opprettet med Supabase-nokler</li>
+        <li>☐ <code>site-config.ts</code> tilpasset kunden</li>
+        <li>☐ <code>supabase-config.ts</code> opprettet</li>
+      </ul>
+
+      <h4>Før du leverer:</h4>
+      <ul>
+        <li>☐ Testet pa mobil (Chrome DevTools)</li>
+        <li>☐ Kontaktskjema fungerer</li>
+        <li>☐ Admin-innlogging fungerer</li>
+        <li>☐ Alle lenker virker</li>
+        <li>☐ Bilder optimalisert</li>
+      </ul>
+    </div>
+
+    <!-- NESTE STEG -->
+    <div class="info-box">
+      <strong>Neste steg:</strong> Ga til <a href="prosjektmaler.html">Prosjektmaler</a> for komplette maler for ulike nettsidetyper (treningssenter, restaurant, bestilling, etc.)
+    </div>
+
+    <div class="footer">
+      <p>
+        <a href="index.html">← Hurtigstart</a> |
+        <a href="prosjektmaler.html">Prosjektmaler →</a> |
+        <a href="cms-guide.html">CMS-guide →</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

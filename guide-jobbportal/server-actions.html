@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>06. Server Actions - Next.js Guide</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="../05-autentisering/index.html">Autentisering</a>
+    <a href="index.html"><strong>Server Actions</strong></a>
+    <a href="../07-styling/index.html">Styling</a>
+  </nav>
+
+  <div class="container">
+    <h1>06. Server Actions</h1>
+
+    <blockquote>
+      <p>Backend-logikk som kjører på serveren - trygt og effektivt.</p>
+    </blockquote>
+
+    <h2>Hva er Server Actions?</h2>
+    <p>Server Actions er funksjoner som:</p>
+    <ul>
+      <li>Kjører på <strong>serveren</strong> (ikke i nettleseren)</li>
+      <li>Kan kalle database direkte</li>
+      <li>Kan håndtere sensitiv logikk</li>
+      <li>Kalles fra klient-komponenter</li>
+    </ul>
+
+    <h2>Grunnleggende struktur</h2>
+    <pre><code>// src/actions/example.ts
+"use server"  // PÅKREVD
+
+import supabase from "@/config/supabase-config"
+
+export async function myAction(data: SomeType) {
+  try {
+    // 1. Valider input
+    // 2. Utfør database-operasjon
+    // 3. Returner resultat
+
+    return {
+      success: true,
+      message: "Suksess!",
+      data: result,
+    }
+  } catch (error: any) {
+    return {
+      success: false,
+      message: error.message || "Noe gikk galt",
+    }
+  }
+}</code></pre>
+
+    <h2>CRUD-eksempel: Produkter</h2>
+
+    <h3>Create</h3>
+    <pre><code>export async function createProduct(payload: {
+  name: string
+  price: number
+  description?: string
+}) {
+  try {
+    const { error } = await supabase.from("products").insert(payload)
+
+    if (error) throw error
+
+    return { success: true, message: "Produkt opprettet!" }
+  } catch (error: any) {
+    return { success: false, message: error.message }
+  }
+}</code></pre>
+
+    <h3>Read (alle)</h3>
+    <pre><code>export async function getProducts(filters?: {
+  category?: string
+  minPrice?: number
+  maxPrice?: number
+}) {
+  try {
+    let query = supabase
+      .from("products")
+      .select("*")
+      .order("created_at", { ascending: false })
+
+    if (filters?.category) {
+      query = query.eq("category", filters.category)
+    }
+    if (filters?.minPrice) {
+      query = query.gte("price", filters.minPrice)
+    }
+    if (filters?.maxPrice) {
+      query = query.lte("price", filters.maxPrice)
+    }
+
+    const { data, error } = await query
+
+    if (error) throw error
+
+    return { success: true, data: data || [] }
+  } catch (error: any) {
+    return { success: false, message: error.message, data: [] }
+  }
+}</code></pre>
+
+    <h3>Read (én)</h3>
+    <pre><code>export async function getProductById(id: number) {
+  try {
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("id", id)
+      .single()
+
+    if (error) throw error
+
+    return { success: true, data }
+  } catch (error: any) {
+    return { success: false, message: error.message }
+  }
+}</code></pre>
+
+    <h3>Update</h3>
+    <pre><code>export async function updateProduct(id: number, payload: {
+  name?: string
+  price?: number
+  description?: string
+}) {
+  try {
+    const { error } = await supabase
+      .from("products")
+      .update(payload)
+      .eq("id", id)
+
+    if (error) throw error
+
+    return { success: true, message: "Produkt oppdatert!" }
+  } catch (error: any) {
+    return { success: false, message: error.message }
+  }
+}</code></pre>
+
+    <h3>Delete</h3>
+    <pre><code>export async function deleteProduct(id: number) {
+  try {
+    const { error } = await supabase
+      .from("products")
+      .delete()
+      .eq("id", id)
+
+    if (error) throw error
+
+    return { success: true, message: "Produkt slettet!" }
+  } catch (error: any) {
+    return { success: false, message: error.message }
+  }
+}</code></pre>
+
+    <h2>Bruk i komponenter</h2>
+
+    <h3>I klient-komponent</h3>
+    <pre><code>"use client"
+
+import { useState } from "react"
+import { createProduct } from "@/actions/products"
+import toast from "react-hot-toast"
+
+export default function ProductForm() {
+  const [loading, setLoading] = useState(false)
+
+  const handleSubmit = async (data: ProductData) => {
+    setLoading(true)
+    try {
+      const response = await createProduct(data)
+
+      if (response.success) {
+        toast.success(response.message)
+      } else {
+        toast.error(response.message)
+      }
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    &lt;form onSubmit={...}&gt;
+      {/* skjemafelt */}
+    &lt;/form&gt;
+  )
+}</code></pre>
+
+    <h3>I server-komponent</h3>
+    <pre><code>// Ingen "use client" - dette er en server component
+import { getProducts } from "@/actions/products"
+
+export default async function ProductsPage() {
+  const { data: products } = await getProducts()
+
+  return (
+    &lt;div&gt;
+      {products.map((product) => (
+        &lt;ProductCard key={product.id} product={product} /&gt;
+      ))}
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h2>Filopplasting</h2>
+    <pre><code>// src/actions/uploads.ts
+"use server"
+
+import supabase from "@/config/supabase-config"
+
+export async function uploadFile(formData: FormData) {
+  try {
+    const file = formData.get("file") as File
+
+    if (!file) {
+      return { success: false, message: "Ingen fil valgt" }
+    }
+
+    const fileName = `${Date.now()}-${file.name.replace(/\s/g, "_")}`
+    const filePath = `uploads/${fileName}`
+
+    const arrayBuffer = await file.arrayBuffer()
+    const buffer = new Uint8Array(arrayBuffer)
+
+    const { error } = await supabase.storage
+      .from("default")
+      .upload(filePath, buffer, { contentType: file.type })
+
+    if (error) throw error
+
+    const { data: urlData } = supabase.storage
+      .from("default")
+      .getPublicUrl(filePath)
+
+    return {
+      success: true,
+      url: urlData.publicUrl,
+      message: "Fil lastet opp!",
+    }
+  } catch (error: any) {
+    return { success: false, message: error.message }
+  }
+}</code></pre>
+
+    <h2>Beste praksis</h2>
+    <div class="info-box">
+      <ul>
+        <li><strong>Alltid returner konsistent format:</strong> <code>{ success, message?, data? }</code></li>
+        <li><strong>Alltid try-catch:</strong> Fang og logg feil</li>
+        <li><strong>Valider input:</strong> Bruk Zod for validering</li>
+        <li><strong>Ikke eksponer sensitiv info:</strong> Fjern passord fra returdata</li>
+      </ul>
+    </div>
+
+    <h2>Input-validering med Zod</h2>
+    <pre><code>import { z } from "zod"
+
+const productSchema = z.object({
+  name: z.string().min(2, "Navn må være minst 2 tegn"),
+  price: z.number().min(0, "Pris må være positiv"),
+  description: z.string().optional(),
+})
+
+export async function createProduct(payload: unknown) {
+  const validation = productSchema.safeParse(payload)
+
+  if (!validation.success) {
+    return {
+      success: false,
+      message: validation.error.errors[0].message,
+    }
+  }
+
+  // Bruk validation.data trygt
+  const { data, error } = await supabase
+    .from("products")
+    .insert(validation.data)
+
+  // ...
+}</code></pre>
+
+    <div class="footer">
+      <p><a href="../05-autentisering/index.html">← Forrige</a> | <a href="../07-styling/index.html">Neste: Styling →</a></p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

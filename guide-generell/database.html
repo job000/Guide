@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>04. Database - Next.js Guide</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="../03-komponenter/index.html">Komponenter</a>
+    <a href="index.html"><strong>Database</strong></a>
+    <a href="../05-autentisering/index.html">Autentisering</a>
+  </nav>
+
+  <div class="container">
+    <h1>04. Database med Supabase</h1>
+
+    <blockquote>
+      <p>Komplett guide for databaseoppsett og operasjoner med Supabase - fra opprettelse av konto til avanserte spørringer.</p>
+    </blockquote>
+
+    <h2>Hva er Supabase?</h2>
+    <p class="section-desc">
+      <strong>Supabase</strong> er en åpen kildekode-plattform som gir deg en PostgreSQL-database, autentisering, fillagring og real-time abonnementer - alt i én tjeneste. Tenk på det som "Firebase for SQL-utviklere".
+    </p>
+
+    <h2>Del 1: Sette opp Supabase</h2>
+    <p class="section-desc">
+      Følg disse stegene for å opprette din første Supabase-database. Det tar ca. 5 minutter.
+    </p>
+
+    <div class="step">
+      <div class="step-number">1</div>
+      <div class="step-content">
+        <h4>Opprett konto</h4>
+        <p>Gå til <a href="https://supabase.com" target="_blank">supabase.com</a> og klikk "Start your project". Logg inn med GitHub (anbefalt) eller e-post.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-number">2</div>
+      <div class="step-content">
+        <h4>Opprett nytt prosjekt</h4>
+        <p>Klikk "New Project", velg en organisasjon, og fyll inn:</p>
+        <ul>
+          <li><strong>Name:</strong> mitt-prosjekt (valgfritt navn)</li>
+          <li><strong>Database Password:</strong> Lag et sterkt passord (lagre dette!)</li>
+          <li><strong>Region:</strong> Velg nærmeste region (f.eks. Frankfurt for Norge)</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-number">3</div>
+      <div class="step-content">
+        <h4>Hent API-nøkler</h4>
+        <p>Når prosjektet er klart (ca. 2 min), gå til <strong>Settings → API</strong>. Der finner du:</p>
+        <ul>
+          <li><strong>Project URL:</strong> <code>https://xxxxx.supabase.co</code></li>
+          <li><strong>anon/public key:</strong> En lang nøkkel som starter med <code>eyJ...</code></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-number">4</div>
+      <div class="step-content">
+        <h4>Legg til i prosjektet</h4>
+        <p>Opprett <code>.env.local</code> i rotmappen av Next.js-prosjektet:</p>
+      </div>
+    </div>
+
+    <pre><code># .env.local
+SUPABASE_PROJECT_URL=https://din-prosjekt-id.supabase.co
+SUPABASE_API_KEY=din-anon-key-her
+
+# For autentisering (sett selv)
+JWT_SECRET=minimum-32-tegn-lang-hemmelig-nøkkel</code></pre>
+
+    <div class="warning-box">
+      <strong>Viktig!</strong> Aldri del API-nøklene dine offentlig. Legg til <code>.env.local</code> i <code>.gitignore</code>.
+    </div>
+
+    <h2>Del 2: Supabase-klient i Next.js</h2>
+    <p class="section-desc">
+      Opprett en <strong>konfigurasjonsfil</strong> som kobler Next.js til Supabase. Denne brukes i alle server actions.
+    </p>
+
+    <pre><code>// src/config/supabase-config.ts
+import { createClient } from "@supabase/supabase-js"
+
+const supabaseUrl = process.env.SUPABASE_PROJECT_URL!
+const supabaseKey = process.env.SUPABASE_API_KEY!
+
+// Valider at miljøvariabler er satt
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error("Supabase-konfigurasjon mangler. Sjekk .env.local")
+}
+
+const supabase = createClient(supabaseUrl, supabaseKey)
+
+export default supabase</code></pre>
+
+    <h2>Del 3: Opprette tabeller i Supabase</h2>
+    <p class="section-desc">
+      Du kan opprette tabeller via <strong>SQL Editor</strong> i Supabase Dashboard, eller via Table Editor (GUI). SQL er raskere og mer presist.
+    </p>
+
+    <h3>Åpne SQL Editor</h3>
+    <p>I Supabase Dashboard: <strong>SQL Editor → New Query</strong>. Lim inn SQL-koden og klikk "Run".</p>
+
+    <h3>Users-tabell (Brukere)</h3>
+    <p class="section-desc">
+      Grunnleggende brukertabell for autentisering. Inneholder navn, e-post, hashet passord og rolle.
+    </p>
+
+    <pre><code>-- Bruker-tabell for autentisering
+-- Kjør dette i Supabase SQL Editor
+
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password VARCHAR(255) NOT NULL,
+  role VARCHAR(50) DEFAULT 'user',
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Indeks for raskere e-post-oppslag
+CREATE INDEX idx_users_email ON users(email);
+
+-- Aktiver Row Level Security
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Tillat alle operasjoner (for utvikling)
+CREATE POLICY "Allow all operations on users"
+  ON users FOR ALL
+  USING (true);</code></pre>
+
+    <h3>Kontaktskjema-tabell</h3>
+    <p class="section-desc">
+      De fleste nettsider trenger et kontaktskjema. Denne tabellen lagrer alle henvendelser.
+    </p>
+
+    <pre><code>-- Kontaktskjema-meldinger
+CREATE TABLE contact_messages (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL,
+  phone VARCHAR(50),
+  subject VARCHAR(255),
+  message TEXT NOT NULL,
+  is_read BOOLEAN DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Indeks for sortering
+CREATE INDEX idx_contact_created ON contact_messages(created_at DESC);
+CREATE INDEX idx_contact_read ON contact_messages(is_read);
+
+-- RLS
+ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow all operations on contact_messages"
+  ON contact_messages FOR ALL
+  USING (true);</code></pre>
+
+    <h3>Innhold/Tjenester-tabell</h3>
+    <p class="section-desc">
+      Generisk tabell for innhold som kan redigeres - tjenester, prosjekter, artikler, etc.
+    </p>
+
+    <pre><code>-- Generisk innholdstabell (tjenester, artikler, prosjekter)
+CREATE TABLE content (
+  id SERIAL PRIMARY KEY,
+  type VARCHAR(100) NOT NULL,        -- 'service', 'project', 'article', etc.
+  title VARCHAR(255) NOT NULL,
+  slug VARCHAR(255) UNIQUE,          -- URL-vennlig versjon av tittel
+  description TEXT,
+  content TEXT,                      -- Rikt innhold (HTML/Markdown)
+  image_url VARCHAR(500),
+  price DECIMAL(10, 2),              -- Valgfritt for tjenester
+  is_featured BOOLEAN DEFAULT false,
+  is_active BOOLEAN DEFAULT true,
+  sort_order INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Indekser
+CREATE INDEX idx_content_type ON content(type);
+CREATE INDEX idx_content_active ON content(is_active);
+CREATE INDEX idx_content_featured ON content(is_featured);
+CREATE INDEX idx_content_slug ON content(slug);
+
+-- RLS
+ALTER TABLE content ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow all operations on content"
+  ON content FOR ALL
+  USING (true);</code></pre>
+
+    <h3>Generisk produkttabell (Mal)</h3>
+    <p class="section-desc">
+      En gjenbrukbar mal for produkter, varer eller andre enheter med navn, pris og kategori.
+    </p>
+
+    <pre><code>-- Generisk produkt/item-tabell (gjenbrukbar mal)
+CREATE TABLE products (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  description TEXT,
+  price DECIMAL(10, 2) NOT NULL DEFAULT 0,
+  category VARCHAR(100),
+  image_url VARCHAR(500),
+  is_active BOOLEAN DEFAULT true,
+  stock INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Indekser
+CREATE INDEX idx_products_category ON products(category);
+CREATE INDEX idx_products_active ON products(is_active);
+CREATE INDEX idx_products_price ON products(price);
+
+-- RLS
+ALTER TABLE products ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow all operations on products"
+  ON products FOR ALL
+  USING (true);</code></pre>
+
+    <h2>Del 4: CRUD-operasjoner</h2>
+    <p class="section-desc">
+      <strong>CRUD</strong> = Create, Read, Update, Delete. De fire grunnleggende databaseoperasjonene.
+    </p>
+
+    <h3>CREATE (Opprett ny rad)</h3>
+    <p class="section-desc">
+      Bruk <code>.insert()</code> for å legge til nye rader. Returner data med <code>.select()</code>.
+    </p>
+
+    <pre><code>// Opprett én rad og få tilbake resultatet
+const { data, error } = await supabase
+  .from("users")
+  .insert({
+    name: "Ola Nordmann",
+    email: "ola@example.com",
+    password: hashedPassword,  // Alltid hash passord!
+    role: "user"
+  })
+  .select()
+  .single()
+
+// Opprett flere rader samtidig
+const { data, error } = await supabase
+  .from("products")
+  .insert([
+    { name: "Produkt A", price: 199 },
+    { name: "Produkt B", price: 299 },
+    { name: "Produkt C", price: 399 }
+  ])</code></pre>
+
+    <h3>READ (Hent data)</h3>
+    <p class="section-desc">
+      Bruk <code>.select()</code> for å hente data. Legg til filtre og sortering etter behov.
+    </p>
+
+    <pre><code>// Hent alle rader
+const { data, error } = await supabase
+  .from("jobs")
+  .select("*")
+
+// Hent med filter og sortering
+const { data, error } = await supabase
+  .from("jobs")
+  .select("*")
+  .eq("status", "open")
+  .order("created_at", { ascending: false })
+
+// Hent én spesifikk rad
+const { data, error } = await supabase
+  .from("jobs")
+  .select("*")
+  .eq("id", jobId)
+  .single()
+
+// Hent med relasjon (JOIN)
+const { data, error } = await supabase
+  .from("jobs")
+  .select(`
+    *,
+    user:users(name, email)
+  `)
+  .eq("id", jobId)
+  .single()</code></pre>
+
+    <h3>UPDATE (Oppdater rad)</h3>
+    <p class="section-desc">
+      Bruk <code>.update()</code> med <code>.eq()</code> for å oppdatere spesifikke rader.
+    </p>
+
+    <pre><code>// Oppdater én rad
+const { data, error } = await supabase
+  .from("jobs")
+  .update({
+    status: "closed",
+    updated_at: new Date().toISOString()
+  })
+  .eq("id", jobId)
+
+// Oppdater flere felt
+const { data, error } = await supabase
+  .from("users")
+  .update({
+    name: "Nytt Navn",
+    role: "admin"
+  })
+  .eq("id", userId)</code></pre>
+
+    <h3>DELETE (Slett rad)</h3>
+    <p class="section-desc">
+      Bruk <code>.delete()</code> med filter. <strong>Viktig:</strong> Alltid bruk <code>.eq()</code> for å unngå å slette alt!
+    </p>
+
+    <pre><code>// Slett én rad
+const { error } = await supabase
+  .from("jobs")
+  .delete()
+  .eq("id", jobId)
+
+// Slett flere rader med filter
+const { error } = await supabase
+  .from("applications")
+  .delete()
+  .eq("status", "rejected")
+  .lt("created_at", "2024-01-01")</code></pre>
+
+    <h2>Del 5: Filtrering og søk</h2>
+    <p class="section-desc">
+      Supabase støtter mange filtreringsmetoder. Her er de mest brukte.
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Metode</th>
+          <th>Beskrivelse</th>
+          <th>Eksempel</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>.eq()</code></td>
+          <td>Lik (equal)</td>
+          <td><code>.eq("status", "open")</code></td>
+        </tr>
+        <tr>
+          <td><code>.neq()</code></td>
+          <td>Ikke lik (not equal)</td>
+          <td><code>.neq("status", "closed")</code></td>
+        </tr>
+        <tr>
+          <td><code>.gt()</code></td>
+          <td>Større enn (greater than)</td>
+          <td><code>.gt("price", 100)</code></td>
+        </tr>
+        <tr>
+          <td><code>.gte()</code></td>
+          <td>Større eller lik</td>
+          <td><code>.gte("price", 100)</code></td>
+        </tr>
+        <tr>
+          <td><code>.lt()</code></td>
+          <td>Mindre enn (less than)</td>
+          <td><code>.lt("price", 500)</code></td>
+        </tr>
+        <tr>
+          <td><code>.lte()</code></td>
+          <td>Mindre eller lik</td>
+          <td><code>.lte("price", 500)</code></td>
+        </tr>
+        <tr>
+          <td><code>.ilike()</code></td>
+          <td>Tekstsøk (case-insensitive)</td>
+          <td><code>.ilike("title", "%developer%")</code></td>
+        </tr>
+        <tr>
+          <td><code>.in()</code></td>
+          <td>I liste av verdier</td>
+          <td><code>.in("status", ["open", "paused"])</code></td>
+        </tr>
+        <tr>
+          <td><code>.is()</code></td>
+          <td>Er null/true/false</td>
+          <td><code>.is("deleted_at", null)</code></td>
+        </tr>
+        <tr>
+          <td><code>.order()</code></td>
+          <td>Sortering</td>
+          <td><code>.order("created_at", { ascending: false })</code></td>
+        </tr>
+        <tr>
+          <td><code>.limit()</code></td>
+          <td>Begrens antall</td>
+          <td><code>.limit(10)</code></td>
+        </tr>
+        <tr>
+          <td><code>.range()</code></td>
+          <td>Paginering</td>
+          <td><code>.range(0, 9)</code> (første 10)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Avansert filtereksempel</h3>
+    <p class="section-desc">
+      Kombiner flere filtre for komplekse søk. Alle filtre er AND-betingelser.
+    </p>
+
+    <pre><code>// Søk etter aktive tjenester med pris under 1000kr
+const { data, error } = await supabase
+  .from("content")
+  .select("*")
+  .eq("type", "service")
+  .eq("is_active", true)
+  .lte("price", 1000)
+  .order("sort_order", { ascending: true })
+  .limit(20)
+
+// Søk etter produkter i en kategori
+const { data, error } = await supabase
+  .from("products")
+  .select("*")
+  .eq("is_active", true)
+  .ilike("category", "%elektronikk%")
+  .gte("price", 100)
+  .lte("price", 500)
+  .order("created_at", { ascending: false })</code></pre>
+
+    <h2>Del 6: Fillagring (Storage)</h2>
+    <p class="section-desc">
+      Supabase Storage lar deg lagre filer som bilder, PDF-er og dokumenter. Opprett først en "bucket" i Dashboard.
+    </p>
+
+    <h3>Oppsett av Storage Bucket</h3>
+    <p>I Supabase Dashboard: <strong>Storage → New Bucket</strong>. Velg navn (f.eks. "uploads") og sett til "Public" for offentlig tilgang.</p>
+
+    <h3>Last opp fil</h3>
+    <pre><code>// Server Action for filopplasting
+export async function uploadFile(formData: FormData) {
+  try {
+    const file = formData.get("file") as File
+
+    if (!file) {
+      return { success: false, message: "Ingen fil valgt" }
+    }
+
+    // Lag unikt filnavn
+    const fileName = `${Date.now()}-${file.name.replace(/\s/g, "_")}`
+    const filePath = `uploads/${fileName}`
+
+    // Konverter fil til buffer
+    const arrayBuffer = await file.arrayBuffer()
+    const buffer = new Uint8Array(arrayBuffer)
+
+    // Last opp til Supabase Storage
+    const { error } = await supabase.storage
+      .from("uploads")  // Bucket-navn
+      .upload(filePath, buffer, {
+        contentType: file.type
+      })
+
+    if (error) throw error
+
+    // Hent public URL
+    const { data: urlData } = supabase.storage
+      .from("uploads")
+      .getPublicUrl(filePath)
+
+    return {
+      success: true,
+      url: urlData.publicUrl,
+      message: "Fil lastet opp!"
+    }
+  } catch (error: any) {
+    return { success: false, message: error.message }
+  }
+}</code></pre>
+
+    <h3>Slett fil</h3>
+    <pre><code>// Slett én fil
+const { error } = await supabase.storage
+  .from("uploads")
+  .remove(["uploads/filnavn.pdf"])
+
+// Slett flere filer
+const { error } = await supabase.storage
+  .from("uploads")
+  .remove([
+    "uploads/fil1.pdf",
+    "uploads/fil2.jpg"
+  ])</code></pre>
+
+    <h2>Del 7: Server Action-mønster</h2>
+    <p class="section-desc">
+      Beste praksis er å wrappe alle databasekall i <strong>Server Actions</strong> med try-catch og konsistent returformat.
+    </p>
+
+    <h3>Kontaktskjema Server Action</h3>
+    <p class="section-desc">
+      Den vanligste server action - lagrer kontaktskjema-meldinger.
+    </p>
+
+    <pre><code>// src/actions/contact.ts
+"use server"
+
+import supabase from "@/config/supabase-config"
+
+// Lagre kontaktskjema-melding
+export async function submitContact(payload: {
+  name: string
+  email: string
+  phone?: string
+  subject?: string
+  message: string
+}) {
+  try {
+    const { error } = await supabase
+      .from("contact_messages")
+      .insert(payload)
+
+    if (error) throw error
+
+    return { success: true, message: "Takk! Vi kontakter deg snart." }
+  } catch (error: any) {
+    console.error("submitContact error:", error)
+    return { success: false, message: "Noe gikk galt. Prøv igjen." }
+  }
+}
+
+// Hent alle meldinger (for admin)
+export async function getMessages(onlyUnread: boolean = false) {
+  try {
+    let query = supabase
+      .from("contact_messages")
+      .select("*")
+      .order("created_at", { ascending: false })
+
+    if (onlyUnread) {
+      query = query.eq("is_read", false)
+    }
+
+    const { data, error } = await query
+
+    if (error) throw error
+
+    return { success: true, data: data || [] }
+  } catch (error: any) {
+    return { success: false, message: error.message, data: [] }
+  }
+}
+
+// Marker melding som lest
+export async function markAsRead(id: number) {
+  try {
+    const { error } = await supabase
+      .from("contact_messages")
+      .update({ is_read: true })
+      .eq("id", id)
+
+    if (error) throw error
+
+    return { success: true }
+  } catch (error: any) {
+    return { success: false, message: error.message }
+  }
+}</code></pre>
+
+    <h3>Generisk Innhold Server Action</h3>
+    <p class="section-desc">
+      CRUD-operasjoner for generisk innhold (tjenester, prosjekter, artikler).
+    </p>
+
+    <pre><code>// src/actions/content.ts
+"use server"
+
+import supabase from "@/config/supabase-config"
+
+// Hent innhold etter type
+export async function getContent(type: string, onlyActive: boolean = true) {
+  try {
+    let query = supabase
+      .from("content")
+      .select("*")
+      .eq("type", type)
+      .order("sort_order", { ascending: true })
+
+    if (onlyActive) {
+      query = query.eq("is_active", true)
+    }
+
+    const { data, error } = await query
+
+    if (error) throw error
+
+    return { success: true, data: data || [] }
+  } catch (error: any) {
+    return { success: false, message: error.message, data: [] }
+  }
+}
+
+// Hent enkelt innhold via slug
+export async function getContentBySlug(slug: string) {
+  try {
+    const { data, error } = await supabase
+      .from("content")
+      .select("*")
+      .eq("slug", slug)
+      .single()
+
+    if (error) throw error
+
+    return { success: true, data }
+  } catch (error: any) {
+    return { success: false, message: error.message }
+  }
+}
+
+// Opprett nytt innhold
+export async function createContent(payload: {
+  type: string
+  title: string
+  slug?: string
+  description?: string
+  content?: string
+  image_url?: string
+  price?: number
+}) {
+  try {
+    // Generer slug fra tittel hvis ikke oppgitt
+    const slug = payload.slug || payload.title
+      .toLowerCase()
+      .replace(/\s+/g, "-")
+      .replace(/[^a-z0-9-]/g, "")
+
+    const { error } = await supabase
+      .from("content")
+      .insert({ ...payload, slug })
+
+    if (error) throw error
+
+    return { success: true, message: "Innhold opprettet!" }
+  } catch (error: any) {
+    return { success: false, message: error.message }
+  }
+}
+
+// Oppdater innhold
+export async function updateContent(
+  id: number,
+  payload: Partial<{
+    title: string
+    description: string
+    content: string
+    image_url: string
+    price: number
+    is_active: boolean
+    sort_order: number
+  }>
+) {
+  try {
+    const { error } = await supabase
+      .from("content")
+      .update({
+        ...payload,
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", id)
+
+    if (error) throw error
+
+    return { success: true, message: "Innhold oppdatert!" }
+  } catch (error: any) {
+    return { success: false, message: error.message }
+  }
+}
+
+// Slett innhold
+export async function deleteContent(id: number) {
+  try {
+    const { error } = await supabase
+      .from("content")
+      .delete()
+      .eq("id", id)
+
+    if (error) throw error
+
+    return { success: true, message: "Innhold slettet!" }
+  } catch (error: any) {
+    return { success: false, message: error.message }
+  }
+}</code></pre>
+
+    <h2>Sjekkliste for database-oppsett</h2>
+    <div class="success-box">
+      <ul>
+        <li>[ ] Supabase-konto opprettet</li>
+        <li>[ ] Nytt prosjekt opprettet</li>
+        <li>[ ] API-nøkler lagret i <code>.env.local</code></li>
+        <li>[ ] <code>supabase-config.ts</code> opprettet</li>
+        <li>[ ] Tabeller opprettet via SQL Editor</li>
+        <li>[ ] RLS aktivert på alle tabeller</li>
+        <li>[ ] Storage bucket opprettet (hvis nødvendig)</li>
+        <li>[ ] Server Actions fungerer</li>
+      </ul>
+    </div>
+
+    <div class="footer">
+      <p><a href="../03-komponenter/index.html">← Forrige</a> | <a href="../05-autentisering/index.html">Neste: Autentisering →</a></p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

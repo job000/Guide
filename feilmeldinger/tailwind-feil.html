@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tailwind CSS Feilmeldinger</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .error-card {
+      background: white;
+      border: 2px solid #fca5a5;
+      border-left: 6px solid #ef4444;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      overflow: hidden;
+    }
+    .error-card-header {
+      background: #fef2f2;
+      padding: 1rem 1.25rem;
+      border-bottom: 1px solid #fecaca;
+    }
+    .error-card-header h3 {
+      margin: 0;
+      color: #dc2626;
+      font-family: monospace;
+      font-size: 0.95rem;
+    }
+    .error-card-body {
+      padding: 1.25rem;
+    }
+    .error-card-body h4 {
+      margin: 0 0 0.5rem 0;
+      color: #1e293b;
+    }
+    .error-card-body p {
+      margin: 0 0 1rem 0;
+      color: #64748b;
+    }
+    .solution {
+      background: #f0fdf4;
+      border: 1px solid #86efac;
+      border-radius: 6px;
+      padding: 1rem;
+      margin-top: 1rem;
+    }
+    .solution h5 {
+      margin: 0 0 0.5rem 0;
+      color: #166534;
+    }
+    .category-header {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      margin: 2rem 0 1rem 0;
+    }
+    .category-header h2 {
+      margin: 0;
+    }
+    .search-box {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 2rem;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    .search-box input:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="../grunnleggende/index.html">Grunnleggende</a>
+    <a href="index.html">Feilmeldinger</a>
+    <a href="typescript-feil.html">TypeScript</a>
+    <a href="runtime-feil.html">Runtime</a>
+    <a href="nextjs-feil.html">Next.js</a>
+    <a href="supabase-feil.html">Supabase</a>
+    <a href="tailwind-feil.html"><strong>Tailwind</strong></a>
+    <a href="deploy-feil.html">Deploy</a>
+  </nav>
+
+  <div class="container">
+    <h1>Tailwind CSS Feilmeldinger</h1>
+
+    <blockquote>
+      <p>Alle vanlige Tailwind CSS problemer og styling-feil med løsninger.</p>
+    </blockquote>
+
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Søk etter problem... (f.eks. 'classes not working')" onkeyup="filterErrors()">
+    </div>
+
+    <div class="info-box">
+      <strong>Tips:</strong> Hvis Tailwind-klasser ikke fungerer, sjekk alltid at filen er inkludert i content-arrayet først.
+    </div>
+
+    <!-- CLASSES NOT APPLYING -->
+    <div class="category-header">
+      <h2>Klasser fungerer ikke</h2>
+    </div>
+
+    <div class="error-card" data-search="tailwind classes not working applying showing">
+      <div class="error-card-header">
+        <h3>Tailwind classes not applying / not showing</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Tailwind-klasser vises i HTML-en men har ingen effekt. Klassene blir "purget" bort.</p>
+        <pre><code>// PROBLEM - Klasser fungerer ikke
+&lt;div className="bg-blue-500 text-white p-4"&gt;
+  Tekst er ikke hvit, bakgrunn er ikke blå
+&lt;/div&gt;</code></pre>
+        <div class="solution">
+          <h5>Løsning 1: Sjekk tailwind.config.ts content-array</h5>
+          <pre><code>// tailwind.config.ts
+import type { Config } from "tailwindcss"
+
+const config: Config = {
+  content: [
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    // Legg til ALLE steder du bruker Tailwind-klasser
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}
+export default config</code></pre>
+          <h5>Løsning 2: Restart dev-serveren</h5>
+          <pre><code># Stopp serveren
+Ctrl+C
+
+# Start på nytt
+npm run dev</code></pre>
+          <h5>Løsning 3: Sjekk at Tailwind er importert</h5>
+          <pre><code>// src/app/globals.css (eller app/globals.css)
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// OG i src/app/layout.tsx:
+import "./globals.css"</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-card" data-search="dynamic classes conditional classes not working">
+      <div class="error-card-header">
+        <h3>Dynamic/conditional classes not working</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Klasser som bygges dynamisk (med string interpolation) fungerer ikke.</p>
+        <pre><code>// FEIL - Tailwind ser ikke dynamiske klasser
+const color = "blue"
+&lt;div className={`bg-${color}-500`}&gt;  // ← Fungerer IKKE
+  Tekst
+&lt;/div&gt;
+
+// FEIL - Conditional classes
+&lt;div className={`text-${isActive ? 'blue' : 'red'}-500`}&gt;  // ← Fungerer IKKE
+  Tekst
+&lt;/div&gt;</code></pre>
+        <div class="solution">
+          <h5>Løsning 1: Bruk hele klassenavn</h5>
+          <pre><code>// RIKTIG - Hele klassenavn må være i koden
+const bgColor = color === "blue" ? "bg-blue-500" : "bg-red-500"
+&lt;div className={bgColor}&gt;
+  Tekst
+&lt;/div&gt;
+
+// Eller inline
+&lt;div className={isActive ? "text-blue-500" : "text-red-500"}&gt;
+  Tekst
+&lt;/div&gt;</code></pre>
+          <h5>Løsning 2: Bruk clsx/cn for betinget styling</h5>
+          <pre><code>import { cn } from "@/lib/utils"  // eller clsx
+
+&lt;div className={cn(
+  "text-base font-medium",
+  isActive && "text-blue-500 font-bold",
+  isError && "text-red-500",
+  className
+)}&gt;
+  Tekst
+&lt;/div&gt;</code></pre>
+          <h5>Løsning 3: Safelist (kun hvis absolutt nødvendig)</h5>
+          <pre><code>// tailwind.config.ts
+const config: Config = {
+  content: [...],
+  safelist: [
+    'bg-blue-500',
+    'bg-red-500',
+    'bg-green-500',
+    // Disse klassene blir ALDRI purget
+  ],
+}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- PURGE/CONTENT ISSUES -->
+    <div class="category-header">
+      <h2>Purge/Content Problemer</h2>
+    </div>
+
+    <div class="error-card" data-search="classes removed purged production build">
+      <div class="error-card-header">
+        <h3>Classes removed in production build / purged</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Klasser fungerer i development (npm run dev) men ikke i production (npm run build).</p>
+        <div class="solution">
+          <h5>Løsning 1: Utvid content-array til ALLE filer</h5>
+          <pre><code>// tailwind.config.ts
+const config: Config = {
+  content: [
+    "./src/**/*.{js,ts,jsx,tsx,mdx}",  // ← Fanger ALT i src/
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",   // Hvis du bruker app/ utenfor src/
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./lib/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+}</code></pre>
+          <h5>Løsning 2: Test production build lokalt</h5>
+          <pre><code># Bygg prosjektet
+npm run build
+
+# Kjør production build
+npm run start
+
+# Sjekk om klassene fungerer
+# Hvis ikke, legg til filen i content-array</code></pre>
+          <h5>Løsning 3: Unngå klasser i eksterne filer/DB</h5>
+          <pre><code>// PROBLEM - Klasser fra database blir purged
+const data = await fetch('/api/content')
+&lt;div className={data.className}&gt;  // ← Fungerer IKKE
+
+// LØSNING - Ha en mapping i koden
+const classMap = {
+  primary: "bg-blue-500 text-white",
+  secondary: "bg-gray-500 text-white",
+}
+&lt;div className={classMap[data.theme]}&gt;</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- CUSTOM COLORS -->
+    <div class="category-header">
+      <h2>Custom Colors/Theme</h2>
+    </div>
+
+    <div class="error-card" data-search="custom colors not showing working">
+      <div class="error-card-header">
+        <h3>Custom colors not showing/working</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Egendefinerte farger i tailwind.config.ts fungerer ikke.</p>
+        <pre><code>// PROBLEM
+&lt;div className="bg-brand text-primary"&gt;
+  Fargene vises ikke
+&lt;/div&gt;</code></pre>
+        <div class="solution">
+          <h5>Løsning 1: Definer farger riktig i config</h5>
+          <pre><code>// tailwind.config.ts
+const config: Config = {
+  theme: {
+    extend: {  // ← VIKTIG: Bruk extend for å beholde default farger
+      colors: {
+        brand: {
+          50: '#f0f9ff',
+          100: '#e0f2fe',
+          500: '#0ea5e9',  // Din hovedfarge
+          900: '#0c4a6e',
+        },
+        primary: '#0ea5e9',  // Enkelt-farge
+      },
+    },
+  },
+}
+
+// Bruk:
+&lt;div className="bg-brand-500 text-primary"&gt;</code></pre>
+          <h5>Løsning 2: Bruk CSS variabler (anbefalt for dark mode)</h5>
+          <pre><code>// globals.css
+:root {
+  --brand: 14 165 233;  // RGB-verdier uten 'rgb()'
+  --primary: 14 165 233;
+}
+
+// tailwind.config.ts
+theme: {
+  extend: {
+    colors: {
+      brand: 'rgb(var(--brand) / &lt;alpha-value&gt;)',
+      primary: 'rgb(var(--primary) / &lt;alpha-value&gt;)',
+    },
+  },
+}
+
+// Bruk:
+&lt;div className="bg-brand text-primary"&gt;</code></pre>
+          <h5>Løsning 3: Restart etter config-endring</h5>
+          <pre><code>Ctrl+C
+npm run dev</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- DARK MODE -->
+    <div class="category-header">
+      <h2>Dark Mode Problemer</h2>
+    </div>
+
+    <div class="error-card" data-search="dark mode not working dark: prefix">
+      <div class="error-card-header">
+        <h3>Dark mode not working / dark: prefix not applying</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>dark:-klasser har ingen effekt når du switcher til dark mode.</p>
+        <pre><code>// PROBLEM - dark:-klasser fungerer ikke
+&lt;div className="bg-white dark:bg-black"&gt;
+  Bakgrunn endres ikke i dark mode
+&lt;/div&gt;</code></pre>
+        <div class="solution">
+          <h5>Løsning 1: Aktiver dark mode i tailwind.config.ts</h5>
+          <pre><code>// tailwind.config.ts
+const config: Config = {
+  darkMode: 'class',  // ← VIKTIG: Legg til denne linjen
+  content: [...],
+  theme: {...},
+}</code></pre>
+          <h5>Løsning 2: Legg til 'dark' class på &lt;html&gt;</h5>
+          <pre><code>// src/app/layout.tsx
+export default function RootLayout({ children }) {
+  return (
+    &lt;html lang="no" className="dark"&gt;  {/* ← 'dark' klasse */}
+      &lt;body&gt;{children}&lt;/body&gt;
+    &lt;/html&gt;
+  )
+}
+
+// Eller toggle dynamisk:
+"use client"
+import { useEffect, useState } from "react"
+
+export default function RootLayout({ children }) {
+  const [isDark, setIsDark] = useState(false)
+
+  useEffect(() => {
+    // Les fra localStorage
+    const dark = localStorage.getItem('darkMode') === 'true'
+    setIsDark(dark)
+    if (dark) {
+      document.documentElement.classList.add('dark')
+    }
+  }, [])
+
+  return (
+    &lt;html lang="no" className={isDark ? 'dark' : ''}&gt;
+      &lt;body&gt;{children}&lt;/body&gt;
+    &lt;/html&gt;
+  )
+}</code></pre>
+          <h5>Løsning 3: Bruk next-themes (anbefalt)</h5>
+          <pre><code>npm install next-themes
+
+// app/providers.tsx
+"use client"
+import { ThemeProvider } from "next-themes"
+
+export function Providers({ children }) {
+  return (
+    &lt;ThemeProvider attribute="class" defaultTheme="system"&gt;
+      {children}
+    &lt;/ThemeProvider&gt;
+  )
+}
+
+// app/layout.tsx
+import { Providers } from "./providers"
+
+export default function RootLayout({ children }) {
+  return (
+    &lt;html lang="no" suppressHydrationWarning&gt;
+      &lt;body&gt;
+        &lt;Providers&gt;{children}&lt;/Providers&gt;
+      &lt;/body&gt;
+    &lt;/html&gt;
+  )
+}
+
+// Bruk i komponenter:
+import { useTheme } from "next-themes"
+
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme()
+
+  return (
+    &lt;button onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}&gt;
+      Toggle
+    &lt;/button&gt;
+  )
+}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESPONSIVE BREAKPOINTS -->
+    <div class="category-header">
+      <h2>Responsive Breakpoints</h2>
+    </div>
+
+    <div class="error-card" data-search="responsive breakpoints not working mobile desktop md lg">
+      <div class="error-card-header">
+        <h3>Responsive breakpoints not working (sm:, md:, lg:)</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Responsive klasser (sm:, md:, lg:) har ikke effekt ved ulike skjermstørrelser.</p>
+        <pre><code>// PROBLEM
+&lt;div className="text-sm md:text-lg"&gt;
+  Tekststørrelse endres ikke på større skjermer
+&lt;/div&gt;</code></pre>
+        <div class="solution">
+          <h5>Løsning 1: Forstå mobile-first tilnærming</h5>
+          <pre><code>// Tailwind er MOBILE-FIRST
+// Base klasser = mobil, prefixes = større skjermer
+
+// FEIL forståelse:
+&lt;div className="md:text-sm text-lg"&gt;  // ← Stor på mobil, liten på desktop
+
+// RIKTIG:
+&lt;div className="text-sm md:text-lg"&gt;  // ← Liten på mobil, stor på desktop
+
+// Breakpoints:
+// sm:  640px og oppover
+// md:  768px og oppover
+// lg:  1024px og oppover
+// xl:  1280px og oppover
+// 2xl: 1536px og oppover</code></pre>
+          <h5>Løsning 2: Test i riktig viewport</h5>
+          <pre><code>// I Chrome DevTools:
+// 1. Trykk F12
+// 2. Toggle device toolbar (Ctrl+Shift+M)
+// 3. Velg ulike enheter eller juster bredde manuelt
+// 4. Sjekk at breakpoints fungerer ved 640px, 768px, 1024px</code></pre>
+          <h5>Løsning 3: Custom breakpoints</h5>
+          <pre><code>// tailwind.config.ts
+theme: {
+  screens: {
+    'sm': '640px',
+    'md': '768px',
+    'lg': '1024px',
+    'xl': '1280px',
+    '2xl': '1536px',
+    '3xl': '1920px',  // Custom breakpoint
+  },
+}
+
+// Bruk:
+&lt;div className="text-sm 3xl:text-2xl"&gt;</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-card" data-search="grid columns not responsive">
+      <div class="error-card-header">
+        <h3>Grid columns not responsive</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Grid layout endres ikke basert på skjermstørrelse.</p>
+        <div class="solution">
+          <h5>Løsning: Bruk responsive grid-cols</h5>
+          <pre><code>// Før - IKKE responsive
+&lt;div className="grid grid-cols-4 gap-4"&gt;
+  {/* Alltid 4 kolonner, også på mobil */}
+&lt;/div&gt;
+
+// Etter - RIKTIG (mobile-first)
+&lt;div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"&gt;
+  {/*
+    Mobil: 1 kolonne
+    Tablet (640px+): 2 kolonner
+    Desktop (1024px+): 4 kolonner
+  */}
+&lt;/div&gt;
+
+// Vanlige mønstre:
+&lt;div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3"&gt;
+&lt;div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6"&gt;</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- INTELLISENSE -->
+    <div class="category-header">
+      <h2>Autocomplete/IntelliSense</h2>
+    </div>
+
+    <div class="error-card" data-search="autocomplete intellisense suggestions not working vscode">
+      <div class="error-card-header">
+        <h3>Tailwind autocomplete/IntelliSense not working</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>VS Code viser ikke Tailwind-forslag når du skriver klasser.</p>
+        <div class="solution">
+          <h5>Løsning 1: Installer Tailwind CSS IntelliSense</h5>
+          <pre><code>1. Åpne VS Code
+2. Extensions (Ctrl+Shift+X)
+3. Søk etter "Tailwind CSS IntelliSense"
+4. Installer offisiell extension fra Tailwind Labs
+5. Reload window (Ctrl+Shift+P → "Reload Window")</code></pre>
+          <h5>Løsning 2: Sjekk at tailwind.config.ts/js finnes</h5>
+          <pre><code># Extension trenger config-fil for å fungere
+ls tailwind.config.ts  # eller .js
+
+# Hvis den mangler, opprett den:
+npx tailwindcss init -p</code></pre>
+          <h5>Løsning 3: Konfigurer for clsx/cn</h5>
+          <pre><code>// .vscode/settings.json
+{
+  "tailwindCSS.experimental.classRegex": [
+    ["cn\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"],
+    ["cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]
+  ]
+}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- STYLING CONFLICTS -->
+    <div class="category-header">
+      <h2>Styling Konflikter</h2>
+    </div>
+
+    <div class="error-card" data-search="styles overridden conflicting important">
+      <div class="error-card-header">
+        <h3>Tailwind styles being overridden / conflicting with global CSS</h3>
+      </div>
+      <div class="error-card-body">
+        <h4>Hva betyr det?</h4>
+        <p>Global CSS eller andre styles overstyrer Tailwind-klassene.</p>
+        <div class="solution">
+          <h5>Løsning 1: Sjekk rekkefølge i globals.css</h5>
+          <pre><code>// globals.css - RIKTIG rekkefølge:
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Dine egne styles kommer ETTER */
+.my-custom-class {
+  /* ... */
+}</code></pre>
+          <h5>Løsning 2: Bruk !important modifier</h5>
+          <pre><code>// Tailwind important modifier
+&lt;div className="!bg-blue-500 !text-white"&gt;
+  Disse styles overstyrer alt annet
+&lt;/div&gt;</code></pre>
+          <h5>Løsning 3: Fjern konfliktende global CSS</h5>
+          <pre><code>// PROBLEM - Global CSS overstyrer
+/* globals.css */
+* {
+  margin: 0;
+  padding: 20px;  // ← Overstyrer ALL Tailwind padding
+}
+
+// LØSNING - Vær mer spesifikk
+body {
+  margin: 0;
+  padding: 0;
+}</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <p><a href="index.html">← Tilbake til feilmeldinger</a> | <a href="../index.html">Hjem</a></p>
+    </div>
+  </div>
+
+  <script>
+    function filterErrors() {
+      const input = document.getElementById('searchInput').value.toLowerCase();
+      const cards = document.querySelectorAll('.error-card');
+
+      cards.forEach(card => {
+        const searchText = card.getAttribute('data-search') + ' ' + card.textContent.toLowerCase();
+        if (searchText.includes(input)) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    }
+  </script>
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

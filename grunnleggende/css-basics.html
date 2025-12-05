@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>07. Styling - Next.js Guide</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="../06-server-actions/index.html">Server Actions</a>
+    <a href="index.html"><strong>Styling</strong></a>
+    <a href="tailwind-klasser.html">CSS Klasser</a>
+    <a href="../08-beste-praksis/index.html">Beste praksis</a>
+  </nav>
+
+  <div class="container">
+    <h1>07. Styling med Tailwind CSS</h1>
+
+    <blockquote>
+      <p>Mobile-first design og konsistent styling med Tailwind CSS.</p>
+    </blockquote>
+
+    <div class="info-box">
+      <strong>Se også:</strong> <a href="tailwind-klasser.html">Komplett CSS/Tailwind klasseguide</a> med alle klasser forklart med eksempler.
+    </div>
+
+    <h2>Oppsett</h2>
+    <pre><code>/* src/app/globals.css */
+@import "tailwindcss";
+
+:root {
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+}</code></pre>
+
+    <h2>Mobile-First</h2>
+    <p>Tailwind bruker mobile-first breakpoints. Start med mobil, legg til for større skjermer.</p>
+
+    <table>
+      <tr><th>Prefix</th><th>Min-bredde</th><th>Enhet</th></tr>
+      <tr><td>(ingen)</td><td>0px</td><td>Mobil</td></tr>
+      <tr><td><code>sm:</code></td><td>640px</td><td>Stor mobil</td></tr>
+      <tr><td><code>md:</code></td><td>768px</td><td>Tablet</td></tr>
+      <tr><td><code>lg:</code></td><td>1024px</td><td>Laptop</td></tr>
+      <tr><td><code>xl:</code></td><td>1280px</td><td>Desktop</td></tr>
+    </table>
+
+    <h3>Eksempel</h3>
+    <pre><code>&lt;div class="
+  grid
+  grid-cols-1        /* 1 kolonne på mobil */
+  md:grid-cols-2     /* 2 kolonner fra 768px */
+  lg:grid-cols-3     /* 3 kolonner fra 1024px */
+  gap-4
+"&gt;
+  &lt;div&gt;Kort 1&lt;/div&gt;
+  &lt;div&gt;Kort 2&lt;/div&gt;
+  &lt;div&gt;Kort 3&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+    <h2>Vanlige mønstre</h2>
+
+    <h3>Container</h3>
+    <pre><code>&lt;div class="max-w-4xl mx-auto px-4 py-8"&gt;
+  &lt;!-- Sentrert innhold, maks 896px --&gt;
+&lt;/div&gt;</code></pre>
+
+    <h3>Kort</h3>
+    <pre><code>&lt;div class="bg-white rounded-lg border border-gray-200 p-5 shadow-sm hover:shadow-md transition-shadow"&gt;
+  &lt;h3 class="text-lg font-semibold"&gt;Tittel&lt;/h3&gt;
+  &lt;p class="text-gray-600 mt-2"&gt;Beskrivelse&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+
+    <h3>Knapp</h3>
+    <pre><code>&lt;button class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition-colors font-medium"&gt;
+  Klikk meg
+&lt;/button&gt;</code></pre>
+
+    <h3>Input</h3>
+    <pre><code>&lt;input
+  type="text"
+  class="w-full h-10 px-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+  placeholder="Skriv her..."
+/&gt;</code></pre>
+
+    <h3>Fullskjerm sentrering</h3>
+    <pre><code>&lt;div class="min-h-screen flex items-center justify-center"&gt;
+  &lt;div&gt;Sentrert innhold&lt;/div&gt;
+&lt;/div&gt;</code></pre>
+
+    <h3>Status-badge</h3>
+    <pre><code>&lt;!-- Grønn --&gt;
+&lt;span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-medium"&gt;
+  Aktiv
+&lt;/span&gt;
+
+&lt;!-- Rød --&gt;
+&lt;span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-medium"&gt;
+  Avslått
+&lt;/span&gt;
+
+&lt;!-- Gul --&gt;
+&lt;span class="bg-yellow-100 text-yellow-700 px-2 py-1 rounded text-xs font-medium"&gt;
+  Venter
+&lt;/span&gt;</code></pre>
+
+    <h2>Hover & States</h2>
+    <pre><code>&lt;button class="
+  bg-blue-500
+  hover:bg-blue-600
+  active:bg-blue-700
+  disabled:opacity-50
+  transition-colors
+"&gt;
+  Knapp
+&lt;/button&gt;</code></pre>
+
+    <h2>Skjul/Vis</h2>
+    <pre><code>&lt;!-- Kun synlig på mobil --&gt;
+&lt;div class="block md:hidden"&gt;Mobil-meny&lt;/div&gt;
+
+&lt;!-- Kun synlig på desktop --&gt;
+&lt;div class="hidden md:block"&gt;Desktop-meny&lt;/div&gt;</code></pre>
+
+    <h2>cn() hjelpefunksjon</h2>
+    <pre><code>// src/lib/utils.ts
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+
+// Bruk:
+&lt;div className={cn(
+  "px-4 py-2 rounded",
+  isActive && "bg-blue-500 text-white",
+  !isActive && "bg-gray-100"
+)}&gt;
+  Innhold
+&lt;/div&gt;</code></pre>
+
+    <div class="footer">
+      <p><a href="../06-server-actions/index.html">← Forrige</a> | <a href="tailwind-klasser.html">Alle CSS-klasser →</a> | <a href="../08-beste-praksis/index.html">Beste praksis →</a></p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

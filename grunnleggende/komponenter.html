@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bruke Komponenter - Guide</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .visual-example {
+      background: #f8fafc;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    .visual-example-preview {
+      padding: 2rem;
+      background: white;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .visual-example-code {
+      background: #1e293b;
+      padding: 1rem;
+    }
+    .visual-example-code pre {
+      margin: 0;
+    }
+    .step-visual {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      margin: 1.5rem 0;
+      padding: 1.5rem;
+      background: #f8fafc;
+      border-radius: 12px;
+    }
+    .step-visual-number {
+      background: #3b82f6;
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      flex-shrink: 0;
+    }
+    .step-visual-content {
+      flex: 1;
+    }
+    .step-visual-content h4 {
+      margin: 0 0 0.5rem 0;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html">Grunnleggende</a>
+    <a href="komponenter.html"><strong>Komponenter</strong></a>
+    <a href="react.html">React</a>
+    <a href="tailwind.html">Tailwind</a>
+  </nav>
+
+  <div class="container">
+    <h1>Bruke Komponenter</h1>
+
+    <blockquote>
+      <p>Lær hvordan du importerer, bruker og sender data til komponenter i React/Next.js.</p>
+    </blockquote>
+
+    <!-- WHAT IS A COMPONENT -->
+    <h2>Hva er en komponent?</h2>
+    <p>En komponent er en gjenbrukbar "byggestein" i React. Den er bare en funksjon som returnerer HTML (JSX).</p>
+
+    <div class="visual-example">
+      <div class="visual-example-preview">
+        <button style="background: #3b82f6; color: white; padding: 0.5rem 1rem; border: none; border-radius: 6px; cursor: pointer;">
+          Klikk meg
+        </button>
+      </div>
+      <div class="visual-example-code">
+        <pre><code>// src/components/ui/button.tsx
+export default function Button() {
+  return (
+    &lt;button className="bg-blue-500 text-white px-4 py-2 rounded"&gt;
+      Klikk meg
+    &lt;/button&gt;
+  )
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- HOW TO USE -->
+    <h2>Slik bruker du en komponent</h2>
+
+    <div class="step-visual">
+      <div class="step-visual-number">1</div>
+      <div class="step-visual-content">
+        <h4>Importer komponenten</h4>
+        <pre><code>import Button from "@/components/ui/button"</code></pre>
+        <p style="margin-top: 0.5rem; color: #64748b; font-size: 0.9rem;">
+          <code>@/</code> betyr <code>src/</code> mappen. Dette er konfigurert i tsconfig.json.
+        </p>
+      </div>
+    </div>
+
+    <div class="step-visual">
+      <div class="step-visual-number">2</div>
+      <div class="step-visual-content">
+        <h4>Bruk komponenten som et HTML-element</h4>
+        <pre><code>&lt;Button /&gt;</code></pre>
+        <p style="margin-top: 0.5rem; color: #64748b; font-size: 0.9rem;">
+          Komponenter starter alltid med stor bokstav.
+        </p>
+      </div>
+    </div>
+
+    <h3>Komplett eksempel</h3>
+    <pre><code>// src/app/page.tsx
+import Button from "@/components/ui/button"
+
+export default function HomePage() {
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Velkommen&lt;/h1&gt;
+      &lt;Button /&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- PROPS -->
+    <h2>Sende data til komponenter (Props)</h2>
+    <p>Props er hvordan du sender data fra forelder til barn-komponent. Tenk på det som funksjonsargumenter.</p>
+
+    <h3>1. Komponent som tar imot props</h3>
+    <pre><code>// src/components/ui/button.tsx
+interface ButtonProps {
+  text: string          // Påkrevd
+  color?: string        // Valgfri (?)
+  onClick?: () => void  // Valgfri funksjon
+}
+
+export default function Button({ text, color = "blue", onClick }: ButtonProps) {
+  return (
+    &lt;button
+      className={`bg-${color}-500 text-white px-4 py-2 rounded`}
+      onClick={onClick}
+    &gt;
+      {text}
+    &lt;/button&gt;
+  )
+}</code></pre>
+
+    <h3>2. Bruke komponenten med props</h3>
+    <pre><code>// src/app/page.tsx
+import Button from "@/components/ui/button"
+
+export default function HomePage() {
+  const handleClick = () => {
+    alert("Du klikket!")
+  }
+
+  return (
+    &lt;div&gt;
+      {/* Enkel bruk */}
+      &lt;Button text="Klikk meg" /&gt;
+
+      {/* Med farge */}
+      &lt;Button text="Grønn knapp" color="green" /&gt;
+
+      {/* Med onClick */}
+      &lt;Button text="Alert" onClick={handleClick} /&gt;
+
+      {/* Inline onClick */}
+      &lt;Button text="Console" onClick={() => console.log("Hei!")} /&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- CHILDREN -->
+    <h2>Children - Innhold mellom tags</h2>
+    <p><code>children</code> er spesiell prop som lar deg legge innhold mellom komponent-tagsene.</p>
+
+    <h3>1. Komponent med children</h3>
+    <pre><code>// src/components/ui/card.tsx
+interface CardProps {
+  title: string
+  children: React.ReactNode  // Kan være hva som helst
+}
+
+export default function Card({ title, children }: CardProps) {
+  return (
+    &lt;div className="bg-white rounded-lg shadow p-6"&gt;
+      &lt;h2 className="text-xl font-bold mb-4"&gt;{title}&lt;/h2&gt;
+      &lt;div&gt;{children}&lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h3>2. Bruke komponenten med innhold</h3>
+    <pre><code>import Card from "@/components/ui/card"
+
+export default function Page() {
+  return (
+    &lt;Card title="Min tittel"&gt;
+      &lt;p&gt;Dette er innholdet i kortet.&lt;/p&gt;
+      &lt;p&gt;Du kan ha hva som helst her!&lt;/p&gt;
+      &lt;button&gt;En knapp&lt;/button&gt;
+    &lt;/Card&gt;
+  )
+}</code></pre>
+
+    <!-- COMMON PATTERNS -->
+    <h2>Vanlige mønstre</h2>
+
+    <h3>Komponent med conditional rendering</h3>
+    <pre><code>// Vis bare hvis betingelse er true
+interface AlertProps {
+  message: string
+  show: boolean
+}
+
+export default function Alert({ message, show }: AlertProps) {
+  if (!show) return null  // Returnerer ingenting
+
+  return (
+    &lt;div className="bg-red-100 text-red-800 p-4 rounded"&gt;
+      {message}
+    &lt;/div&gt;
+  )
+}
+
+// Bruk
+&lt;Alert message="Feil!" show={hasError} /&gt;</code></pre>
+
+    <h3>Komponent med liste-data</h3>
+    <pre><code>// Liste-komponent
+interface User {
+  id: number
+  name: string
+}
+
+interface UserListProps {
+  users: User[]
+}
+
+export default function UserList({ users }: UserListProps) {
+  return (
+    &lt;ul&gt;
+      {users.map(user => (
+        &lt;li key={user.id}&gt;{user.name}&lt;/li&gt;
+      ))}
+    &lt;/ul&gt;
+  )
+}
+
+// Bruk
+const users = [
+  { id: 1, name: "Ola" },
+  { id: 2, name: "Kari" }
+]
+
+&lt;UserList users={users} /&gt;</code></pre>
+
+    <h3>Komponent som sender data tilbake (callback)</h3>
+    <pre><code>// Søkefelt som sender søketekst tilbake
+interface SearchProps {
+  onSearch: (query: string) => void
+}
+
+export default function Search({ onSearch }: SearchProps) {
+  return (
+    &lt;input
+      placeholder="Søk..."
+      onChange={(e) => onSearch(e.target.value)}
+    /&gt;
+  )
+}
+
+// Bruk i forelder
+"use client"
+import { useState } from "react"
+import Search from "@/components/search"
+
+export default function Page() {
+  const [searchTerm, setSearchTerm] = useState("")
+
+  return (
+    &lt;div&gt;
+      &lt;Search onSearch={setSearchTerm} /&gt;
+      &lt;p&gt;Du søker etter: {searchTerm}&lt;/p&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- COMMON MISTAKES -->
+    <h2>Vanlige feil</h2>
+
+    <div class="warning-box">
+      <h4>Feil 1: Glemmer å importere</h4>
+      <pre><code>// FEIL - Mangler import
+export default function Page() {
+  return &lt;Button text="Hei" /&gt;  // Error: Button is not defined
+}
+
+// RIKTIG
+import Button from "@/components/ui/button"
+
+export default function Page() {
+  return &lt;Button text="Hei" /&gt;
+}</code></pre>
+    </div>
+
+    <div class="warning-box">
+      <h4>Feil 2: Liten bokstav på komponent</h4>
+      <pre><code>// FEIL - React tror det er HTML-element
+&lt;button text="Hei" /&gt;
+
+// RIKTIG - Stor bokstav
+&lt;Button text="Hei" /&gt;</code></pre>
+    </div>
+
+    <div class="warning-box">
+      <h4>Feil 3: Mangler key i liste</h4>
+      <pre><code>// FEIL - Mangler key
+{users.map(user => &lt;li&gt;{user.name}&lt;/li&gt;)}
+
+// RIKTIG - Med key
+{users.map(user => &lt;li key={user.id}&gt;{user.name}&lt;/li&gt;)}</code></pre>
+    </div>
+
+    <div class="warning-box">
+      <h4>Feil 4: Feil path i import</h4>
+      <pre><code>// FEIL - Feil path eller filnavn
+import Button from "@/components/Button"
+
+// RIKTIG - Sjekk eksakt filnavn og path
+import Button from "@/components/ui/button"</code></pre>
+    </div>
+
+    <!-- QUICK REFERENCE -->
+    <h2>Hurtigreferanse</h2>
+    <table>
+      <tr><th>Oppgave</th><th>Kode</th></tr>
+      <tr>
+        <td>Importere komponent</td>
+        <td><code>import X from "@/components/x"</code></td>
+      </tr>
+      <tr>
+        <td>Bruke komponent</td>
+        <td><code>&lt;X /&gt;</code> eller <code>&lt;X prop="value" /&gt;</code></td>
+      </tr>
+      <tr>
+        <td>Med children</td>
+        <td><code>&lt;X&gt;innhold&lt;/X&gt;</code></td>
+      </tr>
+      <tr>
+        <td>Definere props</td>
+        <td><code>interface Props { name: string }</code></td>
+      </tr>
+      <tr>
+        <td>Default props</td>
+        <td><code>function X({ name = "default" }: Props)</code></td>
+      </tr>
+      <tr>
+        <td>Valgfri prop</td>
+        <td><code>interface Props { name?: string }</code></td>
+      </tr>
+    </table>
+
+    <div class="footer">
+      <p><a href="index.html">← Grunnleggende</a> | <a href="react.html">React Basics →</a></p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

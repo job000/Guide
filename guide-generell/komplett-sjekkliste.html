@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Komplett Prosjekt Sjekkliste - Fra Kundemøte til Drift</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .overall-progress {
+            padding: 30px 40px;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .overall-progress h2 {
+            font-size: 1.3em;
+            margin-bottom: 15px;
+            color: #495057;
+        }
+
+        .progress-bar-container {
+            background: #e9ecef;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 0.9em;
+        }
+
+        .controls {
+            padding: 20px 40px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-reset {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-print {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-print:hover {
+            background: #218838;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+        }
+
+        .btn-export {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-export:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .phase {
+            margin-bottom: 40px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .phase:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .phase-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 25px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+
+        .phase-header h3 {
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .phase-icon {
+            font-size: 1.5em;
+        }
+
+        .phase-progress {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: bold;
+        }
+
+        .phase-body {
+            padding: 25px;
+            background: #f8f9fa;
+        }
+
+        .phase-body.collapsed {
+            display: none;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            background: white;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .checklist-item:hover {
+            border-color: #667eea;
+            transform: translateX(5px);
+        }
+
+        .checklist-item.completed {
+            background: #d4edda;
+            border-color: #28a745;
+        }
+
+        .checklist-item input[type="checkbox"] {
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .checklist-item label {
+            flex: 1;
+            cursor: pointer;
+            font-size: 1.05em;
+        }
+
+        .checklist-item.completed label {
+            text-decoration: line-through;
+            color: #155724;
+            font-weight: 500;
+        }
+
+        .phase-mini-progress {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #dee2e6;
+        }
+
+        .phase-mini-progress-bar {
+            background: #e9ecef;
+            height: 8px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .phase-mini-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s ease;
+        }
+
+        .timestamp {
+            text-align: center;
+            padding: 20px;
+            color: #6c757d;
+            font-size: 0.9em;
+            background: #f8f9fa;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+            }
+
+            .controls, .btn {
+                display: none !important;
+            }
+
+            .phase-body {
+                display: block !important;
+            }
+
+            .checklist-item:hover {
+                transform: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .content {
+                padding: 20px;
+            }
+
+            .phase-header h3 {
+                font-size: 1.1em;
+            }
+
+            .controls {
+                padding: 15px 20px;
+            }
+
+            .btn {
+                font-size: 0.9em;
+                padding: 10px 16px;
+            }
+        }
+
+        .collapse-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .collapsed-header .collapse-icon {
+            transform: rotate(-90deg);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Komplett Prosjekt Sjekkliste</h1>
+            <p>Fra kundemøte til produksjon og drift - Full oversikt over alle faser</p>
+        </div>
+
+        <div class="overall-progress">
+            <h2>Total Fremdrift</h2>
+            <div class="progress-bar-container">
+                <div class="progress-bar" id="overallProgress">0%</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-reset" onclick="resetChecklist()">
+                <span>🔄</span> Nullstill Sjekkliste
+            </button>
+            <button class="btn btn-print" onclick="window.print()">
+                <span>🖨️</span> Skriv Ut
+            </button>
+            <button class="btn btn-export" onclick="exportProgress()">
+                <span>💾</span> Eksporter Fremdrift
+            </button>
+        </div>
+
+        <div class="content">
+            <!-- FASE 0: KUNDEMØTE -->
+            <div class="phase" data-phase="0">
+                <div class="phase-header" onclick="togglePhase(0)">
+                    <h3>
+                        <span class="phase-icon">🤝</span>
+                        FASE 0: KUNDEMØTE (Dag 0)
+                    </h3>
+                    <div>
+                        <span class="phase-progress" id="phase-0-progress">0/8</span>
+                        <span class="collapse-icon">▼</span>
+                    </div>
+                </div>
+                <div class="phase-body" id="phase-0-body">
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p0-1" onchange="updateProgress()">
+                        <label for="p0-1">Avklart alle sider som trengs</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p0-2" onchange="updateProgress()">
+                        <label for="p0-2">Mottatt logo (SVG/PNG)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p0-3" onchange="updateProgress()">
+                        <label for="p0-3">Mottatt fargepalett/brand</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p0-4" onchange="updateProgress()">
+                        <label for="p0-4">Avklart kontaktinfo</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p0-5" onchange="updateProgress()">
+                        <label for="p0-5">Avklart domene-situasjon</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p0-6" onchange="updateProgress()">
+                        <label for="p0-6">Avklart hosting-preferanse</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p0-7" onchange="updateProgress()">
+                        <label for="p0-7">Avtalt pris og leveringsdato</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p0-8" onchange="updateProgress()">
+                        <label for="p0-8">Signert kontrakt/avtale</label>
+                    </div>
+                    <div class="phase-mini-progress">
+                        <div class="phase-mini-progress-bar">
+                            <div class="phase-mini-progress-fill" id="phase-0-bar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FASE 1: PROSJEKT SETUP -->
+            <div class="phase" data-phase="1">
+                <div class="phase-header" onclick="togglePhase(1)">
+                    <h3>
+                        <span class="phase-icon">⚙️</span>
+                        FASE 1: PROSJEKT SETUP (Dag 1)
+                    </h3>
+                    <div>
+                        <span class="phase-progress" id="phase-1-progress">0/7</span>
+                        <span class="collapse-icon">▼</span>
+                    </div>
+                </div>
+                <div class="phase-body" id="phase-1-body">
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p1-1" onchange="updateProgress()">
+                        <label for="p1-1">Opprettet GitHub repo</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p1-2" onchange="updateProgress()">
+                        <label for="p1-2">Kjørt setup-script/manuell setup</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p1-3" onchange="updateProgress()">
+                        <label for="p1-3">Opprettet Supabase prosjekt</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p1-4" onchange="updateProgress()">
+                        <label for="p1-4">Konfigurert .env.local</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p1-5" onchange="updateProgress()">
+                        <label for="p1-5">Kjørt database SQL</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p1-6" onchange="updateProgress()">
+                        <label for="p1-6">Testet at npm run dev fungerer</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p1-7" onchange="updateProgress()">
+                        <label for="p1-7">Pushet initial commit</label>
+                    </div>
+                    <div class="phase-mini-progress">
+                        <div class="phase-mini-progress-bar">
+                            <div class="phase-mini-progress-fill" id="phase-1-bar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FASE 2: DESIGN & LAYOUT -->
+            <div class="phase" data-phase="2">
+                <div class="phase-header" onclick="togglePhase(2)">
+                    <h3>
+                        <span class="phase-icon">🎨</span>
+                        FASE 2: DESIGN & LAYOUT (Dag 2)
+                    </h3>
+                    <div>
+                        <span class="phase-progress" id="phase-2-progress">0/5</span>
+                        <span class="collapse-icon">▼</span>
+                    </div>
+                </div>
+                <div class="phase-body" id="phase-2-body">
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p2-1" onchange="updateProgress()">
+                        <label for="p2-1">Tilpasset header med logo</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p2-2" onchange="updateProgress()">
+                        <label for="p2-2">Tilpasset footer med kontaktinfo</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p2-3" onchange="updateProgress()">
+                        <label for="p2-3">Satt opp fargepalett i Tailwind</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p2-4" onchange="updateProgress()">
+                        <label for="p2-4">Testet responsivt design</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p2-5" onchange="updateProgress()">
+                        <label for="p2-5">Hamburger-meny fungerer</label>
+                    </div>
+                    <div class="phase-mini-progress">
+                        <div class="phase-mini-progress-bar">
+                            <div class="phase-mini-progress-fill" id="phase-2-bar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FASE 3: SIDER & INNHOLD -->
+            <div class="phase" data-phase="3">
+                <div class="phase-header" onclick="togglePhase(3)">
+                    <h3>
+                        <span class="phase-icon">📄</span>
+                        FASE 3: SIDER & INNHOLD (Dag 3)
+                    </h3>
+                    <div>
+                        <span class="phase-progress" id="phase-3-progress">0/8</span>
+                        <span class="collapse-icon">▼</span>
+                    </div>
+                </div>
+                <div class="phase-body" id="phase-3-body">
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p3-1" onchange="updateProgress()">
+                        <label for="p3-1">Forside ferdig</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p3-2" onchange="updateProgress()">
+                        <label for="p3-2">Om oss-side ferdig</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p3-3" onchange="updateProgress()">
+                        <label for="p3-3">Tjenester-side ferdig</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p3-4" onchange="updateProgress()">
+                        <label for="p3-4">Kontaktside ferdig</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p3-5" onchange="updateProgress()">
+                        <label for="p3-5">Alle ekstra sider ferdig</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p3-6" onchange="updateProgress()">
+                        <label for="p3-6">Kontaktskjema fungerer</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p3-7" onchange="updateProgress()">
+                        <label for="p3-7">Bilder optimalisert</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p3-8" onchange="updateProgress()">
+                        <label for="p3-8">Alt-tekster på bilder</label>
+                    </div>
+                    <div class="phase-mini-progress">
+                        <div class="phase-mini-progress-bar">
+                            <div class="phase-mini-progress-fill" id="phase-3-bar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FASE 4: FUNKSJONALITET -->
+            <div class="phase" data-phase="4">
+                <div class="phase-header" onclick="togglePhase(4)">
+                    <h3>
+                        <span class="phase-icon">⚡</span>
+                        FASE 4: FUNKSJONALITET (Dag 4)
+                    </h3>
+                    <div>
+                        <span class="phase-progress" id="phase-4-progress">0/5</span>
+                        <span class="collapse-icon">▼</span>
+                    </div>
+                </div>
+                <div class="phase-body" id="phase-4-body">
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p4-1" onchange="updateProgress()">
+                        <label for="p4-1">Alle skjema fungerer</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p4-2" onchange="updateProgress()">
+                        <label for="p4-2">Data lagres i database</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p4-3" onchange="updateProgress()">
+                        <label for="p4-3">Eventuelle spesialfunksjoner</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p4-4" onchange="updateProgress()">
+                        <label for="p4-4">Admin-panel (hvis relevant)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p4-5" onchange="updateProgress()">
+                        <label for="p4-5">E-postvarsling (hvis relevant)</label>
+                    </div>
+                    <div class="phase-mini-progress">
+                        <div class="phase-mini-progress-bar">
+                            <div class="phase-mini-progress-fill" id="phase-4-bar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FASE 5: KVALITETSSIKRING -->
+            <div class="phase" data-phase="5">
+                <div class="phase-header" onclick="togglePhase(5)">
+                    <h3>
+                        <span class="phase-icon">✅</span>
+                        FASE 5: KVALITETSSIKRING (Dag 4-5)
+                    </h3>
+                    <div>
+                        <span class="phase-progress" id="phase-5-progress">0/8</span>
+                        <span class="collapse-icon">▼</span>
+                    </div>
+                </div>
+                <div class="phase-body" id="phase-5-body">
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p5-1" onchange="updateProgress()">
+                        <label for="p5-1">Testet på mobil (320px)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p5-2" onchange="updateProgress()">
+                        <label for="p5-2">Testet på tablet (768px)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p5-3" onchange="updateProgress()">
+                        <label for="p5-3">Testet på desktop (1280px+)</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p5-4" onchange="updateProgress()">
+                        <label for="p5-4">Ingen console errors</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p5-5" onchange="updateProgress()">
+                        <label for="p5-5">Alle lenker fungerer</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p5-6" onchange="updateProgress()">
+                        <label for="p5-6">Lighthouse Performance > 90</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p5-7" onchange="updateProgress()">
+                        <label for="p5-7">Lighthouse Accessibility > 90</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p5-8" onchange="updateProgress()">
+                        <label for="p5-8">Lighthouse SEO > 90</label>
+                    </div>
+                    <div class="phase-mini-progress">
+                        <div class="phase-mini-progress-bar">
+                            <div class="phase-mini-progress-fill" id="phase-5-bar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FASE 6: SEO & METADATA -->
+            <div class="phase" data-phase="6">
+                <div class="phase-header" onclick="togglePhase(6)">
+                    <h3>
+                        <span class="phase-icon">🔍</span>
+                        FASE 6: SEO & METADATA
+                    </h3>
+                    <div>
+                        <span class="phase-progress" id="phase-6-progress">0/7</span>
+                        <span class="collapse-icon">▼</span>
+                    </div>
+                </div>
+                <div class="phase-body" id="phase-6-body">
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p6-1" onchange="updateProgress()">
+                        <label for="p6-1">Unike title tags</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p6-2" onchange="updateProgress()">
+                        <label for="p6-2">Meta descriptions</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p6-3" onchange="updateProgress()">
+                        <label for="p6-3">Open Graph bilder</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p6-4" onchange="updateProgress()">
+                        <label for="p6-4">Favicon</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p6-5" onchange="updateProgress()">
+                        <label for="p6-5">robots.txt</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p6-6" onchange="updateProgress()">
+                        <label for="p6-6">sitemap.xml</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p6-7" onchange="updateProgress()">
+                        <label for="p6-7">Schema.org markup</label>
+                    </div>
+                    <div class="phase-mini-progress">
+                        <div class="phase-mini-progress-bar">
+                            <div class="phase-mini-progress-fill" id="phase-6-bar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FASE 7: PRODUKSJON -->
+            <div class="phase" data-phase="7">
+                <div class="phase-header" onclick="togglePhase(7)">
+                    <h3>
+                        <span class="phase-icon">🚀</span>
+                        FASE 7: PRODUKSJON (Dag 5)
+                    </h3>
+                    <div>
+                        <span class="phase-progress" id="phase-7-progress">0/7</span>
+                        <span class="collapse-icon">▼</span>
+                    </div>
+                </div>
+                <div class="phase-body" id="phase-7-body">
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p7-1" onchange="updateProgress()">
+                        <label for="p7-1">Opprettet Vercel prosjekt</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p7-2" onchange="updateProgress()">
+                        <label for="p7-2">Koblet GitHub repo</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p7-3" onchange="updateProgress()">
+                        <label for="p7-3">Satt environment variables</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p7-4" onchange="updateProgress()">
+                        <label for="p7-4">Build kjører uten feil</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p7-5" onchange="updateProgress()">
+                        <label for="p7-5">Koblet domene</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p7-6" onchange="updateProgress()">
+                        <label for="p7-6">SSL aktivert</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p7-7" onchange="updateProgress()">
+                        <label for="p7-7">www/non-www redirect</label>
+                    </div>
+                    <div class="phase-mini-progress">
+                        <div class="phase-mini-progress-bar">
+                            <div class="phase-mini-progress-fill" id="phase-7-bar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FASE 8: LANSERING -->
+            <div class="phase" data-phase="8">
+                <div class="phase-header" onclick="togglePhase(8)">
+                    <h3>
+                        <span class="phase-icon">🎉</span>
+                        FASE 8: LANSERING
+                    </h3>
+                    <div>
+                        <span class="phase-progress" id="phase-8-progress">0/5</span>
+                        <span class="collapse-icon">▼</span>
+                    </div>
+                </div>
+                <div class="phase-body" id="phase-8-body">
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p8-1" onchange="updateProgress()">
+                        <label for="p8-1">Testet live-side</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p8-2" onchange="updateProgress()">
+                        <label for="p8-2">Testet kontaktskjema i prod</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p8-3" onchange="updateProgress()">
+                        <label for="p8-3">Google Search Console</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p8-4" onchange="updateProgress()">
+                        <label for="p8-4">Google Analytics</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p8-5" onchange="updateProgress()">
+                        <label for="p8-5">Backup av kode</label>
+                    </div>
+                    <div class="phase-mini-progress">
+                        <div class="phase-mini-progress-bar">
+                            <div class="phase-mini-progress-fill" id="phase-8-bar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FASE 9: OVERLEVERING -->
+            <div class="phase" data-phase="9">
+                <div class="phase-header" onclick="togglePhase(9)">
+                    <h3>
+                        <span class="phase-icon">📦</span>
+                        FASE 9: OVERLEVERING
+                    </h3>
+                    <div>
+                        <span class="phase-progress" id="phase-9-progress">0/5</span>
+                        <span class="collapse-icon">▼</span>
+                    </div>
+                </div>
+                <div class="phase-body" id="phase-9-body">
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p9-1" onchange="updateProgress()">
+                        <label for="p9-1">Dokumentasjon til kunde</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p9-2" onchange="updateProgress()">
+                        <label for="p9-2">Innloggingsinfo overlevert</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p9-3" onchange="updateProgress()">
+                        <label for="p9-3">Opplæring gjennomført</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p9-4" onchange="updateProgress()">
+                        <label for="p9-4">Faktura sendt</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p9-5" onchange="updateProgress()">
+                        <label for="p9-5">Support-avtale diskutert</label>
+                    </div>
+                    <div class="phase-mini-progress">
+                        <div class="phase-mini-progress-bar">
+                            <div class="phase-mini-progress-fill" id="phase-9-bar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FASE 10: DRIFT -->
+            <div class="phase" data-phase="10">
+                <div class="phase-header" onclick="togglePhase(10)">
+                    <h3>
+                        <span class="phase-icon">🔧</span>
+                        FASE 10: DRIFT (Månedlig)
+                    </h3>
+                    <div>
+                        <span class="phase-progress" id="phase-10-progress">0/5</span>
+                        <span class="collapse-icon">▼</span>
+                    </div>
+                </div>
+                <div class="phase-body" id="phase-10-body">
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p10-1" onchange="updateProgress()">
+                        <label for="p10-1">Sjekket at siden er oppe</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p10-2" onchange="updateProgress()">
+                        <label for="p10-2">Sjekket for sikkerhetsoppdateringer</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p10-3" onchange="updateProgress()">
+                        <label for="p10-3">Tømt/sjekket kontaktmeldinger</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p10-4" onchange="updateProgress()">
+                        <label for="p10-4">Backup verifisert</label>
+                    </div>
+                    <div class="checklist-item">
+                        <input type="checkbox" id="p10-5" onchange="updateProgress()">
+                        <label for="p10-5">SSL-sertifikat gyldig</label>
+                    </div>
+                    <div class="phase-mini-progress">
+                        <div class="phase-mini-progress-bar">
+                            <div class="phase-mini-progress-fill" id="phase-10-bar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="timestamp" id="lastUpdated"></div>
+    </div>
+
+    <script>
+        // Phase configuration
+        const phases = [
+            { id: 0, items: 8 },
+            { id: 1, items: 7 },
+            { id: 2, items: 5 },
+            { id: 3, items: 8 },
+            { id: 4, items: 5 },
+            { id: 5, items: 8 },
+            { id: 6, items: 7 },
+            { id: 7, items: 7 },
+            { id: 8, items: 5 },
+            { id: 9, items: 5 },
+            { id: 10, items: 5 }
+        ];
+
+        // Load saved state from localStorage
+        function loadState() {
+            phases.forEach(phase => {
+                for (let i = 1; i <= phase.items; i++) {
+                    const checkbox = document.getElementById(`p${phase.id}-${i}`);
+                    const saved = localStorage.getItem(`p${phase.id}-${i}`);
+                    if (saved === 'true') {
+                        checkbox.checked = true;
+                        checkbox.parentElement.classList.add('completed');
+                    }
+                }
+            });
+            updateProgress();
+        }
+
+        // Save state to localStorage
+        function saveState(checkboxId, checked) {
+            localStorage.setItem(checkboxId, checked);
+            localStorage.setItem('lastUpdated', new Date().toISOString());
+        }
+
+        // Update all progress indicators
+        function updateProgress() {
+            let totalItems = 0;
+            let totalChecked = 0;
+
+            phases.forEach(phase => {
+                let phaseChecked = 0;
+
+                for (let i = 1; i <= phase.items; i++) {
+                    const checkbox = document.getElementById(`p${phase.id}-${i}`);
+                    if (checkbox.checked) {
+                        phaseChecked++;
+                        totalChecked++;
+                        checkbox.parentElement.classList.add('completed');
+                    } else {
+                        checkbox.parentElement.classList.remove('completed');
+                    }
+                    totalItems++;
+
+                    // Save state
+                    saveState(`p${phase.id}-${i}`, checkbox.checked);
+                }
+
+                // Update phase progress text
+                document.getElementById(`phase-${phase.id}-progress`).textContent =
+                    `${phaseChecked}/${phase.items}`;
+
+                // Update phase mini progress bar
+                const phaseBar = document.getElementById(`phase-${phase.id}-bar`);
+                const phasePercent = (phaseChecked / phase.items) * 100;
+                phaseBar.style.width = `${phasePercent}%`;
+            });
+
+            // Update overall progress
+            const overallPercent = Math.round((totalChecked / totalItems) * 100);
+            const overallBar = document.getElementById('overallProgress');
+            overallBar.style.width = `${overallPercent}%`;
+            overallBar.textContent = `${overallPercent}% (${totalChecked}/${totalItems})`;
+
+            // Update timestamp
+            updateTimestamp();
+        }
+
+        // Toggle phase visibility
+        function togglePhase(phaseId) {
+            const body = document.getElementById(`phase-${phaseId}-body`);
+            const header = body.previousElementSibling;
+
+            body.classList.toggle('collapsed');
+            header.classList.toggle('collapsed-header');
+        }
+
+        // Reset all checkboxes
+        function resetChecklist() {
+            if (confirm('Er du sikker på at du vil nullstille hele sjekklisten? Dette kan ikke angres.')) {
+                phases.forEach(phase => {
+                    for (let i = 1; i <= phase.items; i++) {
+                        const checkbox = document.getElementById(`p${phase.id}-${i}`);
+                        checkbox.checked = false;
+                        checkbox.parentElement.classList.remove('completed');
+                        localStorage.removeItem(`p${phase.id}-${i}`);
+                    }
+                });
+                localStorage.removeItem('lastUpdated');
+                updateProgress();
+            }
+        }
+
+        // Export progress as JSON
+        function exportProgress() {
+            const progress = {
+                exportDate: new Date().toISOString(),
+                phases: []
+            };
+
+            phases.forEach(phase => {
+                const phaseData = {
+                    phase: phase.id,
+                    items: []
+                };
+
+                for (let i = 1; i <= phase.items; i++) {
+                    const checkbox = document.getElementById(`p${phase.id}-${i}`);
+                    const label = checkbox.nextElementSibling.textContent;
+                    phaseData.items.push({
+                        id: `p${phase.id}-${i}`,
+                        label: label,
+                        completed: checkbox.checked
+                    });
+                }
+
+                progress.phases.push(phaseData);
+            });
+
+            const dataStr = JSON.stringify(progress, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `prosjekt-sjekkliste-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+        }
+
+        // Update timestamp display
+        function updateTimestamp() {
+            const lastUpdated = localStorage.getItem('lastUpdated');
+            const timestampEl = document.getElementById('lastUpdated');
+
+            if (lastUpdated) {
+                const date = new Date(lastUpdated);
+                timestampEl.textContent = `Sist oppdatert: ${date.toLocaleString('no-NO')}`;
+            } else {
+                timestampEl.textContent = 'Ingen endringer gjort ennå';
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadState();
+            updateTimestamp();
+        });
+    </script>
+</body>
+</html>

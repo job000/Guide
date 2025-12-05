@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>React Snippets Guide - rafce, rfc, useState</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="../07-styling/tailwind-klasser.html">CSS Klasser</a>
+    <a href="index.html">Maler</a>
+    <a href="react-snippets.html"><strong>React Snippets</strong></a>
+  </nav>
+
+  <div class="container">
+    <h1>React Snippets Guide</h1>
+
+    <blockquote>
+      <p>Lær alle de viktigste React/TypeScript snippets fra VS Code-utvidelsen "ES7+ React/Redux/React-Native snippets".</p>
+    </blockquote>
+
+    <div class="info-box">
+      <strong>Installer først:</strong> Søk etter "ES7+ React/Redux/React-Native snippets" i VS Code Extensions (Ctrl+Shift+X).
+    </div>
+
+    <h2>Hvordan bruke snippets</h2>
+    <ol>
+      <li>Opprett en ny <code>.tsx</code> eller <code>.jsx</code> fil</li>
+      <li>Skriv snippet-koden (f.eks. <code>rafce</code>)</li>
+      <li>Trykk <strong>Tab</strong> eller <strong>Enter</strong></li>
+      <li>Koden genereres automatisk!</li>
+    </ol>
+
+    <!-- ========== COMPONENT SNIPPETS ========== -->
+    <h2>Komponent-snippets</h2>
+
+    <h3>rafce - React Arrow Function Component Export (MEST BRUKT)</h3>
+    <p>Bruk denne for de fleste komponenter. Arrow function med default export.</p>
+    <div class="warning-box">
+      <strong>Skriv:</strong> <code>rafce</code> + Tab
+    </div>
+    <pre><code>import React from 'react'
+
+const ComponentName = () => {
+  return (
+    &lt;div&gt;ComponentName&lt;/div&gt;
+  )
+}
+
+export default ComponentName</code></pre>
+
+    <h3>rfc - React Function Component</h3>
+    <p>Vanlig funksjon (ikke arrow function) med default export.</p>
+    <div class="warning-box">
+      <strong>Skriv:</strong> <code>rfc</code> + Tab
+    </div>
+    <pre><code>import React from 'react'
+
+export default function ComponentName() {
+  return (
+    &lt;div&gt;ComponentName&lt;/div&gt;
+  )
+}</code></pre>
+
+    <h3>rfce - React Function Component Export</h3>
+    <p>Vanlig funksjon med separat export.</p>
+    <div class="warning-box">
+      <strong>Skriv:</strong> <code>rfce</code> + Tab
+    </div>
+    <pre><code>import React from 'react'
+
+function ComponentName() {
+  return (
+    &lt;div&gt;ComponentName&lt;/div&gt;
+  )
+}
+
+export default ComponentName</code></pre>
+
+    <h3>rafc - React Arrow Function Component</h3>
+    <p>Arrow function uten default export (named export).</p>
+    <div class="warning-box">
+      <strong>Skriv:</strong> <code>rafc</code> + Tab
+    </div>
+    <pre><code>import React from 'react'
+
+export const ComponentName = () => {
+  return (
+    &lt;div&gt;ComponentName&lt;/div&gt;
+  )
+}</code></pre>
+
+    <h3>tsrafce - TypeScript React Arrow Function Component Export</h3>
+    <p>TypeScript-versjon med props-interface.</p>
+    <div class="warning-box">
+      <strong>Skriv:</strong> <code>tsrafce</code> + Tab
+    </div>
+    <pre><code>import React from 'react'
+
+type Props = {}
+
+const ComponentName = (props: Props) => {
+  return (
+    &lt;div&gt;ComponentName&lt;/div&gt;
+  )
+}
+
+export default ComponentName</code></pre>
+
+    <!-- ========== NEXT.JS PATTERNS ========== -->
+    <h2>Next.js-spesifikke mønstre</h2>
+
+    <h3>Server Component (standard i Next.js 15)</h3>
+    <p>Ingen "use client" = server component. Kan være async. I Next.js 15 er dette enda raskere med Turbopack.</p>
+    <pre><code>// src/app/products/page.tsx
+import { getProducts } from '@/actions/products'
+
+export default async function ProductsPage() {
+  const products = await getProducts()
+
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Produkter&lt;/h1&gt;
+      {products.map(product =&gt; (
+        &lt;div key={product.id}&gt;{product.name}&lt;/div&gt;
+      ))}
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h3>Client Component (for interaktivitet)</h3>
+    <p>Legg til "use client" øverst for useState, onClick, etc.</p>
+    <pre><code>"use client"
+
+import { useState } from 'react'
+
+export default function Counter() {
+  const [count, setCount] = useState(0)
+
+  return (
+    &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+      Klikket {count} ganger
+    &lt;/button&gt;
+  )
+}</code></pre>
+
+    <!-- ========== HOOKS ========== -->
+    <h2>React Hooks Snippets</h2>
+
+    <h3>useState</h3>
+    <div class="warning-box">
+      <strong>Skriv:</strong> <code>useState</code> + Tab
+    </div>
+    <pre><code>const [state, setState] = useState(initialState)</code></pre>
+
+    <h4>Eksempler:</h4>
+    <pre><code>// String
+const [name, setName] = useState('')
+
+// Number
+const [count, setCount] = useState(0)
+
+// Boolean
+const [loading, setLoading] = useState(false)
+
+// Array
+const [items, setItems] = useState([])
+
+// Object
+const [user, setUser] = useState(null)
+
+// Med TypeScript type
+const [users, setUsers] = useState&lt;User[]&gt;([])</code></pre>
+
+    <h3>useEffect</h3>
+    <div class="warning-box">
+      <strong>Skriv:</strong> <code>useEffect</code> + Tab
+    </div>
+    <pre><code>useEffect(() =&gt; {
+  // Kode som kjører
+
+  return () =&gt; {
+    // Cleanup (valgfritt)
+  }
+}, [dependencies])</code></pre>
+
+    <h4>Vanlige useEffect-mønstre:</h4>
+    <pre><code>// Kjør ved mount (tom dependency array)
+useEffect(() =&gt; {
+  fetchData()
+}, [])
+
+// Kjør når variabel endres
+useEffect(() =&gt; {
+  console.log('User endret:', user)
+}, [user])
+
+// Med cleanup (f.eks. for subscriptions)
+useEffect(() =&gt; {
+  const subscription = subscribe()
+
+  return () =&gt; {
+    subscription.unsubscribe()
+  }
+}, [])</code></pre>
+
+    <h3>useRef</h3>
+    <div class="warning-box">
+      <strong>Skriv:</strong> <code>useRef</code> + Tab
+    </div>
+    <pre><code>const ref = useRef(initialValue)</code></pre>
+
+    <h4>Eksempel: Input-fokus</h4>
+    <pre><code>const inputRef = useRef&lt;HTMLInputElement&gt;(null)
+
+const focusInput = () =&gt; {
+  inputRef.current?.focus()
+}
+
+return &lt;input ref={inputRef} /&gt;</code></pre>
+
+    <h3>useCallback</h3>
+    <div class="warning-box">
+      <strong>Skriv:</strong> <code>useCallback</code> + Tab
+    </div>
+    <pre><code>const memoizedCallback = useCallback(() =&gt; {
+  doSomething(a, b)
+}, [a, b])</code></pre>
+
+    <h3>useMemo</h3>
+    <div class="warning-box">
+      <strong>Skriv:</strong> <code>useMemo</code> + Tab
+    </div>
+    <pre><code>const memoizedValue = useMemo(() =&gt; {
+  return computeExpensiveValue(a, b)
+}, [a, b])</code></pre>
+
+    <!-- ========== IMPORT SNIPPETS ========== -->
+    <h2>Import-snippets</h2>
+
+    <table>
+      <tr><th>Snippet</th><th>Resultat</th></tr>
+      <tr>
+        <td><code>imp</code></td>
+        <td><code>import moduleName from 'module'</code></td>
+      </tr>
+      <tr>
+        <td><code>imd</code></td>
+        <td><code>import { destructuredModule } from 'module'</code></td>
+      </tr>
+      <tr>
+        <td><code>imr</code></td>
+        <td><code>import React from 'react'</code></td>
+      </tr>
+      <tr>
+        <td><code>imrs</code></td>
+        <td><code>import React, { useState } from 'react'</code></td>
+      </tr>
+      <tr>
+        <td><code>imrse</code></td>
+        <td><code>import React, { useState, useEffect } from 'react'</code></td>
+      </tr>
+    </table>
+
+    <!-- ========== COMPLETE EXAMPLES ========== -->
+    <h2>Komplette eksempler</h2>
+
+    <h3>Komponent med props (TypeScript)</h3>
+    <pre><code>// src/components/UserCard.tsx
+interface UserCardProps {
+  name: string
+  email: string
+  avatar?: string  // Valgfritt felt
+}
+
+export default function UserCard({ name, email, avatar }: UserCardProps) {
+  return (
+    &lt;div className="bg-white rounded-lg p-4 shadow"&gt;
+      {avatar && &lt;img src={avatar} alt={name} className="w-12 h-12 rounded-full" /&gt;}
+      &lt;h3 className="font-semibold"&gt;{name}&lt;/h3&gt;
+      &lt;p className="text-gray-500"&gt;{email}&lt;/p&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h3>Komponent med state og effekt</h3>
+    <pre><code>"use client"
+
+import { useState, useEffect } from 'react'
+
+interface Product {
+  id: number
+  name: string
+  price: number
+}
+
+export default function ProductList() {
+  const [products, setProducts] = useState&lt;Product[]&gt;([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState&lt;string | null&gt;(null)
+
+  useEffect(() =&gt; {
+    const fetchProducts = async () =&gt; {
+      try {
+        const response = await fetch('/api/products')
+        const data = await response.json()
+        setProducts(data)
+      } catch (err) {
+        setError('Kunne ikke hente produkter')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchProducts()
+  }, [])
+
+  if (loading) return &lt;div&gt;Laster...&lt;/div&gt;
+  if (error) return &lt;div&gt;Feil: {error}&lt;/div&gt;
+
+  return (
+    &lt;div className="grid grid-cols-3 gap-4"&gt;
+      {products.map(product =&gt; (
+        &lt;div key={product.id} className="border p-4 rounded"&gt;
+          &lt;h3&gt;{product.name}&lt;/h3&gt;
+          &lt;p&gt;{product.price} kr&lt;/p&gt;
+        &lt;/div&gt;
+      ))}
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h3>Skjema-komponent med validering</h3>
+    <pre><code>"use client"
+
+import { useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import toast from 'react-hot-toast'
+
+// Valideringsskjema
+const schema = z.object({
+  name: z.string().min(2, 'Navn må være minst 2 tegn'),
+  email: z.string().email('Ugyldig e-post'),
+  message: z.string().min(10, 'Melding må være minst 10 tegn'),
+})
+
+type FormData = z.infer&lt;typeof schema&gt;
+
+export default function ContactForm() {
+  const [loading, setLoading] = useState(false)
+
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm&lt;FormData&gt;({
+    resolver: zodResolver(schema),
+  })
+
+  const onSubmit = async (data: FormData) =&gt; {
+    setLoading(true)
+    try {
+      // Send data til API
+      await fetch('/api/contact', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      })
+      toast.success('Melding sendt!')
+      reset()
+    } catch {
+      toast.error('Kunne ikke sende melding')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit(onSubmit)} className="space-y-4"&gt;
+      &lt;div&gt;
+        &lt;label className="block text-sm font-medium"&gt;Navn&lt;/label&gt;
+        &lt;input
+          {...register('name')}
+          className="w-full px-3 py-2 border rounded-md"
+        /&gt;
+        {errors.name && (
+          &lt;p className="text-red-500 text-sm"&gt;{errors.name.message}&lt;/p&gt;
+        )}
+      &lt;/div&gt;
+
+      &lt;div&gt;
+        &lt;label className="block text-sm font-medium"&gt;E-post&lt;/label&gt;
+        &lt;input
+          {...register('email')}
+          type="email"
+          className="w-full px-3 py-2 border rounded-md"
+        /&gt;
+        {errors.email && (
+          &lt;p className="text-red-500 text-sm"&gt;{errors.email.message}&lt;/p&gt;
+        )}
+      &lt;/div&gt;
+
+      &lt;div&gt;
+        &lt;label className="block text-sm font-medium"&gt;Melding&lt;/label&gt;
+        &lt;textarea
+          {...register('message')}
+          className="w-full px-3 py-2 border rounded-md"
+          rows={4}
+        /&gt;
+        {errors.message && (
+          &lt;p className="text-red-500 text-sm"&gt;{errors.message.message}&lt;/p&gt;
+        )}
+      &lt;/div&gt;
+
+      &lt;button
+        type="submit"
+        disabled={loading}
+        className="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 disabled:opacity-50"
+      &gt;
+        {loading ? 'Sender...' : 'Send melding'}
+      &lt;/button&gt;
+    &lt;/form&gt;
+  )
+}</code></pre>
+
+    <!-- ========== CUSTOM HOOKS ========== -->
+    <h2>Egendefinerte hooks</h2>
+
+    <h3>useLocalStorage</h3>
+    <pre><code>// src/hooks/useLocalStorage.ts
+import { useState, useEffect } from 'react'
+
+export function useLocalStorage&lt;T&gt;(key: string, initialValue: T) {
+  const [value, setValue] = useState&lt;T&gt;(() =&gt; {
+    if (typeof window === 'undefined') return initialValue
+
+    const stored = localStorage.getItem(key)
+    return stored ? JSON.parse(stored) : initialValue
+  })
+
+  useEffect(() =&gt; {
+    localStorage.setItem(key, JSON.stringify(value))
+  }, [key, value])
+
+  return [value, setValue] as const
+}
+
+// Bruk:
+const [theme, setTheme] = useLocalStorage('theme', 'light')</code></pre>
+
+    <h3>useDebounce</h3>
+    <pre><code>// src/hooks/useDebounce.ts
+import { useState, useEffect } from 'react'
+
+export function useDebounce&lt;T&gt;(value: T, delay: number): T {
+  const [debouncedValue, setDebouncedValue] = useState(value)
+
+  useEffect(() =&gt; {
+    const timer = setTimeout(() =&gt; {
+      setDebouncedValue(value)
+    }, delay)
+
+    return () =&gt; clearTimeout(timer)
+  }, [value, delay])
+
+  return debouncedValue
+}
+
+// Bruk:
+const [search, setSearch] = useState('')
+const debouncedSearch = useDebounce(search, 300)</code></pre>
+
+    <!-- ========== SUMMARY TABLE ========== -->
+    <h2>Hurtigreferanse</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Snippet</th>
+          <th>Beskrivelse</th>
+          <th>Når bruke</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>rafce</code></td>
+          <td>Arrow function component</td>
+          <td>De fleste komponenter</td>
+        </tr>
+        <tr>
+          <td><code>rfc</code></td>
+          <td>Function component</td>
+          <td>Når du foretrekker vanlig funksjon</td>
+        </tr>
+        <tr>
+          <td><code>tsrafce</code></td>
+          <td>TypeScript arrow component</td>
+          <td>Komponenter med props</td>
+        </tr>
+        <tr>
+          <td><code>useState</code></td>
+          <td>State hook</td>
+          <td>Lokal tilstand</td>
+        </tr>
+        <tr>
+          <td><code>useEffect</code></td>
+          <td>Effect hook</td>
+          <td>Side effects, API-kall</td>
+        </tr>
+        <tr>
+          <td><code>useRef</code></td>
+          <td>Ref hook</td>
+          <td>DOM-referanser, mutable verdier</td>
+        </tr>
+        <tr>
+          <td><code>useMemo</code></td>
+          <td>Memoization hook</td>
+          <td>Tunge beregninger</td>
+        </tr>
+        <tr>
+          <td><code>useCallback</code></td>
+          <td>Callback memoization</td>
+          <td>Funksjoner som props</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="footer">
+      <p><a href="../index.html">← Tilbake til hovedsiden</a></p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>
