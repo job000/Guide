@@ -1,0 +1,1888 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta name="theme-color" content="#6366f1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Komponenter, Actions & Supabase - Komplett Guide</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    /* ============================================
+       MOBILE-FIRST OPTIMALISERING
+       ============================================ */
+
+    * {
+      -webkit-tap-highlight-color: rgba(99, 102, 241, 0.2);
+    }
+
+    html {
+      font-size: 16px;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    /* ============================================
+       DRAWER MENY FOR MOBIL
+       ============================================ */
+
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 9998;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .drawer-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .drawer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 85%;
+      max-width: 320px;
+      background: white;
+      z-index: 9999;
+      transform: translateX(-100%);
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      box-shadow: 4px 0 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .drawer.open {
+      transform: translateX(0);
+    }
+
+    .drawer-header {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+      padding: 1.5rem;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .drawer-header h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      color: white;
+      border: none;
+    }
+
+    .drawer-header h2::before {
+      display: none;
+    }
+
+    .drawer-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s;
+    }
+
+    .drawer-close:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .drawer-section {
+      padding: 1rem 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .drawer-section-title {
+      padding: 0.5rem 1.5rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #94a3b8;
+    }
+
+    .drawer-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.875rem 1.5rem;
+      color: #334155;
+      text-decoration: none;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .drawer-link:hover,
+    .drawer-link.active {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+      color: #6366f1;
+    }
+
+    .drawer-link svg {
+      width: 20px;
+      height: 20px;
+      opacity: 0.7;
+    }
+
+    .drawer-link.active svg {
+      opacity: 1;
+    }
+
+    /* Mobile bottom bar med hamburger */
+    .mobile-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid rgba(226, 232, 240, 0.8);
+      padding: 0.5rem 1rem;
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+    }
+
+    .menu-toggle {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+      transition: all 0.2s;
+    }
+
+    .menu-toggle:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+    }
+
+    .menu-toggle svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .mobile-quick-links {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .mobile-quick-link {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.2rem;
+      padding: 0.5rem 0.75rem;
+      color: #64748b;
+      text-decoration: none;
+      font-size: 0.65rem;
+      font-weight: 500;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+
+    .mobile-quick-link:hover {
+      color: #6366f1;
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .mobile-quick-link svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-bar {
+        display: flex;
+      }
+
+      .nav {
+        display: none;
+      }
+
+      body {
+        padding-bottom: 75px;
+      }
+
+      .container {
+        padding: 1.5rem 1rem;
+      }
+
+      h1 {
+        font-size: 1.75rem;
+        line-height: 1.2;
+      }
+
+      h2 {
+        font-size: 1.35rem;
+        margin-top: 2rem;
+      }
+
+      h3 {
+        font-size: 1.15rem;
+      }
+
+      pre {
+        font-size: 0.75rem;
+        padding: 1rem;
+        margin: 1rem -1rem;
+        border-radius: 0;
+        max-height: 350px;
+      }
+
+      .table-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin: 1rem -1rem;
+        padding: 0 1rem;
+      }
+
+      table {
+        min-width: 500px;
+        font-size: 0.8rem;
+      }
+
+      th, td {
+        padding: 0.75rem;
+      }
+
+      blockquote {
+        padding: 1rem;
+        margin: 1rem 0;
+      }
+
+      blockquote p {
+        font-size: 0.95rem;
+      }
+
+      .quick-nav {
+        padding: 1rem;
+      }
+
+      .quick-nav a {
+        padding: 0.6rem 0.8rem;
+        font-size: 0.8rem;
+      }
+    }
+
+    /* ============================================
+       KOMPONENTER
+       ============================================ */
+
+    .quick-nav {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .quick-nav a {
+      display: inline-block;
+      margin: 0.25rem;
+      padding: 0.5rem 1rem;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      text-decoration: none;
+      color: #334155;
+      transition: all 0.2s;
+    }
+
+    .quick-nav a:hover {
+      border-color: #6366f1;
+      background: #eff6ff;
+      color: #4f46e5;
+      transform: translateY(-1px);
+    }
+
+    /* Tech Stack Cards */
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    @media (max-width: 480px) {
+      .tech-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+      }
+    }
+
+    .tech-card {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 1.25rem 1rem;
+      text-align: center;
+      transition: all 0.3s;
+    }
+
+    .tech-card:hover {
+      border-color: #6366f1;
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(99, 102, 246, 0.15);
+    }
+
+    .tech-card-icon {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 0.75rem;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+
+    .tech-card h4 {
+      margin: 0 0 0.25rem 0;
+      font-size: 0.95rem;
+      color: #1e293b;
+    }
+
+    .tech-card h4::before {
+      display: none;
+    }
+
+    .tech-card p {
+      margin: 0;
+      font-size: 0.75rem;
+      color: #64748b;
+    }
+
+    /* Step Cards */
+    .step-card {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      position: relative;
+      transition: all 0.3s;
+    }
+
+    .step-card:hover {
+      border-color: #6366f1;
+      box-shadow: 0 8px 30px rgba(99, 102, 241, 0.12);
+    }
+
+    .step-card::before {
+      content: attr(data-step);
+      position: absolute;
+      top: -12px;
+      left: 20px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+      padding: 0.25rem 1rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .step-card h3 {
+      margin-top: 0.5rem;
+    }
+
+    .step-card h3::before {
+      display: none;
+    }
+
+    /* File Header */
+    .file-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: linear-gradient(135deg, #1e293b, #334155);
+      color: #60a5fa;
+      padding: 0.75rem 1rem;
+      border-radius: 12px 12px 0 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      margin-top: 1rem;
+      overflow-x: auto;
+    }
+
+    .file-header + pre {
+      margin-top: 0;
+      border-radius: 0 0 12px 12px;
+    }
+
+    .file-icon {
+      width: 18px;
+      height: 18px;
+      opacity: 0.8;
+      flex-shrink: 0;
+    }
+
+    /* Security Box */
+    .security-box {
+      background: linear-gradient(135deg, #fef2f2 0%, #fff1f2 100%);
+      border: 2px solid #fecaca;
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      position: relative;
+    }
+
+    .security-box::before {
+      content: '🔒';
+      position: absolute;
+      top: -15px;
+      left: 15px;
+      font-size: 1.5rem;
+      background: white;
+      padding: 0 0.5rem;
+    }
+
+    .security-box h4 {
+      color: #dc2626;
+      margin-top: 0.5rem;
+    }
+
+    .security-box h4::before {
+      display: none;
+    }
+
+    /* Best Practice */
+    .best-practice {
+      background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+      border: 2px solid #6ee7b7;
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .best-practice h4 {
+      color: #059669;
+      margin: 0 0 1rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .best-practice h4::before {
+      display: none;
+    }
+
+    /* Flow Diagram */
+    .flow-mobile {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      padding: 1.5rem;
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+      border-radius: 16px;
+      margin: 1.5rem 0;
+    }
+
+    .flow-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 1rem;
+      color: white;
+    }
+
+    .flow-item .icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .flow-item.frontend .icon { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
+    .flow-item.action .icon { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+    .flow-item.supabase .icon { background: linear-gradient(135deg, #22c55e, #16a34a); }
+    .flow-item.response .icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
+
+    .flow-item .content h4 {
+      margin: 0 0 0.25rem 0;
+      font-size: 0.9rem;
+      color: white;
+    }
+
+    .flow-item .content h4::before { display: none; }
+
+    .flow-item .content p {
+      margin: 0;
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .flow-arrow {
+      display: flex;
+      justify-content: center;
+      color: #60a5fa;
+      font-size: 1.25rem;
+    }
+
+    /* Checklist */
+    .checklist {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+
+    .checklist-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    .checklist-item:last-child {
+      border-bottom: none;
+    }
+
+    .checklist-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .checklist-icon.required {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .checklist-icon.done {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    /* Folder Tree */
+    .folder-tree {
+      background: linear-gradient(135deg, #0f172a, #1e293b);
+      color: #e2e8f0;
+      padding: 1.25rem;
+      border-radius: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.8;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      margin: 1rem 0;
+    }
+
+    .folder-tree .folder { color: #60a5fa; }
+    .folder-tree .file { color: #4ade80; }
+    .folder-tree .comment { color: #64748b; }
+    .folder-tree .action { color: #c084fc; }
+
+    /* Learn Cards */
+    .learn-card {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      overflow: hidden;
+      margin: 1rem 0;
+      transition: all 0.3s;
+    }
+
+    .learn-card:hover {
+      border-color: #6366f1;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(99, 102, 241, 0.15);
+    }
+
+    .learn-card-header {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .learn-card-header h4 {
+      margin: 0;
+      color: white;
+      font-size: 1rem;
+    }
+
+    .learn-card-header h4::before { display: none; }
+
+    .learn-card-body {
+      padding: 1.25rem;
+    }
+
+    .learn-card-body p {
+      margin: 0 0 1rem 0;
+      font-size: 0.9rem;
+    }
+
+    /* Numbered Steps */
+    .numbered-steps {
+      counter-reset: step;
+    }
+
+    .numbered-step {
+      position: relative;
+      padding-left: 3.5rem;
+      margin: 2rem 0;
+    }
+
+    .numbered-step::before {
+      counter-increment: step;
+      content: counter(step);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 2.5rem;
+      height: 2.5rem;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1rem;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    @media (max-width: 768px) {
+      .numbered-step {
+        padding-left: 3rem;
+      }
+
+      .numbered-step::before {
+        width: 2rem;
+        height: 2rem;
+        font-size: 0.85rem;
+      }
+    }
+
+    /* Tailwind Section */
+    .tailwind-example {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 16px;
+      overflow: hidden;
+      margin: 1.5rem 0;
+    }
+
+    .tailwind-preview {
+      padding: 2rem;
+      background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+      border-bottom: 2px solid #e2e8f0;
+    }
+
+    .tailwind-code {
+      padding: 0;
+    }
+
+    .tailwind-code pre {
+      margin: 0;
+      border-radius: 0;
+    }
+
+    /* Accordion for mobile */
+    .accordion {
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+
+    .accordion-item {
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .accordion-item:last-child {
+      border-bottom: none;
+    }
+
+    .accordion-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.25rem;
+      background: white;
+      border: none;
+      width: 100%;
+      text-align: left;
+      font-weight: 600;
+      color: #1e293b;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .accordion-header:hover {
+      background: #f8fafc;
+    }
+
+    .accordion-header svg {
+      width: 20px;
+      height: 20px;
+      transition: transform 0.3s;
+      color: #6366f1;
+    }
+
+    .accordion-header.open svg {
+      transform: rotate(180deg);
+    }
+
+    .accordion-content {
+      display: none;
+      padding: 1rem 1.25rem;
+      background: #f8fafc;
+    }
+
+    .accordion-content.open {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <!-- Drawer Overlay -->
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+
+  <!-- Drawer Menu -->
+  <div class="drawer" id="drawer">
+    <div class="drawer-header">
+      <h2>Navigasjon</h2>
+      <button class="drawer-close" id="drawerClose">&times;</button>
+    </div>
+
+    <div class="drawer-section">
+      <div class="drawer-section-title">Denne Guiden</div>
+      <a href="#oversikt" class="drawer-link" onclick="closeDrawer()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        Oversikt
+      </a>
+      <a href="#tech-stack" class="drawer-link" onclick="closeDrawer()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+        Tech Stack
+      </a>
+      <a href="#tailwind" class="drawer-link" onclick="closeDrawer()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+        Tailwind CSS
+      </a>
+      <a href="#komponenter" class="drawer-link" onclick="closeDrawer()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>
+        Komponenter
+      </a>
+      <a href="#actions" class="drawer-link" onclick="closeDrawer()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        Server Actions
+      </a>
+      <a href="#supabase" class="drawer-link" onclick="closeDrawer()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>
+        Supabase
+      </a>
+      <a href="#sikkerhet" class="drawer-link" onclick="closeDrawer()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        Sikkerhet
+      </a>
+    </div>
+
+    <div class="drawer-section">
+      <div class="drawer-section-title">Andre Guider</div>
+      <a href="index.html" class="drawer-link">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+        Start Guide
+      </a>
+      <a href="frontend-backend.html" class="drawer-link">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        Frontend/Backend
+      </a>
+      <a href="fullstack-arkitektur.html" class="drawer-link">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+        Fullstack Arkitektur
+      </a>
+      <a href="database.html" class="drawer-link">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>
+        Database
+      </a>
+      <a href="homepage.html" class="drawer-link">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+        Moderne HomePage
+      </a>
+    </div>
+
+    <div class="drawer-section">
+      <div class="drawer-section-title">Ressurser</div>
+      <a href="../grunnleggende/tailwind.html" class="drawer-link">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+        Tailwind Grunnleggende
+      </a>
+      <a href="../grunnleggende/typescript.html" class="drawer-link">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+        TypeScript
+      </a>
+      <a href="../grunnleggende/react.html" class="drawer-link">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"/></svg>
+        React
+      </a>
+    </div>
+  </div>
+
+  <!-- Desktop Navigation -->
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html">Start</a>
+    <a href="frontend-backend.html">Frontend/Backend</a>
+    <a href="komponenter-actions-supabase.html"><strong>Komponenter & Actions</strong></a>
+    <a href="database.html">Database</a>
+  </nav>
+
+  <!-- Mobile Bottom Bar -->
+  <div class="mobile-bar">
+    <button class="menu-toggle" id="menuToggle">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      Meny
+    </button>
+    <div class="mobile-quick-links">
+      <a href="#tech-stack" class="mobile-quick-link">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+        Stack
+      </a>
+      <a href="#tailwind" class="mobile-quick-link">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+        Tailwind
+      </a>
+      <a href="#sikkerhet" class="mobile-quick-link">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        Sikkerhet
+      </a>
+    </div>
+  </div>
+
+  <div class="container">
+    <h1>Komponenter, Actions & Supabase</h1>
+
+    <blockquote>
+      <p>Komplett, mobilvennlig guide for hvordan du bruker komponenter i sider, implementerer Server Actions, Tailwind CSS, og kobler sikkert til Supabase - fra database til frontend uten sikkerhetshull.</p>
+    </blockquote>
+
+    <div class="quick-nav">
+      <strong>Hopp til:</strong><br>
+      <a href="#oversikt">Oversikt</a>
+      <a href="#tech-stack">Tech Stack</a>
+      <a href="#tailwind">Tailwind CSS</a>
+      <a href="#komponenter">Komponenter</a>
+      <a href="#actions">Server Actions</a>
+      <a href="#supabase">Supabase</a>
+      <a href="#sikkerhet">Sikkerhet</a>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- OVERSIKT -->
+    <!-- ============================================ -->
+    <h2 id="oversikt">Dataflyt: Fra Supabase til Bruker</h2>
+
+    <p>Slik flyter data gjennom applikasjonen din - trygt og effektivt:</p>
+
+    <div class="flow-mobile">
+      <div class="flow-item frontend">
+        <div class="icon">1</div>
+        <div class="content">
+          <h4>Frontend (Komponent)</h4>
+          <p>Bruker klikker, skriver i skjema, eller siden lastes</p>
+        </div>
+      </div>
+
+      <div class="flow-arrow">↓</div>
+
+      <div class="flow-item action">
+        <div class="icon">2</div>
+        <div class="content">
+          <h4>Server Action</h4>
+          <p>Kjører på serveren - validerer, prosesserer</p>
+        </div>
+      </div>
+
+      <div class="flow-arrow">↓</div>
+
+      <div class="flow-item supabase">
+        <div class="icon">3</div>
+        <div class="content">
+          <h4>Supabase Database</h4>
+          <p>Lagrer/henter data med RLS-sikkerhet</p>
+        </div>
+      </div>
+
+      <div class="flow-arrow">↓</div>
+
+      <div class="flow-item response">
+        <div class="icon">4</div>
+        <div class="content">
+          <h4>Response til Frontend</h4>
+          <p>Data vises i komponenten</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- TECH STACK -->
+    <!-- ============================================ -->
+    <h2 id="tech-stack">Tech Stack</h2>
+
+    <p>Disse teknologiene brukes sammen for å bygge moderne webapplikasjoner:</p>
+
+    <div class="tech-grid">
+      <div class="tech-card">
+        <div class="tech-card-icon" style="background: linear-gradient(135deg, #000, #333);">
+          <span style="color: white;">N</span>
+        </div>
+        <h4>Next.js 15</h4>
+        <p>React-rammeverk</p>
+      </div>
+
+      <div class="tech-card">
+        <div class="tech-card-icon" style="background: linear-gradient(135deg, #61dafb, #21a1c4);">
+          <span>⚛️</span>
+        </div>
+        <h4>React 19</h4>
+        <p>UI-bibliotek</p>
+      </div>
+
+      <div class="tech-card">
+        <div class="tech-card-icon" style="background: linear-gradient(135deg, #3178c6, #235a9e);">
+          <span style="color: white;">TS</span>
+        </div>
+        <h4>TypeScript</h4>
+        <p>Typesikkerhet</p>
+      </div>
+
+      <div class="tech-card">
+        <div class="tech-card-icon" style="background: linear-gradient(135deg, #38bdf8, #0ea5e9);">
+          <span style="color: white;">🌊</span>
+        </div>
+        <h4>Tailwind CSS</h4>
+        <p>Utility-first CSS</p>
+      </div>
+
+      <div class="tech-card">
+        <div class="tech-card-icon" style="background: linear-gradient(135deg, #3fcf8e, #1a9f5c);">
+          <span style="color: white;">⚡</span>
+        </div>
+        <h4>Supabase</h4>
+        <p>Database & Auth</p>
+      </div>
+
+      <div class="tech-card">
+        <div class="tech-card-icon" style="background: linear-gradient(135deg, #8b5cf6, #6d28d9);">
+          <span style="color: white;">🔒</span>
+        </div>
+        <h4>Server Actions</h4>
+        <p>Backend-logikk</p>
+      </div>
+    </div>
+
+    <div class="best-practice">
+      <h4>Installer alt</h4>
+      <pre style="margin: 0;"><code># Opprett nytt Next.js prosjekt
+npx create-next-app@latest mitt-prosjekt --typescript --tailwind --eslint --app
+
+# Gå inn i mappen
+cd mitt-prosjekt
+
+# Installer Supabase
+npm install @supabase/supabase-js
+
+# Start utviklingsserver
+npm run dev</code></pre>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- TAILWIND CSS -->
+    <!-- ============================================ -->
+    <h2 id="tailwind">Tailwind CSS</h2>
+
+    <p>Tailwind er et utility-first CSS-rammeverk. I stedet for å skrive CSS, bruker du klasser direkte i HTML/JSX.</p>
+
+    <div class="accordion">
+      <div class="accordion-item">
+        <button class="accordion-header" onclick="toggleAccordion(this)">
+          <span>📐 Layout & Spacing</span>
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="accordion-content">
+          <pre><code>// Padding
+p-4      → padding: 1rem (16px)
+px-6     → padding-left/right: 1.5rem
+py-2     → padding-top/bottom: 0.5rem
+
+// Margin
+m-4      → margin: 1rem
+mx-auto  → margin-left/right: auto (sentrering)
+mt-8     → margin-top: 2rem
+mb-4     → margin-bottom: 1rem
+
+// Width & Height
+w-full   → width: 100%
+w-1/2    → width: 50%
+h-screen → height: 100vh
+max-w-md → max-width: 28rem</code></pre>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <button class="accordion-header" onclick="toggleAccordion(this)">
+          <span>🎨 Farger</span>
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="accordion-content">
+          <pre><code>// Bakgrunnsfarger
+bg-white       → hvit
+bg-gray-100    → lys grå
+bg-blue-500    → blå
+bg-green-600   → grønn
+
+// Tekstfarger
+text-black     → svart tekst
+text-gray-600  → grå tekst
+text-blue-500  → blå tekst
+text-white     → hvit tekst
+
+// Border
+border-gray-200  → grå kantlinje
+border-red-500   → rød kantlinje</code></pre>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <button class="accordion-header" onclick="toggleAccordion(this)">
+          <span>📱 Responsivt Design</span>
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="accordion-content">
+          <pre><code>// Breakpoints
+sm:  → 640px+  (mobil landscape)
+md:  → 768px+  (tablet)
+lg:  → 1024px+ (laptop)
+xl:  → 1280px+ (desktop)
+
+// Eksempel: Responsiv grid
+&lt;div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3"&gt;
+  // 1 kolonne på mobil
+  // 2 kolonner på tablet
+  // 3 kolonner på desktop
+&lt;/div&gt;
+
+// Eksempel: Responsiv tekst
+&lt;h1 className="text-2xl md:text-4xl lg:text-6xl"&gt;
+  Overskrift
+&lt;/h1&gt;</code></pre>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <button class="accordion-header" onclick="toggleAccordion(this)">
+          <span>✨ Flexbox & Grid</span>
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="accordion-content">
+          <pre><code>// Flexbox
+flex              → display: flex
+flex-col          → flex-direction: column
+items-center      → align-items: center
+justify-between   → justify-content: space-between
+gap-4             → gap: 1rem
+
+// Grid
+grid              → display: grid
+grid-cols-3       → 3 kolonner
+grid-cols-12      → 12 kolonner (som Bootstrap)
+col-span-2        → element tar 2 kolonner
+
+// Eksempel: Sentrert innhold
+&lt;div className="flex items-center justify-center min-h-screen"&gt;
+  &lt;p&gt;Sentrert!&lt;/p&gt;
+&lt;/div&gt;</code></pre>
+        </div>
+      </div>
+
+      <div class="accordion-item">
+        <button class="accordion-header" onclick="toggleAccordion(this)">
+          <span>🎭 Hover & States</span>
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div class="accordion-content">
+          <pre><code>// Hover
+hover:bg-blue-600    → blå bakgrunn ved hover
+hover:text-white     → hvit tekst ved hover
+hover:scale-105      → 5% større ved hover
+
+// Focus
+focus:ring-2         → 2px ring ved fokus
+focus:ring-blue-500  → blå ring
+focus:outline-none   → fjern outline
+
+// Disabled
+disabled:opacity-50  → 50% gjennomsiktig
+disabled:cursor-not-allowed
+
+// Eksempel: Knapp med states
+&lt;button className="
+  bg-blue-500 text-white px-4 py-2 rounded
+  hover:bg-blue-600
+  focus:ring-2 focus:ring-blue-300
+  disabled:opacity-50
+  transition-colors
+"&gt;
+  Klikk meg
+&lt;/button&gt;</code></pre>
+        </div>
+      </div>
+    </div>
+
+    <h3>Tailwind Eksempler</h3>
+
+    <div class="tailwind-example">
+      <div class="tailwind-preview">
+        <button style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; border: none; font-weight: 600; cursor: pointer;">
+          Primary Button
+        </button>
+      </div>
+      <div class="tailwind-code">
+        <pre><code>&lt;button className="
+  bg-blue-500 hover:bg-blue-600
+  text-white font-semibold
+  px-6 py-3 rounded-lg
+  transition-colors
+"&gt;
+  Primary Button
+&lt;/button&gt;</code></pre>
+      </div>
+    </div>
+
+    <div class="tailwind-example">
+      <div class="tailwind-preview">
+        <div style="background: white; border: 2px solid #e2e8f0; border-radius: 1rem; padding: 1.5rem; max-width: 300px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+          <h3 style="margin: 0 0 0.5rem 0; font-size: 1.25rem; color: #1e293b;">Produktkort</h3>
+          <p style="margin: 0 0 1rem 0; color: #64748b; font-size: 0.875rem;">En kort beskrivelse av produktet.</p>
+          <span style="color: #16a34a; font-weight: 700; font-size: 1.25rem;">199 kr</span>
+        </div>
+      </div>
+      <div class="tailwind-code">
+        <pre><code>&lt;div className="
+  bg-white border-2 border-gray-200
+  rounded-2xl p-6 shadow-sm
+  hover:shadow-lg transition-shadow
+"&gt;
+  &lt;h3 className="text-xl font-bold text-gray-900 mb-2"&gt;
+    Produktkort
+  &lt;/h3&gt;
+  &lt;p className="text-gray-500 text-sm mb-4"&gt;
+    En kort beskrivelse av produktet.
+  &lt;/p&gt;
+  &lt;span className="text-green-600 font-bold text-xl"&gt;
+    199 kr
+  &lt;/span&gt;
+&lt;/div&gt;</code></pre>
+      </div>
+    </div>
+
+    <div class="tailwind-example">
+      <div class="tailwind-preview">
+        <div style="display: flex; align-items: center; gap: 1rem; background: #f8fafc; padding: 1rem; border-radius: 0.75rem;">
+          <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">JO</div>
+          <div>
+            <p style="margin: 0; font-weight: 600; color: #1e293b;">John Obligar</p>
+            <p style="margin: 0; font-size: 0.875rem; color: #64748b;">john@example.com</p>
+          </div>
+        </div>
+      </div>
+      <div class="tailwind-code">
+        <pre><code>&lt;div className="flex items-center gap-4 bg-gray-50 p-4 rounded-xl"&gt;
+  &lt;div className="
+    w-12 h-12 rounded-full
+    bg-gradient-to-br from-indigo-500 to-purple-500
+    flex items-center justify-center
+    text-white font-bold
+  "&gt;
+    JO
+  &lt;/div&gt;
+  &lt;div&gt;
+    &lt;p className="font-semibold text-gray-900"&gt;John Obligar&lt;/p&gt;
+    &lt;p className="text-sm text-gray-500"&gt;john@example.com&lt;/p&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- KOMPONENTER -->
+    <!-- ============================================ -->
+    <h2 id="komponenter">Komponenter</h2>
+
+    <p>Det finnes to typer komponenter i Next.js:</p>
+
+    <div class="learn-card">
+      <div class="learn-card-header">
+        <span style="font-size: 1.5rem;">🖥️</span>
+        <h4>Server Components (Standard)</h4>
+      </div>
+      <div class="learn-card-body">
+        <p>Kjører på serveren. Kan hente data direkte fra database. Ingen <code>"use client"</code> øverst.</p>
+        <ul style="margin: 0; font-size: 0.9rem;">
+          <li>Kan bruke <code>async/await</code></li>
+          <li>Kan ikke bruke <code>useState</code>, <code>useEffect</code></li>
+          <li>Raskere - ingen JavaScript sendes til bruker</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="learn-card">
+      <div class="learn-card-header" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+        <span style="font-size: 1.5rem;">⚡</span>
+        <h4>Client Components</h4>
+      </div>
+      <div class="learn-card-body">
+        <p>Kjører i nettleseren. Brukes for interaktivitet. Krever <code>"use client"</code> øverst.</p>
+        <ul style="margin: 0; font-size: 0.9rem;">
+          <li>Kan bruke <code>useState</code>, <code>useEffect</code></li>
+          <li>Kan lytte på klikk, input, scroll</li>
+          <li>Brukes for skjemaer og knapper</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>Eksempel: Side med Komponenter</h3>
+
+    <div class="step-card" data-step="Server Component">
+      <h3>Produktliste-side</h3>
+      <p>Henter data på serveren og sender til Client Component:</p>
+    </div>
+
+    <div class="file-header">
+      <svg class="file-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      src/app/produkter/page.tsx
+    </div>
+    <pre><code>// Dette er en SERVER COMPONENT (ingen "use client")
+import { getProducts } from "@/actions/products"
+import ProductList from "@/components/ProductList"
+import ProductForm from "@/components/forms/ProductForm"
+
+export default async function ProductsPage() {
+  // Hent data på serveren
+  const { data: products } = await getProducts()
+
+  return (
+    &lt;div className="max-w-4xl mx-auto p-4 md:p-8"&gt;
+      &lt;h1 className="text-2xl md:text-3xl font-bold mb-6"&gt;
+        Produkter
+      &lt;/h1&gt;
+
+      {/* Client Component for skjema */}
+      &lt;ProductForm /&gt;
+
+      {/* Sender data til Client Component */}
+      &lt;ProductList products={products || []} /&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <div class="step-card" data-step="Client Component">
+      <h3>Produktliste-komponent</h3>
+      <p>Viser produktene og håndterer sletting:</p>
+    </div>
+
+    <div class="file-header">
+      <svg class="file-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      src/components/ProductList.tsx
+    </div>
+    <pre><code>"use client"
+
+import { useState } from "react"
+import { deleteProduct } from "@/actions/products"
+import { useRouter } from "next/navigation"
+
+interface Product {
+  id: string
+  name: string
+  price: number
+}
+
+interface Props {
+  products: Product[]
+}
+
+export default function ProductList({ products }: Props) {
+  const [deleting, setDeleting] = useState&lt;string | null&gt;(null)
+  const router = useRouter()
+
+  async function handleDelete(id: string) {
+    if (!confirm("Sikker på at du vil slette?")) return
+
+    setDeleting(id)
+    const result = await deleteProduct(id)
+    setDeleting(null)
+
+    if (result.success) {
+      router.refresh()
+    }
+  }
+
+  if (products.length === 0) {
+    return (
+      &lt;p className="text-gray-500 text-center py-8"&gt;
+        Ingen produkter ennå
+      &lt;/p&gt;
+    )
+  }
+
+  return (
+    &lt;div className="space-y-3"&gt;
+      {products.map((product) =&gt; (
+        &lt;div
+          key={product.id}
+          className="flex items-center justify-between p-4
+                     bg-white rounded-xl border-2 border-gray-100
+                     hover:border-blue-200 transition-colors"
+        &gt;
+          &lt;div&gt;
+            &lt;h3 className="font-semibold text-gray-900"&gt;
+              {product.name}
+            &lt;/h3&gt;
+            &lt;p className="text-green-600 font-bold"&gt;
+              {product.price} kr
+            &lt;/p&gt;
+          &lt;/div&gt;
+
+          &lt;button
+            onClick={() =&gt; handleDelete(product.id)}
+            disabled={deleting === product.id}
+            className="px-4 py-2 text-sm text-red-600 font-medium
+                       hover:bg-red-50 rounded-lg transition-colors
+                       disabled:opacity-50"
+          &gt;
+            {deleting === product.id ? "Sletter..." : "Slett"}
+          &lt;/button&gt;
+        &lt;/div&gt;
+      ))}
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <div class="step-card" data-step="Skjema">
+      <h3>Produkt-skjema</h3>
+      <p>Client Component med Server Action:</p>
+    </div>
+
+    <div class="file-header">
+      <svg class="file-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+      src/components/forms/ProductForm.tsx
+    </div>
+    <pre><code>"use client"
+
+import { useState, useRef } from "react"
+import { createProduct } from "@/actions/products"
+import { useRouter } from "next/navigation"
+
+export default function ProductForm() {
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState("")
+  const formRef = useRef&lt;HTMLFormElement&gt;(null)
+  const router = useRouter()
+
+  async function handleSubmit(formData: FormData) {
+    setPending(true)
+    setError("")
+
+    const result = await createProduct(formData)
+
+    setPending(false)
+
+    if (result.success) {
+      formRef.current?.reset()
+      router.refresh()
+    } else {
+      setError(result.message || "Noe gikk galt")
+    }
+  }
+
+  return (
+    &lt;form
+      ref={formRef}
+      action={handleSubmit}
+      className="bg-white p-6 rounded-2xl border-2 border-gray-100 mb-6"
+    &gt;
+      &lt;h2 className="text-xl font-bold mb-4"&gt;Nytt produkt&lt;/h2&gt;
+
+      {error && (
+        &lt;div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-sm"&gt;
+          {error}
+        &lt;/div&gt;
+      )}
+
+      &lt;div className="space-y-4"&gt;
+        &lt;input
+          type="text"
+          name="name"
+          placeholder="Produktnavn"
+          required
+          className="w-full p-3 border-2 border-gray-200 rounded-xl
+                     focus:border-blue-500 focus:ring-2 focus:ring-blue-200
+                     outline-none transition-all"
+        /&gt;
+
+        &lt;input
+          type="number"
+          name="price"
+          placeholder="Pris"
+          step="0.01"
+          min="0"
+          required
+          className="w-full p-3 border-2 border-gray-200 rounded-xl
+                     focus:border-blue-500 focus:ring-2 focus:ring-blue-200
+                     outline-none transition-all"
+        /&gt;
+
+        &lt;textarea
+          name="description"
+          placeholder="Beskrivelse (valgfritt)"
+          rows={3}
+          className="w-full p-3 border-2 border-gray-200 rounded-xl
+                     focus:border-blue-500 focus:ring-2 focus:ring-blue-200
+                     outline-none transition-all resize-none"
+        /&gt;
+
+        &lt;button
+          type="submit"
+          disabled={pending}
+          className="w-full py-3 bg-blue-500 text-white font-semibold
+                     rounded-xl hover:bg-blue-600 disabled:opacity-50
+                     transition-colors"
+        &gt;
+          {pending ? "Oppretter..." : "Opprett produkt"}
+        &lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/form&gt;
+  )
+}</code></pre>
+
+    <!-- ============================================ -->
+    <!-- SERVER ACTIONS -->
+    <!-- ============================================ -->
+    <h2 id="actions">Server Actions</h2>
+
+    <p>Server Actions er funksjoner som kjører på serveren. De er <strong>trygge</strong> fordi sensitiv kode aldri sendes til nettleseren.</p>
+
+    <div class="security-box">
+      <h4>Hvorfor Server Actions?</h4>
+      <ul style="margin: 0; padding-left: 1.25rem; font-size: 0.9rem;">
+        <li>Database-passord og API-nøkler er <strong>aldri synlige</strong></li>
+        <li>Validering skjer på serveren - kan ikke omgås</li>
+        <li>Enklere enn å sette opp API-endepunkter</li>
+        <li>Automatisk typesikkerhet med TypeScript</li>
+      </ul>
+    </div>
+
+    <div class="file-header">
+      <svg class="file-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+      src/actions/products.ts
+    </div>
+    <pre><code>"use server"
+
+import { revalidatePath } from "next/cache"
+import { createClient } from "@/config/supabase-server"
+
+// Typer
+interface Product {
+  id: string
+  name: string
+  price: number
+  description?: string
+}
+
+interface ActionResult&lt;T = null&gt; {
+  success: boolean
+  message?: string
+  data?: T
+}
+
+// HENT ALLE
+export async function getProducts(): Promise&lt;ActionResult&lt;Product[]&gt;&gt; {
+  try {
+    const supabase = createClient()
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .order("created_at", { ascending: false })
+
+    if (error) throw error
+    return { success: true, data: data || [] }
+  } catch (error) {
+    return { success: false, message: "Kunne ikke hente produkter", data: [] }
+  }
+}
+
+// HENT ÉN
+export async function getProductById(id: string): Promise&lt;ActionResult&lt;Product&gt;&gt; {
+  try {
+    if (!id) return { success: false, message: "Ugyldig ID" }
+
+    const supabase = createClient()
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("id", id)
+      .single()
+
+    if (error) throw error
+    return { success: true, data }
+  } catch (error) {
+    return { success: false, message: "Produkt ikke funnet" }
+  }
+}
+
+// OPPRETT
+export async function createProduct(formData: FormData): Promise&lt;ActionResult&lt;Product&gt;&gt; {
+  try {
+    const name = formData.get("name") as string
+    const priceStr = formData.get("price") as string
+    const description = formData.get("description") as string
+
+    // Validering
+    if (!name || name.trim().length &lt; 2) {
+      return { success: false, message: "Navn må være minst 2 tegn" }
+    }
+
+    const price = parseFloat(priceStr)
+    if (isNaN(price) || price &lt; 0) {
+      return { success: false, message: "Ugyldig pris" }
+    }
+
+    const supabase = createClient()
+    const { data, error } = await supabase
+      .from("products")
+      .insert({
+        name: name.trim(),
+        price,
+        description: description?.trim() || null,
+      })
+      .select()
+      .single()
+
+    if (error) throw error
+
+    revalidatePath("/produkter")
+    return { success: true, message: "Produkt opprettet!", data }
+  } catch (error) {
+    return { success: false, message: "Kunne ikke opprette produkt" }
+  }
+}
+
+// SLETT
+export async function deleteProduct(id: string): Promise&lt;ActionResult&gt; {
+  try {
+    if (!id) return { success: false, message: "Ugyldig ID" }
+
+    const supabase = createClient()
+    const { error } = await supabase
+      .from("products")
+      .delete()
+      .eq("id", id)
+
+    if (error) throw error
+
+    revalidatePath("/produkter")
+    return { success: true, message: "Produkt slettet!" }
+  } catch (error) {
+    return { success: false, message: "Kunne ikke slette" }
+  }
+}</code></pre>
+
+    <!-- ============================================ -->
+    <!-- SUPABASE -->
+    <!-- ============================================ -->
+    <h2 id="supabase">Supabase</h2>
+
+    <div class="numbered-steps">
+      <div class="numbered-step">
+        <h3 style="margin-top: 0;">Miljøvariabler</h3>
+        <div class="file-header">
+          <svg class="file-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          .env.local
+        </div>
+        <pre><code># Supabase (fra dashboard)
+NEXT_PUBLIC_SUPABASE_URL=https://xxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+
+# Service key (KUN server-side!)
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
+
+# JWT for auth
+JWT_SECRET=minst-32-tegn-her</code></pre>
+      </div>
+
+      <div class="numbered-step">
+        <h3 style="margin-top: 0;">Supabase Client</h3>
+        <div class="file-header">
+          <svg class="file-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          src/config/supabase-server.ts
+        </div>
+        <pre><code>import { createClient as createSupabaseClient } from "@supabase/supabase-js"
+
+export function createClient() {
+  return createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    }
+  )
+}</code></pre>
+      </div>
+
+      <div class="numbered-step">
+        <h3 style="margin-top: 0;">Database SQL</h3>
+        <pre><code>-- Produkttabell
+CREATE TABLE products (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  name VARCHAR(100) NOT NULL,
+  price DECIMAL(10, 2) NOT NULL CHECK (price >= 0),
+  description TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Aktiver RLS
+ALTER TABLE products ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Alle kan lese
+CREATE POLICY "Public read" ON products
+  FOR SELECT USING (true);</code></pre>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SIKKERHET -->
+    <!-- ============================================ -->
+    <h2 id="sikkerhet">Sikkerhet</h2>
+
+    <div class="checklist">
+      <div class="checklist-item">
+        <span class="checklist-icon required">1</span>
+        <div>
+          <strong>Aldri stol på input fra frontend</strong>
+          <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #64748b;">
+            Valider ALT på serveren
+          </p>
+        </div>
+      </div>
+
+      <div class="checklist-item">
+        <span class="checklist-icon required">2</span>
+        <div>
+          <strong>Bruk Server Actions, ikke direkte database-kall</strong>
+          <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #64748b;">
+            Client Components skal aldri snakke direkte med Supabase
+          </p>
+        </div>
+      </div>
+
+      <div class="checklist-item">
+        <span class="checklist-icon required">3</span>
+        <div>
+          <strong>Service Role Key kun på server</strong>
+          <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #64748b;">
+            Aldri NEXT_PUBLIC_ prefix på service key
+          </p>
+        </div>
+      </div>
+
+      <div class="checklist-item">
+        <span class="checklist-icon required">4</span>
+        <div>
+          <strong>Aktiver RLS i Supabase</strong>
+          <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #64748b;">
+            Row Level Security beskytter data
+          </p>
+        </div>
+      </div>
+
+      <div class="checklist-item">
+        <span class="checklist-icon required">5</span>
+        <div>
+          <strong>Sanitér all brukerinput</strong>
+          <p style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: #64748b;">
+            Trim, escape, og valider før lagring
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPPSUMMERING -->
+    <div class="best-practice" style="margin-top: 3rem;">
+      <h4>Oppsummering</h4>
+      <div class="table-wrapper">
+        <table style="min-width: 400px;">
+          <tr>
+            <td><strong>Tailwind</strong></td>
+            <td>Utility-klasser direkte i JSX</td>
+          </tr>
+          <tr>
+            <td><strong>Komponenter</strong></td>
+            <td>Server for data, Client for interaktivitet</td>
+          </tr>
+          <tr>
+            <td><strong>Server Actions</strong></td>
+            <td>All database-logikk og validering</td>
+          </tr>
+          <tr>
+            <td><strong>Supabase</strong></td>
+            <td>Service key kun på server</td>
+          </tr>
+          <tr>
+            <td><strong>Sikkerhet</strong></td>
+            <td>Valider alt, RLS på tabeller</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <h2>Neste steg</h2>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Ressurs</th>
+            <th>Beskrivelse</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="frontend-backend.html">Frontend/Backend</a></td>
+            <td>Dypere guide om dataflyt</td>
+          </tr>
+          <tr>
+            <td><a href="fullstack-arkitektur.html">Fullstack</a></td>
+            <td>Komplett prosjektstruktur</td>
+          </tr>
+          <tr>
+            <td><a href="homepage.html">Moderne HomePage</a></td>
+            <td>Bygg en flott forside</td>
+          </tr>
+          <tr>
+            <td><a href="../grunnleggende/tailwind.html">Tailwind Guide</a></td>
+            <td>Alle Tailwind-klasser</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="footer">
+      <p><a href="frontend-backend.html">← Frontend/Backend</a> | <a href="database.html">Database →</a></p>
+      <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+        <a href="https://obligarconsulting.no" target="_blank" style="color: #6366f1;">Obligar Consulting</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+  <script>
+    // Drawer functionality
+    const drawer = document.getElementById('drawer');
+    const drawerOverlay = document.getElementById('drawerOverlay');
+    const menuToggle = document.getElementById('menuToggle');
+    const drawerClose = document.getElementById('drawerClose');
+
+    function openDrawer() {
+      drawer.classList.add('open');
+      drawerOverlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeDrawer() {
+      drawer.classList.remove('open');
+      drawerOverlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    menuToggle.addEventListener('click', openDrawer);
+    drawerClose.addEventListener('click', closeDrawer);
+    drawerOverlay.addEventListener('click', closeDrawer);
+
+    // Close on escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeDrawer();
+    });
+
+    // Accordion functionality
+    function toggleAccordion(button) {
+      const content = button.nextElementSibling;
+      const isOpen = content.classList.contains('open');
+
+      // Close all accordions
+      document.querySelectorAll('.accordion-content').forEach(c => c.classList.remove('open'));
+      document.querySelectorAll('.accordion-header').forEach(h => h.classList.remove('open'));
+
+      // Open clicked one if it was closed
+      if (!isOpen) {
+        content.classList.add('open');
+        button.classList.add('open');
+      }
+    }
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          const offset = 80; // Account for fixed header
+          const top = target.getBoundingClientRect().top + window.pageYOffset - offset;
+          window.scrollTo({ top, behavior: 'smooth' });
+        }
+      });
+    });
+  </script>
+</body>
+</html>

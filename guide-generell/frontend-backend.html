@@ -1,0 +1,1514 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Frontend, Proxy & Backend Kommunikasjon - Obligar Consulting</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .architecture-diagram {
+      background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+      color: #e2e8f0;
+      padding: 2rem;
+      border-radius: 16px;
+      margin: 2rem 0;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      overflow-x: auto;
+    }
+    .architecture-diagram h3 {
+      color: #60a5fa;
+      margin-top: 0;
+      border: none;
+    }
+    .architecture-diagram h3::before { display: none; }
+    .flow-diagram {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      border: 2px solid #334155;
+      border-radius: 16px;
+      padding: 2rem;
+      margin: 2rem 0;
+      overflow-x: auto;
+    }
+    .flow-box {
+      display: inline-block;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      font-weight: 600;
+      text-align: center;
+      min-width: 120px;
+    }
+    .flow-frontend { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: white; }
+    .flow-proxy { background: linear-gradient(135deg, #f59e0b, #d97706); color: white; }
+    .flow-backend { background: linear-gradient(135deg, #22c55e, #16a34a); color: white; }
+    .flow-database { background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; }
+    .flow-arrow {
+      display: inline-block;
+      color: #60a5fa;
+      font-size: 1.5rem;
+      margin: 0 1rem;
+      vertical-align: middle;
+    }
+    .file-path {
+      background: #1e293b;
+      color: #60a5fa;
+      padding: 0.5rem 1rem;
+      border-radius: 8px 8px 0 0;
+      font-family: monospace;
+      font-size: 0.85rem;
+      margin-bottom: 0;
+      display: inline-block;
+    }
+    .file-path + pre {
+      margin-top: 0;
+      border-radius: 0 8px 8px 8px;
+    }
+    .concept-card {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+      transition: all 0.3s;
+    }
+    .concept-card:hover {
+      border-color: #3b82f6;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.15);
+    }
+    .concept-card h4 {
+      margin: 0 0 0.5rem 0;
+      color: #1e40af;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .concept-card h4::before { display: none; }
+    .concept-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+    }
+    .quick-nav {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 2rem 0;
+    }
+    .quick-nav a {
+      display: inline-block;
+      margin: 0.25rem;
+      padding: 0.5rem 1rem;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      text-decoration: none;
+      color: #334155;
+    }
+    .quick-nav a:hover {
+      border-color: #3b82f6;
+      background: #eff6ff;
+      color: #1e40af;
+    }
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+    }
+    .comparison-table th {
+      background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+      color: white;
+      padding: 1rem;
+      text-align: left;
+    }
+    .comparison-table td {
+      padding: 1rem;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .comparison-table tr:hover {
+      background: #f8fafc;
+    }
+    .step-indicator {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2rem;
+      height: 2rem;
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      color: white;
+      border-radius: 50%;
+      font-weight: bold;
+      margin-right: 0.75rem;
+    }
+    .folder-tree {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 1.5rem;
+      border-radius: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.9rem;
+      overflow-x: auto;
+    }
+    .folder-tree .folder { color: #60a5fa; }
+    .folder-tree .file { color: #4ade80; }
+    .folder-tree .comment { color: #64748b; }
+    .folder-tree .special { color: #f59e0b; }
+    .method-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-right: 0.5rem;
+    }
+    .method-get { background: #dcfce7; color: #166534; }
+    .method-post { background: #dbeafe; color: #1e40af; }
+    .method-put { background: #fef3c7; color: #92400e; }
+    .method-delete { background: #fee2e2; color: #991b1b; }
+    .tab-container {
+      margin: 2rem 0;
+    }
+    .tab-buttons {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: -2px;
+    }
+    .tab-button {
+      padding: 0.75rem 1.5rem;
+      background: #f1f5f9;
+      border: 2px solid #e2e8f0;
+      border-bottom: none;
+      border-radius: 8px 8px 0 0;
+      cursor: pointer;
+      font-weight: 500;
+      color: #64748b;
+      transition: all 0.2s;
+    }
+    .tab-button.active {
+      background: white;
+      border-color: #3b82f6;
+      color: #1e40af;
+    }
+    .tab-content {
+      background: white;
+      border: 2px solid #3b82f6;
+      border-radius: 0 8px 8px 8px;
+      padding: 1.5rem;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html">Start</a>
+    <a href="frontend-backend.html"><strong>Frontend/Backend</strong></a>
+    <a href="fullstack-arkitektur.html">Fullstack</a>
+    <a href="database.html">Database</a>
+  </nav>
+
+  <div class="container">
+    <h1>Frontend, Proxy & Backend Kommunikasjon</h1>
+
+    <blockquote>
+      <p>Komplett guide for hvordan frontend kommuniserer med backend i Next.js. Forstå dataflyt, API-ruter, Server Actions, proxy/middleware, og dynamisk ruting med <code>[id]</code>-mapper.</p>
+    </blockquote>
+
+    <div class="quick-nav">
+      <strong>Hopp til:</strong><br>
+      <a href="#oversikt">Oversikt & Dataflyt</a>
+      <a href="#kommunikasjon">Kommunikasjonsmetoder</a>
+      <a href="#server-actions">Server Actions</a>
+      <a href="#api-routes">API Routes</a>
+      <a href="#proxy-middleware">Proxy & Middleware</a>
+      <a href="#route-groups">Route Groups</a>
+      <a href="#dynamisk-ruting">Dynamisk Ruting [id]</a>
+      <a href="#praktisk">Praktiske Eksempler</a>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- OVERSIKT -->
+    <!-- ============================================ -->
+    <h2 id="oversikt">Oversikt: Hvordan Data Flyter</h2>
+
+    <p>I en moderne Next.js-applikasjon flyter data gjennom flere lag. Her er den komplette oversikten:</p>
+
+    <div class="flow-diagram">
+      <div style="text-align: center; padding: 1rem 0;">
+        <div class="flow-box flow-frontend">
+          <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🖥️</div>
+          Frontend<br>
+          <small style="opacity: 0.8;">(React/Next.js)</small>
+        </div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box flow-proxy">
+          <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🔒</div>
+          Proxy/Middleware<br>
+          <small style="opacity: 0.8;">(Auth-sjekk)</small>
+        </div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box flow-backend">
+          <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">⚙️</div>
+          Backend<br>
+          <small style="opacity: 0.8;">(Server Actions/API)</small>
+        </div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box flow-database">
+          <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🗄️</div>
+          Database<br>
+          <small style="opacity: 0.8;">(Supabase/PostgreSQL)</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="architecture-diagram">
+      <h3>Detaljert Dataflyt</h3>
+<pre style="margin:0; color: #e2e8f0; line-height: 1.8;">
+<span style="color: #60a5fa;">┌─────────────────────────────────────────────────────────────────────┐</span>
+<span style="color: #60a5fa;">│</span>                           <span style="color: #f59e0b;">FRONTEND (Browser)</span>                        <span style="color: #60a5fa;">│</span>
+<span style="color: #60a5fa;">│</span>  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐    <span style="color: #60a5fa;">│</span>
+<span style="color: #60a5fa;">│</span>  │  <span style="color: #4ade80;">React Component</span> │  │  <span style="color: #4ade80;">Client State</span>   │  │  <span style="color: #4ade80;">Form Handler</span>   │    <span style="color: #60a5fa;">│</span>
+<span style="color: #60a5fa;">│</span>  │  (page.tsx)     │  │  (useState)     │  │  (onSubmit)     │    <span style="color: #60a5fa;">│</span>
+<span style="color: #60a5fa;">│</span>  └────────┬────────┘  └────────┬────────┘  └────────┬────────┘    <span style="color: #60a5fa;">│</span>
+<span style="color: #60a5fa;">└───────────┼─────────────────────┼─────────────────────┼────────────┘</span>
+            │                     │                     │
+            ▼                     ▼                     ▼
+<span style="color: #f59e0b;">┌─────────────────────────────────────────────────────────────────────┐</span>
+<span style="color: #f59e0b;">│</span>                      <span style="color: #f59e0b;">PROXY / MIDDLEWARE</span>                             <span style="color: #f59e0b;">│</span>
+<span style="color: #f59e0b;">│</span>  ┌─────────────────────────────────────────────────────────────┐  <span style="color: #f59e0b;">│</span>
+<span style="color: #f59e0b;">│</span>  │  <span style="color: #fbbf24;">• Sjekker JWT-token i cookies</span>                              │  <span style="color: #f59e0b;">│</span>
+<span style="color: #f59e0b;">│</span>  │  <span style="color: #fbbf24;">• Validerer brukerrettigheter</span>                              │  <span style="color: #f59e0b;">│</span>
+<span style="color: #f59e0b;">│</span>  │  <span style="color: #fbbf24;">• Redirecter til /login hvis uautorisert</span>                   │  <span style="color: #f59e0b;">│</span>
+<span style="color: #f59e0b;">│</span>  │  <span style="color: #fbbf24;">• Legger til headers (CORS, security)</span>                      │  <span style="color: #f59e0b;">│</span>
+<span style="color: #f59e0b;">│</span>  └─────────────────────────────────────────────────────────────┘  <span style="color: #f59e0b;">│</span>
+<span style="color: #f59e0b;">└─────────────────────────────────┬───────────────────────────────────┘</span>
+                                  │
+                                  ▼
+<span style="color: #22c55e;">┌─────────────────────────────────────────────────────────────────────┐</span>
+<span style="color: #22c55e;">│</span>                         <span style="color: #22c55e;">BACKEND (Server)</span>                            <span style="color: #22c55e;">│</span>
+<span style="color: #22c55e;">│</span>  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐ <span style="color: #22c55e;">│</span>
+<span style="color: #22c55e;">│</span>  │  <span style="color: #4ade80;">Server Actions</span>  │  │  <span style="color: #4ade80;">API Routes</span>      │  │  <span style="color: #4ade80;">Server Comps</span>   │ <span style="color: #22c55e;">│</span>
+<span style="color: #22c55e;">│</span>  │  (actions/*.ts)  │  │  (api/*/route.ts)│  │  (async fetch)  │ <span style="color: #22c55e;">│</span>
+<span style="color: #22c55e;">│</span>  └────────┬─────────┘  └────────┬─────────┘  └────────┬─────────┘ <span style="color: #22c55e;">│</span>
+<span style="color: #22c55e;">└───────────┼──────────────────────┼──────────────────────┼──────────┘</span>
+            │                      │                      │
+            └──────────────────────┼──────────────────────┘
+                                   ▼
+<span style="color: #8b5cf6;">┌─────────────────────────────────────────────────────────────────────┐</span>
+<span style="color: #8b5cf6;">│</span>                         <span style="color: #8b5cf6;">DATABASE</span>                                    <span style="color: #8b5cf6;">│</span>
+<span style="color: #8b5cf6;">│</span>  ┌─────────────────────────────────────────────────────────────┐  <span style="color: #8b5cf6;">│</span>
+<span style="color: #8b5cf6;">│</span>  │  <span style="color: #c084fc;">Supabase / PostgreSQL / MongoDB</span>                            │  <span style="color: #8b5cf6;">│</span>
+<span style="color: #8b5cf6;">│</span>  │  <span style="color: #c084fc;">• Tabeller: users, products, orders</span>                        │  <span style="color: #8b5cf6;">│</span>
+<span style="color: #8b5cf6;">│</span>  │  <span style="color: #c084fc;">• RLS (Row Level Security)</span>                                 │  <span style="color: #8b5cf6;">│</span>
+<span style="color: #8b5cf6;">│</span>  └─────────────────────────────────────────────────────────────┘  <span style="color: #8b5cf6;">│</span>
+<span style="color: #8b5cf6;">└─────────────────────────────────────────────────────────────────────┘</span>
+</pre>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- KOMMUNIKASJONSMETODER -->
+    <!-- ============================================ -->
+    <h2 id="kommunikasjon">3 Måter Frontend Snakker med Backend</h2>
+
+    <p>I Next.js App Router har du tre hovedmetoder for kommunikasjon:</p>
+
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th>Metode</th>
+          <th>Når bruke</th>
+          <th>Fordeler</th>
+          <th>Ulemper</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Server Actions</strong></td>
+          <td>Skjemaer, mutasjoner, CRUD</td>
+          <td>Enklest, typesikker, ingen API-oppsett</td>
+          <td>Kun POST, ikke for eksterne klienter</td>
+        </tr>
+        <tr>
+          <td><strong>API Routes</strong></td>
+          <td>Webhooks, eksterne API-er, fetch</td>
+          <td>REST-standard, alle HTTP-metoder</td>
+          <td>Mer boilerplate, manuell feilhåndtering</td>
+        </tr>
+        <tr>
+          <td><strong>Server Components</strong></td>
+          <td>Datahenting ved sidelast</td>
+          <td>Raskest, ingen loading state</td>
+          <td>Kun lesing, ikke interaktiv</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="success-box">
+      <h3 style="margin-top: 0;">Anbefaling</h3>
+      <p style="margin: 0;"><strong>Server Actions</strong> for 90% av behovene dine (skjemaer, CRUD-operasjoner). <strong>API Routes</strong> kun når du trenger webhooks eller ekstern tilgang.</p>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SERVER ACTIONS -->
+    <!-- ============================================ -->
+    <h2 id="server-actions">Server Actions - Den Moderne Måten</h2>
+
+    <p>Server Actions lar deg kalle server-funksjoner direkte fra frontend uten å sette opp API-endepunkter:</p>
+
+    <div class="concept-card">
+      <h4>
+        <span class="concept-icon" style="background: linear-gradient(135deg, #dcfce7, #bbf7d0);">⚡</span>
+        Hvordan Server Actions Fungerer
+      </h4>
+      <ol style="margin: 1rem 0 0 0; padding-left: 1.25rem; color: #475569;">
+        <li>Marker funksjonen med <code>"use server"</code></li>
+        <li>Importer og kall direkte fra Client Component</li>
+        <li>Next.js håndterer serialisering og HTTP automatisk</li>
+        <li>Returnerer data tilbake til frontend</li>
+      </ol>
+    </div>
+
+    <h3><span class="step-indicator">1</span>Opprette en Server Action</h3>
+
+    <div class="file-path">src/actions/products.ts</div>
+    <pre><code>"use server"
+
+import supabase from "@/config/supabase-config"
+import { revalidatePath } from "next/cache"
+
+// TypeScript interface for typesikkerhet
+interface Product {
+  id: string
+  name: string
+  price: number
+  description: string
+}
+
+// ============================================
+// HENT ALLE PRODUKTER
+// ============================================
+export async function getProducts() {
+  try {
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .order("created_at", { ascending: false })
+
+    if (error) throw error
+
+    return { success: true, data }
+  } catch (error) {
+    console.error("Error fetching products:", error)
+    return { success: false, data: [], message: "Kunne ikke hente produkter" }
+  }
+}
+
+// ============================================
+// HENT ETT PRODUKT MED ID
+// ============================================
+export async function getProductById(id: string) {
+  try {
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("id", id)
+      .single()
+
+    if (error) throw error
+
+    return { success: true, data }
+  } catch (error) {
+    return { success: false, data: null, message: "Produkt ikke funnet" }
+  }
+}
+
+// ============================================
+// OPPRETT NYTT PRODUKT
+// ============================================
+export async function createProduct(formData: FormData) {
+  try {
+    const name = formData.get("name") as string
+    const price = parseFloat(formData.get("price") as string)
+    const description = formData.get("description") as string
+
+    // Validering
+    if (!name || !price) {
+      return { success: false, message: "Navn og pris er påkrevd" }
+    }
+
+    const { data, error } = await supabase
+      .from("products")
+      .insert({ name, price, description })
+      .select()
+      .single()
+
+    if (error) throw error
+
+    // Revaliderer cache slik at listen oppdateres
+    revalidatePath("/produkter")
+
+    return { success: true, data, message: "Produkt opprettet!" }
+  } catch (error) {
+    console.error("Error creating product:", error)
+    return { success: false, message: "Kunne ikke opprette produkt" }
+  }
+}
+
+// ============================================
+// OPPDATER PRODUKT
+// ============================================
+export async function updateProduct(id: string, formData: FormData) {
+  try {
+    const name = formData.get("name") as string
+    const price = parseFloat(formData.get("price") as string)
+    const description = formData.get("description") as string
+
+    const { data, error } = await supabase
+      .from("products")
+      .update({ name, price, description })
+      .eq("id", id)
+      .select()
+      .single()
+
+    if (error) throw error
+
+    revalidatePath("/produkter")
+    revalidatePath(`/produkter/${id}`)
+
+    return { success: true, data, message: "Produkt oppdatert!" }
+  } catch (error) {
+    return { success: false, message: "Kunne ikke oppdatere produkt" }
+  }
+}
+
+// ============================================
+// SLETT PRODUKT
+// ============================================
+export async function deleteProduct(id: string) {
+  try {
+    const { error } = await supabase
+      .from("products")
+      .delete()
+      .eq("id", id)
+
+    if (error) throw error
+
+    revalidatePath("/produkter")
+
+    return { success: true, message: "Produkt slettet!" }
+  } catch (error) {
+    return { success: false, message: "Kunne ikke slette produkt" }
+  }
+}</code></pre>
+
+    <h3><span class="step-indicator">2</span>Bruke Server Action i Frontend</h3>
+
+    <div class="file-path">src/app/produkter/page.tsx (Server Component)</div>
+    <pre><code>// Server Component - henter data direkte
+import { getProducts } from "@/actions/products"
+import ProductList from "@/components/ProductList"
+import CreateProductForm from "@/components/CreateProductForm"
+
+export default async function ProductsPage() {
+  // Hent data på serveren (ingen loading state trengs!)
+  const { data: products } = await getProducts()
+
+  return (
+    &lt;div className="max-w-4xl mx-auto p-8"&gt;
+      &lt;h1 className="text-3xl font-bold mb-8"&gt;Produkter&lt;/h1&gt;
+
+      {/* Skjema for å opprette nytt produkt */}
+      &lt;CreateProductForm /&gt;
+
+      {/* Liste over produkter */}
+      &lt;ProductList products={products} /&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <div class="file-path">src/components/CreateProductForm.tsx (Client Component)</div>
+    <pre><code>"use client"
+
+import { useState } from "react"
+import { createProduct } from "@/actions/products"
+import { useRouter } from "next/navigation"
+
+export default function CreateProductForm() {
+  const [isPending, setIsPending] = useState(false)
+  const [message, setMessage] = useState("")
+  const router = useRouter()
+
+  async function handleSubmit(formData: FormData) {
+    setIsPending(true)
+    setMessage("")
+
+    // Kall Server Action direkte!
+    const result = await createProduct(formData)
+
+    setIsPending(false)
+    setMessage(result.message || "")
+
+    if (result.success) {
+      // Tøm skjema eller redirect
+      router.refresh() // Oppdaterer Server Component
+    }
+  }
+
+  return (
+    &lt;form action={handleSubmit} className="bg-white p-6 rounded-lg shadow mb-8"&gt;
+      &lt;h2 className="text-xl font-bold mb-4"&gt;Nytt produkt&lt;/h2&gt;
+
+      &lt;div className="space-y-4"&gt;
+        &lt;input
+          type="text"
+          name="name"
+          placeholder="Produktnavn"
+          required
+          className="w-full p-3 border rounded-lg"
+        /&gt;
+
+        &lt;input
+          type="number"
+          name="price"
+          placeholder="Pris"
+          step="0.01"
+          required
+          className="w-full p-3 border rounded-lg"
+        /&gt;
+
+        &lt;textarea
+          name="description"
+          placeholder="Beskrivelse"
+          className="w-full p-3 border rounded-lg"
+          rows={3}
+        /&gt;
+
+        &lt;button
+          type="submit"
+          disabled={isPending}
+          className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+        &gt;
+          {isPending ? "Oppretter..." : "Opprett produkt"}
+        &lt;/button&gt;
+      &lt;/div&gt;
+
+      {message && (
+        &lt;p className={`mt-4 p-3 rounded ${
+          message.includes("opprettet") ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+        }`}&gt;
+          {message}
+        &lt;/p&gt;
+      )}
+    &lt;/form&gt;
+  )
+}</code></pre>
+
+    <!-- ============================================ -->
+    <!-- API ROUTES -->
+    <!-- ============================================ -->
+    <h2 id="api-routes">API Routes - REST-endepunkter</h2>
+
+    <p>Bruk API Routes når du trenger:</p>
+    <ul>
+      <li>Webhooks fra eksterne tjenester (Stripe, GitHub, etc.)</li>
+      <li>REST API for mobilapper eller tredjeparter</li>
+      <li>Spesifikke HTTP-metoder (GET, PUT, DELETE)</li>
+    </ul>
+
+    <div class="file-path">src/app/api/products/route.ts</div>
+    <pre><code>import { NextRequest, NextResponse } from "next/server"
+import supabase from "@/config/supabase-config"
+
+// ============================================
+// GET - Hent alle produkter
+// ============================================
+export async function GET(request: NextRequest) {
+  try {
+    // Hent query parameters
+    const { searchParams } = new URL(request.url)
+    const limit = parseInt(searchParams.get("limit") || "10")
+    const offset = parseInt(searchParams.get("offset") || "0")
+
+    const { data, error, count } = await supabase
+      .from("products")
+      .select("*", { count: "exact" })
+      .range(offset, offset + limit - 1)
+      .order("created_at", { ascending: false })
+
+    if (error) throw error
+
+    return NextResponse.json({
+      success: true,
+      data,
+      pagination: {
+        total: count,
+        limit,
+        offset
+      }
+    })
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, message: "Kunne ikke hente produkter" },
+      { status: 500 }
+    )
+  }
+}
+
+// ============================================
+// POST - Opprett nytt produkt
+// ============================================
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json()
+
+    // Validering
+    if (!body.name || !body.price) {
+      return NextResponse.json(
+        { success: false, message: "Navn og pris er påkrevd" },
+        { status: 400 }
+      )
+    }
+
+    const { data, error } = await supabase
+      .from("products")
+      .insert({
+        name: body.name,
+        price: body.price,
+        description: body.description
+      })
+      .select()
+      .single()
+
+    if (error) throw error
+
+    return NextResponse.json(
+      { success: true, data },
+      { status: 201 }
+    )
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, message: "Kunne ikke opprette produkt" },
+      { status: 500 }
+    )
+  }
+}</code></pre>
+
+    <div class="file-path">src/app/api/products/[id]/route.ts</div>
+    <pre><code>import { NextRequest, NextResponse } from "next/server"
+import supabase from "@/config/supabase-config"
+
+interface Params {
+  params: { id: string }
+}
+
+// ============================================
+// GET - Hent ett produkt
+// ============================================
+export async function GET(request: NextRequest, { params }: Params) {
+  try {
+    const { id } = await params
+
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("id", id)
+      .single()
+
+    if (error || !data) {
+      return NextResponse.json(
+        { success: false, message: "Produkt ikke funnet" },
+        { status: 404 }
+      )
+    }
+
+    return NextResponse.json({ success: true, data })
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, message: "Serverfeil" },
+      { status: 500 }
+    )
+  }
+}
+
+// ============================================
+// PUT - Oppdater produkt
+// ============================================
+export async function PUT(request: NextRequest, { params }: Params) {
+  try {
+    const { id } = await params
+    const body = await request.json()
+
+    const { data, error } = await supabase
+      .from("products")
+      .update({
+        name: body.name,
+        price: body.price,
+        description: body.description
+      })
+      .eq("id", id)
+      .select()
+      .single()
+
+    if (error) throw error
+
+    return NextResponse.json({ success: true, data })
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, message: "Kunne ikke oppdatere" },
+      { status: 500 }
+    )
+  }
+}
+
+// ============================================
+// DELETE - Slett produkt
+// ============================================
+export async function DELETE(request: NextRequest, { params }: Params) {
+  try {
+    const { id } = await params
+
+    const { error } = await supabase
+      .from("products")
+      .delete()
+      .eq("id", id)
+
+    if (error) throw error
+
+    return NextResponse.json(
+      { success: true, message: "Produkt slettet" }
+    )
+  } catch (error) {
+    return NextResponse.json(
+      { success: false, message: "Kunne ikke slette" },
+      { status: 500 }
+    )
+  }
+}</code></pre>
+
+    <h3>Kalle API fra Frontend</h3>
+
+    <div class="file-path">src/lib/api.ts</div>
+    <pre><code>// Gjenbrukbar API-klient
+
+const API_BASE = "/api"
+
+export async function fetchProducts(limit = 10, offset = 0) {
+  const res = await fetch(`${API_BASE}/products?limit=${limit}&offset=${offset}`)
+  if (!res.ok) throw new Error("Kunne ikke hente produkter")
+  return res.json()
+}
+
+export async function fetchProductById(id: string) {
+  const res = await fetch(`${API_BASE}/products/${id}`)
+  if (!res.ok) throw new Error("Produkt ikke funnet")
+  return res.json()
+}
+
+export async function createProduct(data: {
+  name: string
+  price: number
+  description?: string
+}) {
+  const res = await fetch(`${API_BASE}/products`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  })
+  if (!res.ok) throw new Error("Kunne ikke opprette produkt")
+  return res.json()
+}
+
+export async function updateProduct(id: string, data: {
+  name?: string
+  price?: number
+  description?: string
+}) {
+  const res = await fetch(`${API_BASE}/products/${id}`, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  })
+  if (!res.ok) throw new Error("Kunne ikke oppdatere produkt")
+  return res.json()
+}
+
+export async function deleteProduct(id: string) {
+  const res = await fetch(`${API_BASE}/products/${id}`, {
+    method: "DELETE"
+  })
+  if (!res.ok) throw new Error("Kunne ikke slette produkt")
+  return res.json()
+}</code></pre>
+
+    <!-- ============================================ -->
+    <!-- PROXY & MIDDLEWARE -->
+    <!-- ============================================ -->
+    <h2 id="proxy-middleware">Proxy & Middleware - Rutebeskyttelse</h2>
+
+    <p>Middleware kjører <strong>før</strong> hver request og kan:</p>
+    <ul>
+      <li>Sjekke om brukeren er innlogget</li>
+      <li>Validere roller (admin, bruker)</li>
+      <li>Redirecte til login-side</li>
+      <li>Legge til headers</li>
+    </ul>
+
+    <div class="warning-box">
+      <strong>Viktig:</strong> I Next.js 15+ heter filen <code>middleware.ts</code> og ligger i roten av <code>src/</code>-mappen (eller prosjektroten).
+    </div>
+
+    <div class="file-path">src/middleware.ts</div>
+    <pre><code>import { NextRequest, NextResponse } from "next/server"
+import { jwtVerify } from "jose"
+
+// Ruter som IKKE krever autentisering
+const publicRoutes = [
+  "/",
+  "/om-oss",
+  "/tjenester",
+  "/kontakt",
+  "/login",
+  "/register",
+  "/glemt-passord",
+]
+
+// Ruter som krever ADMIN-rolle
+const adminRoutes = ["/admin"]
+
+// Ruter som krever innlogging
+const protectedRoutes = ["/dashboard", "/profil", "/innstillinger"]
+
+export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+
+  // ============================================
+  // 1. Sjekk om ruten er offentlig
+  // ============================================
+  const isPublicRoute = publicRoutes.some(route =>
+    pathname === route || pathname.startsWith(`${route}/`)
+  )
+
+  if (isPublicRoute) {
+    return NextResponse.next()
+  }
+
+  // ============================================
+  // 2. Hent og valider token
+  // ============================================
+  const token = request.cookies.get("token")?.value
+
+  if (!token) {
+    // Ingen token - redirect til login
+    const loginUrl = new URL("/login", request.url)
+    loginUrl.searchParams.set("redirect", pathname)
+    return NextResponse.redirect(loginUrl)
+  }
+
+  try {
+    // Verifiser JWT
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET!)
+    const { payload } = await jwtVerify(token, secret)
+
+    // ============================================
+    // 3. Sjekk admin-tilgang
+    // ============================================
+    const isAdminRoute = adminRoutes.some(route =>
+      pathname.startsWith(route)
+    )
+
+    if (isAdminRoute && payload.role !== "admin") {
+      // Ikke admin - redirect til dashboard
+      return NextResponse.redirect(new URL("/dashboard", request.url))
+    }
+
+    // ============================================
+    // 4. Alt OK - fortsett
+    // ============================================
+    // Legg til brukerinfo i headers (tilgjengelig i Server Components)
+    const response = NextResponse.next()
+    response.headers.set("x-user-id", payload.userId as string)
+    response.headers.set("x-user-role", payload.role as string)
+
+    return response
+
+  } catch (error) {
+    // Ugyldig token - redirect til login
+    console.error("Token verification failed:", error)
+    const response = NextResponse.redirect(new URL("/login", request.url))
+    response.cookies.delete("token")
+    return response
+  }
+}
+
+// ============================================
+// Konfigurasjon: Hvilke ruter skal middleware kjøre på
+// ============================================
+export const config = {
+  matcher: [
+    /*
+     * Match alle ruter unntatt:
+     * - _next/static (statiske filer)
+     * - _next/image (bilde-optimalisering)
+     * - favicon.ico
+     * - public-mappen
+     */
+    "/((?!_next/static|_next/image|favicon.ico|.*\\..*|api/webhook).*)",
+  ],
+}</code></pre>
+
+    <div class="success-box">
+      <h3 style="margin-top: 0;">Hvordan Middleware Fungerer</h3>
+<pre style="margin: 1rem 0 0 0; background: #f1f5f9; padding: 1rem; border-radius: 8px; font-family: monospace; font-size: 0.9rem;">
+Bruker besøker /admin/dashboard
+         ↓
+┌─────────────────────────────┐
+│       MIDDLEWARE            │
+│  1. Er /admin offentlig? NEI│
+│  2. Har bruker token? JA    │
+│  3. Er token gyldig? JA     │
+│  4. Er bruker admin? JA     │
+│  → Fortsett til siden       │
+└─────────────────────────────┘
+         ↓
+   Admin Dashboard vises
+</pre>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- ROUTE GROUPS -->
+    <!-- ============================================ -->
+    <h2 id="route-groups">Route Groups: (public), (protected), (admin)</h2>
+
+    <p>Route Groups lar deg organisere ruter med <strong>delte layouts</strong> uten å påvirke URL-strukturen:</p>
+
+    <div class="folder-tree">
+<span class="folder">src/app/</span>
+├── <span class="special">(public)/</span>                 <span class="comment"># Parentes = ikke del av URL</span>
+│   ├── layout.tsx            <span class="comment"># Layout med header/footer</span>
+│   ├── <span class="file">page.tsx</span>              <span class="comment"># URL: / (forside)</span>
+│   ├── <span class="folder">om-oss/</span>
+│   │   └── <span class="file">page.tsx</span>          <span class="comment"># URL: /om-oss</span>
+│   ├── <span class="folder">tjenester/</span>
+│   │   └── <span class="file">page.tsx</span>          <span class="comment"># URL: /tjenester</span>
+│   └── <span class="folder">kontakt/</span>
+│       └── <span class="file">page.tsx</span>          <span class="comment"># URL: /kontakt</span>
+│
+├── <span class="special">(auth)/</span>                   <span class="comment"># Auth-sider (minimal layout)</span>
+│   ├── layout.tsx            <span class="comment"># Enkel layout uten header</span>
+│   ├── <span class="folder">login/</span>
+│   │   └── <span class="file">page.tsx</span>          <span class="comment"># URL: /login</span>
+│   ├── <span class="folder">register/</span>
+│   │   └── <span class="file">page.tsx</span>          <span class="comment"># URL: /register</span>
+│   └── <span class="folder">glemt-passord/</span>
+│       └── <span class="file">page.tsx</span>          <span class="comment"># URL: /glemt-passord</span>
+│
+├── <span class="special">(protected)/</span>              <span class="comment"># Krever innlogging</span>
+│   ├── layout.tsx            <span class="comment"># Sjekker auth, viser bruker-nav</span>
+│   ├── <span class="folder">dashboard/</span>
+│   │   └── <span class="file">page.tsx</span>          <span class="comment"># URL: /dashboard</span>
+│   ├── <span class="folder">profil/</span>
+│   │   └── <span class="file">page.tsx</span>          <span class="comment"># URL: /profil</span>
+│   └── <span class="folder">innstillinger/</span>
+│       └── <span class="file">page.tsx</span>          <span class="comment"># URL: /innstillinger</span>
+│
+└── <span class="special">(admin)/</span>                  <span class="comment"># Krever admin-rolle</span>
+    ├── layout.tsx            <span class="comment"># Admin sidebar</span>
+    └── <span class="folder">admin/</span>
+        ├── <span class="file">page.tsx</span>          <span class="comment"># URL: /admin</span>
+        ├── <span class="folder">brukere/</span>
+        │   └── <span class="file">page.tsx</span>      <span class="comment"># URL: /admin/brukere</span>
+        └── <span class="folder">innhold/</span>
+            └── <span class="file">page.tsx</span>      <span class="comment"># URL: /admin/innhold</span>
+    </div>
+
+    <h3>Eksempel: Protected Layout</h3>
+
+    <div class="file-path">src/app/(protected)/layout.tsx</div>
+    <pre><code>import { redirect } from "next/navigation"
+import { getLoggedInUser } from "@/actions/auth"
+import UserNav from "@/components/layout/UserNav"
+
+export default async function ProtectedLayout({
+  children
+}: {
+  children: React.ReactNode
+}) {
+  // Sjekk om bruker er innlogget
+  const { success, user } = await getLoggedInUser()
+
+  if (!success || !user) {
+    redirect("/login")
+  }
+
+  return (
+    &lt;div className="min-h-screen bg-gray-50"&gt;
+      {/* Bruker-navigasjon med profilmeny */}
+      &lt;UserNav user={user} /&gt;
+
+      {/* Hovedinnhold */}
+      &lt;main className="max-w-7xl mx-auto px-4 py-8"&gt;
+        {children}
+      &lt;/main&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h3>Eksempel: Admin Layout</h3>
+
+    <div class="file-path">src/app/(admin)/layout.tsx</div>
+    <pre><code>import { redirect } from "next/navigation"
+import { getLoggedInUser } from "@/actions/auth"
+import AdminSidebar from "@/components/layout/AdminSidebar"
+
+export default async function AdminLayout({
+  children
+}: {
+  children: React.ReactNode
+}) {
+  const { success, user } = await getLoggedInUser()
+
+  // Dobbeltsjekk admin-rolle (middleware sjekker også)
+  if (!success || !user || user.role !== "admin") {
+    redirect("/dashboard")
+  }
+
+  return (
+    &lt;div className="min-h-screen flex"&gt;
+      {/* Admin sidebar */}
+      &lt;AdminSidebar /&gt;
+
+      {/* Hovedinnhold */}
+      &lt;main className="flex-1 p-8 bg-gray-100"&gt;
+        {children}
+      &lt;/main&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- ============================================ -->
+    <!-- DYNAMISK RUTING -->
+    <!-- ============================================ -->
+    <h2 id="dynamisk-ruting">Dynamisk Ruting: [id], [slug], [...catchAll]</h2>
+
+    <p>Dynamiske ruter lar deg lage sider basert på URL-parametre:</p>
+
+    <div class="folder-tree">
+<span class="folder">src/app/</span>
+├── <span class="folder">produkter/</span>
+│   ├── <span class="file">page.tsx</span>              <span class="comment"># /produkter (liste)</span>
+│   └── <span class="special">[id]/</span>                 <span class="comment"># Dynamisk segment</span>
+│       ├── <span class="file">page.tsx</span>          <span class="comment"># /produkter/123</span>
+│       └── <span class="folder">rediger/</span>
+│           └── <span class="file">page.tsx</span>      <span class="comment"># /produkter/123/rediger</span>
+│
+├── <span class="folder">blogg/</span>
+│   ├── <span class="file">page.tsx</span>              <span class="comment"># /blogg (alle innlegg)</span>
+│   └── <span class="special">[slug]/</span>               <span class="comment"># URL-vennlig ID</span>
+│       └── <span class="file">page.tsx</span>          <span class="comment"># /blogg/min-forste-post</span>
+│
+├── <span class="folder">docs/</span>
+│   └── <span class="special">[...slug]/</span>            <span class="comment"># Catch-all (flere segmenter)</span>
+│       └── <span class="file">page.tsx</span>          <span class="comment"># /docs/guide/getting-started</span>
+│
+└── <span class="folder">kategorier/</span>
+    └── <span class="special">[[...slug]]/</span>          <span class="comment"># Optional catch-all</span>
+        └── <span class="file">page.tsx</span>          <span class="comment"># /kategorier ELLER /kategorier/mat/pizza</span>
+    </div>
+
+    <h3><span class="step-indicator">1</span>Enkel Dynamisk Rute: [id]</h3>
+
+    <div class="file-path">src/app/produkter/[id]/page.tsx</div>
+    <pre><code>import { notFound } from "next/navigation"
+import { getProductById } from "@/actions/products"
+import Image from "next/image"
+import Link from "next/link"
+
+// TypeScript: Definer params-typen
+interface PageProps {
+  params: Promise&lt;{ id: string }&gt;
+}
+
+// Generer statiske sider for kjente produkter (valgfritt)
+export async function generateStaticParams() {
+  // Hent alle produkt-IDer for static generation
+  const { data: products } = await getProducts()
+
+  return products?.map((product) => ({
+    id: product.id,
+  })) || []
+}
+
+// Dynamisk metadata basert på produkt
+export async function generateMetadata({ params }: PageProps) {
+  const { id } = await params
+  const { data: product } = await getProductById(id)
+
+  return {
+    title: product?.name || "Produkt ikke funnet",
+    description: product?.description || "Ingen beskrivelse",
+  }
+}
+
+export default async function ProductPage({ params }: PageProps) {
+  // Hent ID fra URL (Next.js 15: params er async)
+  const { id } = await params
+
+  // Hent produktdata
+  const { success, data: product } = await getProductById(id)
+
+  // Vis 404 hvis ikke funnet
+  if (!success || !product) {
+    notFound()
+  }
+
+  return (
+    &lt;div className="max-w-4xl mx-auto p-8"&gt;
+      {/* Breadcrumbs */}
+      &lt;nav className="text-sm text-gray-500 mb-6"&gt;
+        &lt;Link href="/produkter" className="hover:text-blue-600"&gt;Produkter&lt;/Link&gt;
+        &lt;span className="mx-2"&gt;/&lt;/span&gt;
+        &lt;span&gt;{product.name}&lt;/span&gt;
+      &lt;/nav&gt;
+
+      {/* Produktdetaljer */}
+      &lt;div className="grid md:grid-cols-2 gap-8"&gt;
+        {/* Bilde */}
+        &lt;div className="relative aspect-square bg-gray-100 rounded-xl overflow-hidden"&gt;
+          {product.image_url ? (
+            &lt;Image
+              src={product.image_url}
+              alt={product.name}
+              fill
+              className="object-cover"
+            /&gt;
+          ) : (
+            &lt;div className="flex items-center justify-center h-full text-gray-400"&gt;
+              Ingen bilde
+            &lt;/div&gt;
+          )}
+        &lt;/div&gt;
+
+        {/* Info */}
+        &lt;div&gt;
+          &lt;h1 className="text-3xl font-bold mb-4"&gt;{product.name}&lt;/h1&gt;
+
+          &lt;p className="text-3xl font-bold text-green-600 mb-6"&gt;
+            {product.price.toLocaleString("no-NO")} kr
+          &lt;/p&gt;
+
+          &lt;p className="text-gray-600 mb-8"&gt;
+            {product.description || "Ingen beskrivelse"}
+          &lt;/p&gt;
+
+          &lt;div className="flex gap-4"&gt;
+            &lt;button className="flex-1 bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700"&gt;
+              Legg i handlekurv
+            &lt;/button&gt;
+            &lt;Link
+              href={`/produkter/${id}/rediger`}
+              className="px-6 py-3 border-2 border-gray-200 rounded-lg hover:border-blue-600"
+            &gt;
+              Rediger
+            &lt;/Link&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h3><span class="step-indicator">2</span>Catch-All Rute: [...slug]</h3>
+
+    <div class="file-path">src/app/docs/[...slug]/page.tsx</div>
+    <pre><code>interface PageProps {
+  params: Promise&lt;{ slug: string[] }&gt;
+}
+
+export default async function DocsPage({ params }: PageProps) {
+  const { slug } = await params
+  // slug er en array:
+  // /docs/guide           → slug = ["guide"]
+  // /docs/guide/start     → slug = ["guide", "start"]
+  // /docs/api/auth/login  → slug = ["api", "auth", "login"]
+
+  const path = slug.join("/")
+
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Dokumentasjon: {path}&lt;/h1&gt;
+      &lt;p&gt;Segmenter: {slug.join(" → ")}&lt;/p&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h3><span class="step-indicator">3</span>Rediger-side: [id]/rediger</h3>
+
+    <div class="file-path">src/app/produkter/[id]/rediger/page.tsx</div>
+    <pre><code>"use client"
+
+import { useState, useEffect } from "react"
+import { useParams, useRouter } from "next/navigation"
+import { getProductById, updateProduct } from "@/actions/products"
+
+export default function EditProductPage() {
+  const params = useParams()
+  const router = useRouter()
+  const id = params.id as string
+
+  const [product, setProduct] = useState&lt;any&gt;(null)
+  const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
+
+  // Hent eksisterende data
+  useEffect(() => {
+    async function fetchProduct() {
+      const { data } = await getProductById(id)
+      setProduct(data)
+      setLoading(false)
+    }
+    fetchProduct()
+  }, [id])
+
+  async function handleSubmit(formData: FormData) {
+    setSaving(true)
+    const result = await updateProduct(id, formData)
+    setSaving(false)
+
+    if (result.success) {
+      router.push(`/produkter/${id}`)
+    }
+  }
+
+  if (loading) return &lt;div&gt;Laster...&lt;/div&gt;
+  if (!product) return &lt;div&gt;Produkt ikke funnet&lt;/div&gt;
+
+  return (
+    &lt;div className="max-w-2xl mx-auto p-8"&gt;
+      &lt;h1 className="text-2xl font-bold mb-6"&gt;Rediger: {product.name}&lt;/h1&gt;
+
+      &lt;form action={handleSubmit} className="space-y-4"&gt;
+        &lt;input
+          type="text"
+          name="name"
+          defaultValue={product.name}
+          className="w-full p-3 border rounded-lg"
+        /&gt;
+
+        &lt;input
+          type="number"
+          name="price"
+          defaultValue={product.price}
+          step="0.01"
+          className="w-full p-3 border rounded-lg"
+        /&gt;
+
+        &lt;textarea
+          name="description"
+          defaultValue={product.description}
+          rows={4}
+          className="w-full p-3 border rounded-lg"
+        /&gt;
+
+        &lt;div className="flex gap-4"&gt;
+          &lt;button
+            type="submit"
+            disabled={saving}
+            className="flex-1 bg-blue-600 text-white py-3 rounded-lg"
+          &gt;
+            {saving ? "Lagrer..." : "Lagre endringer"}
+          &lt;/button&gt;
+          &lt;button
+            type="button"
+            onClick={() => router.back()}
+            className="px-6 py-3 border rounded-lg"
+          &gt;
+            Avbryt
+          &lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/form&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- ============================================ -->
+    <!-- PRAKTISKE EKSEMPLER -->
+    <!-- ============================================ -->
+    <h2 id="praktisk">Praktiske Eksempler: Fullstendige Flows</h2>
+
+    <h3>Eksempel 1: Produktliste med CRUD</h3>
+
+    <div class="architecture-diagram">
+      <h3>Komplett Flow: Produkthåndtering</h3>
+<pre style="margin:0; color: #e2e8f0;">
+<span style="color: #60a5fa;">URL</span>                      <span style="color: #f59e0b;">Side</span>                         <span style="color: #22c55e;">Funksjon</span>
+─────────────────────────────────────────────────────────────────────
+/produkter              page.tsx                     Liste alle
+/produkter/ny           ny/page.tsx                  Opprett form
+/produkter/[id]         [id]/page.tsx                Vis detaljer
+/produkter/[id]/rediger [id]/rediger/page.tsx        Rediger form
+
+<span style="color: #60a5fa;">Server Actions (src/actions/products.ts)</span>
+─────────────────────────────────────────────────────────────────────
+getProducts()           → Hent alle
+getProductById(id)      → Hent én
+createProduct(formData) → Opprett ny
+updateProduct(id, data) → Oppdater
+deleteProduct(id)       → Slett
+</pre>
+    </div>
+
+    <h3>Eksempel 2: Brukerautentisering Flow</h3>
+
+    <div class="architecture-diagram">
+      <h3>Auth Flow med Middleware</h3>
+<pre style="margin:0; color: #e2e8f0;">
+<span style="color: #4ade80;">1. REGISTRERING</span>
+   Bruker → /register → register() action → Database → Cookie settes
+
+<span style="color: #4ade80;">2. INNLOGGING</span>
+   Bruker → /login → login() action → Verifiser passord → JWT i cookie
+
+<span style="color: #4ade80;">3. BESØKER BESKYTTET SIDE</span>
+   Bruker → /dashboard
+         ↓
+   <span style="color: #f59e0b;">Middleware sjekker:</span>
+   - Har cookie? ✓
+   - Gyldig JWT? ✓
+   - Ikke utløpt? ✓
+         ↓
+   Dashboard vises
+
+<span style="color: #4ade80;">4. ADMIN-TILGANG</span>
+   Bruker → /admin
+         ↓
+   <span style="color: #f59e0b;">Middleware sjekker:</span>
+   - Har cookie? ✓
+   - Gyldig JWT? ✓
+   - role === "admin"? <span style="color: #ef4444;">✗</span>
+         ↓
+   Redirect → /dashboard
+</pre>
+    </div>
+
+    <h3>Eksempel 3: Webhook fra Stripe</h3>
+
+    <div class="file-path">src/app/api/webhook/stripe/route.ts</div>
+    <pre><code>import { NextRequest, NextResponse } from "next/server"
+import Stripe from "stripe"
+import supabase from "@/config/supabase-config"
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!)
+const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!
+
+export async function POST(request: NextRequest) {
+  const body = await request.text()
+  const signature = request.headers.get("stripe-signature")!
+
+  let event: Stripe.Event
+
+  try {
+    // Verifiser at webhook kommer fra Stripe
+    event = stripe.webhooks.constructEvent(body, signature, webhookSecret)
+  } catch (error) {
+    console.error("Webhook signature verification failed")
+    return NextResponse.json({ error: "Invalid signature" }, { status: 400 })
+  }
+
+  // Håndter ulike event-typer
+  switch (event.type) {
+    case "checkout.session.completed":
+      const session = event.data.object as Stripe.Checkout.Session
+
+      // Oppdater ordre i database
+      await supabase
+        .from("orders")
+        .update({
+          status: "paid",
+          stripe_session_id: session.id
+        })
+        .eq("id", session.metadata?.orderId)
+
+      break
+
+    case "payment_intent.payment_failed":
+      // Håndter feilet betaling
+      break
+  }
+
+  return NextResponse.json({ received: true })
+}</code></pre>
+
+    <!-- OPPSUMMERING -->
+    <div class="success-box" style="margin-top: 3rem;">
+      <h3 style="margin-top: 0;">Oppsummering</h3>
+      <table style="width: 100%; margin-top: 1rem;">
+        <tr>
+          <td><strong>Server Actions</strong></td>
+          <td>Bruk for skjemaer og CRUD (90% av tilfellene)</td>
+        </tr>
+        <tr>
+          <td><strong>API Routes</strong></td>
+          <td>Bruk for webhooks og eksterne API-er</td>
+        </tr>
+        <tr>
+          <td><strong>Middleware</strong></td>
+          <td>Bruk for auth-sjekk og rutebeskyttelse</td>
+        </tr>
+        <tr>
+          <td><strong>Route Groups</strong></td>
+          <td>Bruk for å organisere med delte layouts</td>
+        </tr>
+        <tr>
+          <td><strong>[id]</strong></td>
+          <td>Bruk for dynamiske sider (produkt, bruker, etc.)</td>
+        </tr>
+        <tr>
+          <td><strong>[...slug]</strong></td>
+          <td>Bruk for catch-all (docs, kategorier)</td>
+        </tr>
+      </table>
+    </div>
+
+    <h2>Neste steg</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Ressurs</th>
+          <th>Beskrivelse</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="fullstack-arkitektur.html"><strong>Fullstack Arkitektur</strong></a></td>
+          <td>Komplett mappestruktur og auth-system</td>
+        </tr>
+        <tr>
+          <td><a href="database.html">Database (Supabase)</a></td>
+          <td>Tabeller, SQL, RLS-policies</td>
+        </tr>
+        <tr>
+          <td><a href="autentisering.html">Autentisering</a></td>
+          <td>Login, register, JWT-håndtering</td>
+        </tr>
+        <tr>
+          <td><a href="admin.html">Admin Panel</a></td>
+          <td>Dashboard og admin-funksjonalitet</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="footer">
+      <p><a href="fullstack-arkitektur.html">← Fullstack Arkitektur</a> | <a href="database.html">Database →</a></p>
+      <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+        <a href="https://obligarconsulting.no" target="_blank" style="color: #2563eb;">Obligar Consulting</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Moderne HomePage - Obligar Consulting</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .preview-container {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 2rem 0;
+      overflow: hidden;
+    }
+    .preview-box {
+      background: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    .section-label {
+      display: inline-block;
+      background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+    .trend-card {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: all 0.3s;
+    }
+    .trend-card:hover {
+      border-color: #3b82f6;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(59, 130, 246, 0.15);
+    }
+    .trend-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .anatomy-section {
+      background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+      border-left: 4px solid;
+      padding: 1rem 1.5rem;
+      margin: 1.5rem 0;
+      border-radius: 0 8px 8px 0;
+    }
+    .anatomy-hero { border-color: #3b82f6; }
+    .anatomy-features { border-color: #22c55e; }
+    .anatomy-social { border-color: #f59e0b; }
+    .anatomy-cta { border-color: #8b5cf6; }
+    .anatomy-footer { border-color: #64748b; }
+    .checklist-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .checklist-item:last-child {
+      border-bottom: none;
+    }
+    .checklist-check {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #dcfce7;
+      color: #16a34a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html">Ny Nettside</a>
+    <a href="komponenter.html">Komponenter</a>
+    <a href="homepage.html"><strong>HomePage</strong></a>
+    <a href="maler.html">Maler</a>
+  </nav>
+
+  <div class="container">
+    <h1>Moderne HomePage Guide</h1>
+
+    <blockquote>
+      <p>Komplett guide for å utvikle en profesjonell, moderne forside med Next.js og Tailwind CSS. Inkluderer designtrender for 2024/2025, copy-paste kode og beste praksis.</p>
+    </blockquote>
+
+    <div class="success-box" style="background: linear-gradient(135deg, #dbeafe 0%, #ede9fe 100%); border: 2px solid #3b82f6;">
+      <h3 style="margin-top: 0; color: #1e40af;">Hva du vil lage</h3>
+      <p style="margin: 0; color: #334155;">En moderne, responsiv forside med:</p>
+      <ul style="margin: 0.5rem 0 0 0; color: #334155;">
+        <li>Hero-seksjon med animasjoner og gradient</li>
+        <li>Feature-grid med hover-effekter</li>
+        <li>Social proof (testimonials/logoer)</li>
+        <li>Call-to-action seksjoner</li>
+        <li>Smooth scroll og micro-interactions</li>
+      </ul>
+    </div>
+
+    <!-- DESIGN TRENDER -->
+    <h2>Moderne Designtrender 2024/2025</h2>
+    <p>Hold deg oppdatert med disse trendene som gjor nettsider profesjonelle og engasjerende:</p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin: 2rem 0;">
+      <div class="trend-card">
+        <div class="trend-icon" style="background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);">
+          <span>🎨</span>
+        </div>
+        <h4 style="margin: 0 0 0.5rem 0;">Bento Grid Layout</h4>
+        <p style="margin: 0; color: #64748b; font-size: 0.9rem;">Asymmetriske grid-layouts inspirert av Apple. Visuelt interessante og moderne.</p>
+      </div>
+
+      <div class="trend-card">
+        <div class="trend-icon" style="background: linear-gradient(135deg, #dcfce7 0%, #d1fae5 100%);">
+          <span>✨</span>
+        </div>
+        <h4 style="margin: 0 0 0.5rem 0;">Glassmorphism</h4>
+        <p style="margin: 0; color: #64748b; font-size: 0.9rem;">Frosted glass-effekt med blur og gjennomsiktighet. Elegant og moderne.</p>
+      </div>
+
+      <div class="trend-card">
+        <div class="trend-icon" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);">
+          <span>🌈</span>
+        </div>
+        <h4 style="margin: 0 0 0.5rem 0;">Mesh Gradients</h4>
+        <p style="margin: 0; color: #64748b; font-size: 0.9rem;">Komplekse, organiske gradienter som skaper dybde og interesse.</p>
+      </div>
+
+      <div class="trend-card">
+        <div class="trend-icon" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);">
+          <span>🎬</span>
+        </div>
+        <h4 style="margin: 0 0 0.5rem 0;">Micro-Animations</h4>
+        <p style="margin: 0; color: #64748b; font-size: 0.9rem;">Subtile animasjoner som gir liv til interaksjoner og forbedrer UX.</p>
+      </div>
+
+      <div class="trend-card">
+        <div class="trend-icon" style="background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);">
+          <span>🌙</span>
+        </div>
+        <h4 style="margin: 0 0 0.5rem 0;">Dark Mode First</h4>
+        <p style="margin: 0; color: #64748b; font-size: 0.9rem;">Mork modus som standard med toggle. Lettere for oynene og ser premium ut.</p>
+      </div>
+
+      <div class="trend-card">
+        <div class="trend-icon" style="background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);">
+          <span>📐</span>
+        </div>
+        <h4 style="margin: 0 0 0.5rem 0;">Stor Typografi</h4>
+        <p style="margin: 0; color: #64748b; font-size: 0.9rem;">Oversized headlines med variabel font-weight. Gjor inntrykk umiddelbart.</p>
+      </div>
+    </div>
+
+    <!-- ANATOMI -->
+    <h2>Anatomien til en Moderne HomePage</h2>
+    <p>En effektiv forside folger denne strukturen:</p>
+
+    <div class="anatomy-section anatomy-hero">
+      <h4 style="margin: 0 0 0.5rem 0; color: #1e40af;">1. Hero Section</h4>
+      <p style="margin: 0; color: #475569;">Forste inntrykk. Stor headline, subheadline, CTA-knapper. Ma fange oppmerksomhet pa under 3 sekunder.</p>
+    </div>
+
+    <div class="anatomy-section anatomy-features">
+      <h4 style="margin: 0 0 0.5rem 0; color: #166534;">2. Value Proposition / Features</h4>
+      <p style="margin: 0; color: #475569;">Vis hva du tilbyr. 3-6 nøkkelfunksjoner eller fordeler i et visuelt grid.</p>
+    </div>
+
+    <div class="anatomy-section anatomy-social">
+      <h4 style="margin: 0 0 0.5rem 0; color: #b45309;">3. Social Proof</h4>
+      <p style="margin: 0; color: #475569;">Bygg tillit. Kundelogoer, testimonials, tall/statistikk som viser resultater.</p>
+    </div>
+
+    <div class="anatomy-section anatomy-cta">
+      <h4 style="margin: 0 0 0.5rem 0; color: #7c3aed;">4. Call-to-Action</h4>
+      <p style="margin: 0; color: #475569;">Konverteringspunkt. Tydelig handling du vil at besokende skal ta.</p>
+    </div>
+
+    <div class="anatomy-section anatomy-footer">
+      <h4 style="margin: 0 0 0.5rem 0; color: #475569;">5. Footer</h4>
+      <p style="margin: 0; color: #475569;">Navigasjon, kontaktinfo, sosiale medier, copyright.</p>
+    </div>
+
+    <!-- KOMPLETT KODE -->
+    <h2 id="fullpage">Komplett Modern HomePage</h2>
+    <p>Her er en komplett, produksjonsklar forside du kan kopiere og tilpasse:</p>
+
+    <div class="component-detail">
+      <div class="component-detail-header" style="background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);">
+        <h3>Modern HomePage - Full Page</h3>
+        <p style="margin: 0; opacity: 0.9;">Komplett forside med alle seksjoner</p>
+      </div>
+      <div class="component-detail-code">
+        <pre><code>// src/app/page.tsx
+import Hero from '@/components/sections/Hero'
+import Features from '@/components/sections/Features'
+import SocialProof from '@/components/sections/SocialProof'
+import HowItWorks from '@/components/sections/HowItWorks'
+import Testimonials from '@/components/sections/Testimonials'
+import CTA from '@/components/sections/CTA'
+
+export default function HomePage() {
+  return (
+    &lt;main className="min-h-screen"&gt;
+      &lt;Hero /&gt;
+      &lt;Features /&gt;
+      &lt;SocialProof /&gt;
+      &lt;HowItWorks /&gt;
+      &lt;Testimonials /&gt;
+      &lt;CTA /&gt;
+    &lt;/main&gt;
+  )
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- HERO SECTION -->
+    <h2 id="hero">Hero Section</h2>
+    <span class="section-label">Viktigste seksjon</span>
+    <p>Hero-seksjonen er det forste besokende ser. Den ma vare slående og tydelig kommunisere hva du tilbyr.</p>
+
+    <div class="component-detail">
+      <div class="component-detail-header" style="background: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);">
+        <h3>Hero - Gradient med Animasjoner</h3>
+        <p style="margin: 0; opacity: 0.9;">Moderne hero med mesh gradient og fade-in animasjoner</p>
+      </div>
+      <div class="component-detail-code">
+        <pre><code>// src/components/sections/Hero.tsx
+import Link from 'next/link'
+
+export default function Hero() {
+  return (
+    &lt;section className="relative min-h-screen flex items-center justify-center overflow-hidden"&gt;
+      {/* Animated gradient background */}
+      &lt;div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900"&gt;
+        {/* Animated orbs */}
+        &lt;div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob" /&gt;
+        &lt;div className="absolute top-1/3 right-1/4 w-96 h-96 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000" /&gt;
+        &lt;div className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-pink-500 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000" /&gt;
+      &lt;/div&gt;
+
+      {/* Grid overlay for depth */}
+      &lt;div className="absolute inset-0 bg-[url('/grid.svg')] bg-center opacity-20" /&gt;
+
+      {/* Content */}
+      &lt;div className="relative z-10 text-center px-4 max-w-5xl mx-auto"&gt;
+        {/* Badge */}
+        &lt;div className="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-8 animate-fade-in"&gt;
+          &lt;span className="relative flex h-2 w-2"&gt;
+            &lt;span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"&gt;&lt;/span&gt;
+            &lt;span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"&gt;&lt;/span&gt;
+          &lt;/span&gt;
+          &lt;span className="text-white/90 text-sm font-medium"&gt;Vi lanserer noe nytt!&lt;/span&gt;
+        &lt;/div&gt;
+
+        {/* Headline */}
+        &lt;h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 animate-fade-in-up"&gt;
+          Bygg noe
+          &lt;span className="block bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 text-transparent bg-clip-text"&gt;
+            ekstraordinært
+          &lt;/span&gt;
+        &lt;/h1&gt;
+
+        {/* Subheadline */}
+        &lt;p className="text-xl md:text-2xl text-white/70 mb-10 max-w-2xl mx-auto animate-fade-in-up animation-delay-200"&gt;
+          Vi hjelper bedrifter med å skape digitale opplevelser som engasjerer, konverterer og inspirerer.
+        &lt;/p&gt;
+
+        {/* CTA Buttons */}
+        &lt;div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in-up animation-delay-400"&gt;
+          &lt;Link
+            href="/kontakt"
+            className="group relative inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl overflow-hidden transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/25"
+          &gt;
+            &lt;span className="relative z-10"&gt;Kom i gang&lt;/span&gt;
+            &lt;div className="absolute inset-0 bg-gradient-to-r from-purple-700 to-pink-700 opacity-0 group-hover:opacity-100 transition-opacity" /&gt;
+          &lt;/Link&gt;
+
+          &lt;Link
+            href="/tjenester"
+            className="inline-flex items-center justify-center px-8 py-4 text-lg font-semibold text-white bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl transition-all duration-300 hover:bg-white/20 hover:scale-105"
+          &gt;
+            Se våre tjenester
+            &lt;svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;
+              &lt;path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /&gt;
+            &lt;/svg&gt;
+          &lt;/Link&gt;
+        &lt;/div&gt;
+
+        {/* Stats */}
+        &lt;div className="mt-16 grid grid-cols-3 gap-8 max-w-xl mx-auto animate-fade-in-up animation-delay-600"&gt;
+          &lt;div&gt;
+            &lt;div className="text-4xl font-bold text-white"&gt;500+&lt;/div&gt;
+            &lt;div className="text-white/60 text-sm"&gt;Prosjekter&lt;/div&gt;
+          &lt;/div&gt;
+          &lt;div&gt;
+            &lt;div className="text-4xl font-bold text-white"&gt;98%&lt;/div&gt;
+            &lt;div className="text-white/60 text-sm"&gt;Fornøyde kunder&lt;/div&gt;
+          &lt;/div&gt;
+          &lt;div&gt;
+            &lt;div className="text-4xl font-bold text-white"&gt;24/7&lt;/div&gt;
+            &lt;div className="text-white/60 text-sm"&gt;Support&lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      {/* Scroll indicator */}
+      &lt;div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce"&gt;
+        &lt;svg className="w-6 h-6 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;
+          &lt;path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" /&gt;
+        &lt;/svg&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+  )
+}</code></pre>
+      </div>
+    </div>
+
+    <div class="warning-box">
+      <strong>CSS for animasjoner:</strong> Legg til disse i din <code>globals.css</code>:
+    </div>
+
+    <pre><code>/* src/app/globals.css - Legg til disse animasjonene */
+
+@keyframes blob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(20px, -30px) scale(1.1); }
+  50% { transform: translate(-20px, 20px) scale(0.9); }
+  75% { transform: translate(30px, 10px) scale(1.05); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.animate-fade-in {
+  animation: fade-in 1s ease-out forwards;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 1s ease-out forwards;
+}
+
+.animation-delay-200 { animation-delay: 200ms; }
+.animation-delay-400 { animation-delay: 400ms; }
+.animation-delay-600 { animation-delay: 600ms; }
+.animation-delay-2000 { animation-delay: 2s; }
+.animation-delay-4000 { animation-delay: 4s; }</code></pre>
+
+    <!-- HERO VARIANT 2 -->
+    <div class="component-detail" style="margin-top: 2rem;">
+      <div class="component-detail-header" style="background: linear-gradient(135deg, #22c55e 0%, #14b8a6 100%);">
+        <h3>Hero - Split Layout med Bilde</h3>
+        <p style="margin: 0; opacity: 0.9;">Klassisk split-layout for bedrifter og byråer</p>
+      </div>
+      <div class="component-detail-code">
+        <pre><code>// src/components/sections/HeroSplit.tsx
+import Image from 'next/image'
+import Link from 'next/link'
+
+export default function HeroSplit() {
+  return (
+    &lt;section className="min-h-screen grid lg:grid-cols-2"&gt;
+      {/* Left: Content */}
+      &lt;div className="flex items-center justify-center p-8 lg:p-16 order-2 lg:order-1"&gt;
+        &lt;div className="max-w-xl"&gt;
+          {/* Overline */}
+          &lt;p className="text-purple-600 font-semibold mb-4 tracking-wide uppercase"&gt;
+            Velkommen til fremtiden
+          &lt;/p&gt;
+
+          {/* Headline */}
+          &lt;h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight"&gt;
+            Vi bygger nettsider som
+            &lt;span className="text-purple-600"&gt; konverterer&lt;/span&gt;
+          &lt;/h1&gt;
+
+          {/* Description */}
+          &lt;p className="text-lg text-gray-600 mb-8 leading-relaxed"&gt;
+            Fra idé til lansering på rekordtid. Vi kombinerer moderne design
+            med solid teknologi for å skape digitale opplevelser som leverer resultater.
+          &lt;/p&gt;
+
+          {/* CTA */}
+          &lt;div className="flex flex-col sm:flex-row gap-4"&gt;
+            &lt;Link
+              href="/kontakt"
+              className="inline-flex items-center justify-center px-8 py-4 bg-purple-600 text-white font-semibold rounded-xl hover:bg-purple-700 transition-colors"
+            &gt;
+              Få gratis konsultasjon
+            &lt;/Link&gt;
+            &lt;Link
+              href="/portfolio"
+              className="inline-flex items-center justify-center px-8 py-4 border-2 border-gray-200 text-gray-700 font-semibold rounded-xl hover:border-purple-600 hover:text-purple-600 transition-colors"
+            &gt;
+              Se våre prosjekter
+            &lt;/Link&gt;
+          &lt;/div&gt;
+
+          {/* Trust badges */}
+          &lt;div className="mt-12 pt-8 border-t border-gray-200"&gt;
+            &lt;p className="text-sm text-gray-500 mb-4"&gt;Stolt samarbeidspartner med&lt;/p&gt;
+            &lt;div className="flex items-center gap-8 opacity-50"&gt;
+              &lt;Image src="/logos/company1.svg" alt="Company 1" width={100} height={30} /&gt;
+              &lt;Image src="/logos/company2.svg" alt="Company 2" width={100} height={30} /&gt;
+              &lt;Image src="/logos/company3.svg" alt="Company 3" width={100} height={30} /&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      {/* Right: Image */}
+      &lt;div className="relative min-h-[400px] lg:min-h-0 order-1 lg:order-2"&gt;
+        &lt;Image
+          src="/hero-image.jpg"
+          alt="Hero illustration"
+          fill
+          className="object-cover"
+          priority
+        /&gt;
+        {/* Overlay gradient */}
+        &lt;div className="absolute inset-0 bg-gradient-to-r from-white via-transparent to-transparent lg:hidden" /&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+  )
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- FEATURES SECTION -->
+    <h2 id="features">Features / Bento Grid</h2>
+    <span class="section-label">Value Proposition</span>
+    <p>Vis frem dine styrker med et moderne bento grid-layout:</p>
+
+    <div class="component-detail">
+      <div class="component-detail-header" style="background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);">
+        <h3>Bento Grid Features</h3>
+        <p style="margin: 0; opacity: 0.9;">Apple-inspirert asymmetrisk grid</p>
+      </div>
+      <div class="component-detail-code">
+        <pre><code>// src/components/sections/Features.tsx
+
+const features = [
+  {
+    title: 'Lynrask utvikling',
+    description: 'Fra idé til produksjon på rekordtid med vårt effektive team.',
+    icon: '⚡',
+    color: 'from-yellow-400 to-orange-500',
+    size: 'large'
+  },
+  {
+    title: 'Responsivt design',
+    description: 'Perfekt på alle enheter.',
+    icon: '📱',
+    color: 'from-blue-400 to-cyan-500',
+    size: 'small'
+  },
+  {
+    title: 'SEO-optimalisert',
+    description: 'Bli funnet på Google.',
+    icon: '🔍',
+    color: 'from-green-400 to-emerald-500',
+    size: 'small'
+  },
+  {
+    title: 'Sikkerhet først',
+    description: 'Enterprise-grade sikkerhet med SSL, GDPR-compliance og regelmessige sikkerhetsrevisjoner.',
+    icon: '🔒',
+    color: 'from-purple-400 to-pink-500',
+    size: 'medium'
+  },
+  {
+    title: '24/7 support',
+    description: 'Vi er alltid tilgjengelige når du trenger oss.',
+    icon: '💬',
+    color: 'from-indigo-400 to-purple-500',
+    size: 'medium'
+  }
+]
+
+export default function Features() {
+  return (
+    &lt;section className="py-24 px-4 bg-gray-50"&gt;
+      &lt;div className="max-w-7xl mx-auto"&gt;
+        {/* Section header */}
+        &lt;div className="text-center mb-16"&gt;
+          &lt;p className="text-purple-600 font-semibold mb-4"&gt;HVORFOR VELGE OSS&lt;/p&gt;
+          &lt;h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6"&gt;
+            Alt du trenger for å lykkes
+          &lt;/h2&gt;
+          &lt;p className="text-xl text-gray-600 max-w-2xl mx-auto"&gt;
+            Vi tilbyr komplette løsninger som hjelper bedriften din å vokse digitalt.
+          &lt;/p&gt;
+        &lt;/div&gt;
+
+        {/* Bento Grid */}
+        &lt;div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-[200px]"&gt;
+          {features.map((feature, index) =&gt; (
+            &lt;div
+              key={index}
+              className={`
+                group relative overflow-hidden rounded-3xl p-6
+                bg-white border border-gray-200
+                hover:border-transparent hover:shadow-2xl
+                transition-all duration-500
+                ${feature.size === 'large' ? 'md:col-span-2 md:row-span-2' : ''}
+                ${feature.size === 'medium' ? 'lg:col-span-2' : ''}
+              `}
+            &gt;
+              {/* Gradient background on hover */}
+              &lt;div className={`
+                absolute inset-0 bg-gradient-to-br ${feature.color}
+                opacity-0 group-hover:opacity-100
+                transition-opacity duration-500
+              `} /&gt;
+
+              {/* Content */}
+              &lt;div className="relative z-10 h-full flex flex-col"&gt;
+                &lt;span className="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300 inline-block"&gt;
+                  {feature.icon}
+                &lt;/span&gt;
+                &lt;h3 className="text-xl font-bold text-gray-900 group-hover:text-white mb-2 transition-colors"&gt;
+                  {feature.title}
+                &lt;/h3&gt;
+                &lt;p className="text-gray-600 group-hover:text-white/90 transition-colors flex-grow"&gt;
+                  {feature.description}
+                &lt;/p&gt;
+
+                {/* Arrow indicator */}
+                &lt;div className="mt-auto opacity-0 group-hover:opacity-100 transition-opacity"&gt;
+                  &lt;span className="text-white font-medium flex items-center gap-2"&gt;
+                    Les mer
+                    &lt;svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;
+                      &lt;path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /&gt;
+                    &lt;/svg&gt;
+                  &lt;/span&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          ))}
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+  )
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- SOCIAL PROOF -->
+    <h2 id="social-proof">Social Proof</h2>
+    <span class="section-label">Bygg tillit</span>
+    <p>Vis at andre stoler pa deg med kundelogoer og statistikk:</p>
+
+    <div class="component-detail">
+      <div class="component-detail-header" style="background: linear-gradient(135deg, #64748b 0%, #475569 100%);">
+        <h3>Logo Cloud med Statistikk</h3>
+        <p style="margin: 0; opacity: 0.9;">Kundelogoer og nøkkeltall</p>
+      </div>
+      <div class="component-detail-code">
+        <pre><code>// src/components/sections/SocialProof.tsx
+import Image from 'next/image'
+
+const logos = [
+  { name: 'Company 1', src: '/logos/logo1.svg' },
+  { name: 'Company 2', src: '/logos/logo2.svg' },
+  { name: 'Company 3', src: '/logos/logo3.svg' },
+  { name: 'Company 4', src: '/logos/logo4.svg' },
+  { name: 'Company 5', src: '/logos/logo5.svg' },
+  { name: 'Company 6', src: '/logos/logo6.svg' },
+]
+
+const stats = [
+  { value: '500+', label: 'Prosjekter levert' },
+  { value: '98%', label: 'Kundetilfredshet' },
+  { value: '50M+', label: 'Brukere nådd' },
+  { value: '10+', label: 'År erfaring' },
+]
+
+export default function SocialProof() {
+  return (
+    &lt;section className="py-20 px-4 bg-white"&gt;
+      &lt;div className="max-w-7xl mx-auto"&gt;
+        {/* Stats */}
+        &lt;div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-20"&gt;
+          {stats.map((stat, index) =&gt; (
+            &lt;div key={index} className="text-center"&gt;
+              &lt;div className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 text-transparent bg-clip-text mb-2"&gt;
+                {stat.value}
+              &lt;/div&gt;
+              &lt;div className="text-gray-600"&gt;{stat.label}&lt;/div&gt;
+            &lt;/div&gt;
+          ))}
+        &lt;/div&gt;
+
+        {/* Logo cloud */}
+        &lt;div className="text-center"&gt;
+          &lt;p className="text-gray-500 mb-8"&gt;Stolt samarbeidspartner med ledende selskaper&lt;/p&gt;
+          &lt;div className="flex flex-wrap justify-center items-center gap-12"&gt;
+            {logos.map((logo, index) =&gt; (
+              &lt;div
+                key={index}
+                className="grayscale hover:grayscale-0 opacity-50 hover:opacity-100 transition-all duration-300"
+              &gt;
+                &lt;Image
+                  src={logo.src}
+                  alt={logo.name}
+                  width={120}
+                  height={40}
+                  className="h-10 w-auto object-contain"
+                /&gt;
+              &lt;/div&gt;
+            ))}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+  )
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <h2 id="how-it-works">How It Works</h2>
+    <span class="section-label">Prosess</span>
+    <p>Vis hvordan samarbeidet fungerer steg for steg:</p>
+
+    <div class="component-detail">
+      <div class="component-detail-header" style="background: linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);">
+        <h3>Prosess / Steps</h3>
+        <p style="margin: 0; opacity: 0.9;">Visuell fremstilling av arbeidsprosessen</p>
+      </div>
+      <div class="component-detail-code">
+        <pre><code>// src/components/sections/HowItWorks.tsx
+
+const steps = [
+  {
+    number: '01',
+    title: 'Konsultasjon',
+    description: 'Vi starter med en gratis samtale for å forstå dine behov og mål.',
+    icon: '💬'
+  },
+  {
+    number: '02',
+    title: 'Strategi & Design',
+    description: 'Vi lager en skreddersydd strategi og designer løsningen.',
+    icon: '✏️'
+  },
+  {
+    number: '03',
+    title: 'Utvikling',
+    description: 'Vårt team bygger løsningen med moderne teknologi.',
+    icon: '⚙️'
+  },
+  {
+    number: '04',
+    title: 'Lansering',
+    description: 'Vi lanserer og sikrer at alt fungerer perfekt.',
+    icon: '🚀'
+  }
+]
+
+export default function HowItWorks() {
+  return (
+    &lt;section className="py-24 px-4 bg-gradient-to-b from-gray-50 to-white"&gt;
+      &lt;div className="max-w-7xl mx-auto"&gt;
+        {/* Section header */}
+        &lt;div className="text-center mb-16"&gt;
+          &lt;p className="text-cyan-600 font-semibold mb-4"&gt;PROSESSEN&lt;/p&gt;
+          &lt;h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6"&gt;
+            Slik jobber vi
+          &lt;/h2&gt;
+          &lt;p className="text-xl text-gray-600 max-w-2xl mx-auto"&gt;
+            En enkel og transparent prosess fra start til mål.
+          &lt;/p&gt;
+        &lt;/div&gt;
+
+        {/* Steps */}
+        &lt;div className="relative"&gt;
+          {/* Connection line */}
+          &lt;div className="hidden lg:block absolute top-1/2 left-0 right-0 h-0.5 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 -translate-y-1/2" /&gt;
+
+          &lt;div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8"&gt;
+            {steps.map((step, index) =&gt; (
+              &lt;div key={index} className="relative"&gt;
+                {/* Card */}
+                &lt;div className="bg-white rounded-2xl p-8 shadow-lg hover:shadow-2xl transition-shadow duration-300 relative z-10"&gt;
+                  {/* Number badge */}
+                  &lt;div className="absolute -top-4 left-8 bg-gradient-to-r from-cyan-500 to-purple-500 text-white text-sm font-bold px-4 py-1 rounded-full"&gt;
+                    {step.number}
+                  &lt;/div&gt;
+
+                  {/* Icon */}
+                  &lt;div className="text-5xl mb-4 mt-4"&gt;{step.icon}&lt;/div&gt;
+
+                  {/* Content */}
+                  &lt;h3 className="text-xl font-bold text-gray-900 mb-3"&gt;{step.title}&lt;/h3&gt;
+                  &lt;p className="text-gray-600"&gt;{step.description}&lt;/p&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            ))}
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+  )
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- TESTIMONIALS -->
+    <h2 id="testimonials">Testimonials</h2>
+    <span class="section-label">Kundeuttalelser</span>
+    <p>La fornøyde kunder snakke for deg:</p>
+
+    <div class="component-detail">
+      <div class="component-detail-header" style="background: linear-gradient(135deg, #ec4899 0%, #f43f5e 100%);">
+        <h3>Testimonial Cards</h3>
+        <p style="margin: 0; opacity: 0.9;">Kundeuttalelser med bilde og stjerner</p>
+      </div>
+      <div class="component-detail-code">
+        <pre><code>// src/components/sections/Testimonials.tsx
+import Image from 'next/image'
+
+const testimonials = [
+  {
+    quote: 'Fantastisk samarbeid! De leverte over forventning og var alltid tilgjengelige for spørsmål.',
+    author: 'Maria Hansen',
+    role: 'CEO, TechStart AS',
+    image: '/testimonials/person1.jpg',
+    rating: 5
+  },
+  {
+    quote: 'Vår nye nettside har gitt oss 150% økning i leads. Beste investering vi har gjort.',
+    author: 'Lars Olsen',
+    role: 'Markedssjef, Retail Norge',
+    image: '/testimonials/person2.jpg',
+    rating: 5
+  },
+  {
+    quote: 'Profesjonelt team som virkelig forstår hva moderne webutvikling handler om.',
+    author: 'Karin Johansen',
+    role: 'Gründer, HealthTech',
+    image: '/testimonials/person3.jpg',
+    rating: 5
+  }
+]
+
+export default function Testimonials() {
+  return (
+    &lt;section className="py-24 px-4 bg-gray-900"&gt;
+      &lt;div className="max-w-7xl mx-auto"&gt;
+        {/* Section header */}
+        &lt;div className="text-center mb-16"&gt;
+          &lt;p className="text-pink-400 font-semibold mb-4"&gt;KUNDEUTTALELSER&lt;/p&gt;
+          &lt;h2 className="text-4xl md:text-5xl font-bold text-white mb-6"&gt;
+            Hva kundene sier
+          &lt;/h2&gt;
+        &lt;/div&gt;
+
+        {/* Testimonials grid */}
+        &lt;div className="grid md:grid-cols-3 gap-8"&gt;
+          {testimonials.map((testimonial, index) =&gt; (
+            &lt;div
+              key={index}
+              className="bg-gray-800/50 backdrop-blur-sm border border-gray-700 rounded-2xl p-8 hover:border-pink-500/50 transition-colors duration-300"
+            &gt;
+              {/* Stars */}
+              &lt;div className="flex gap-1 mb-6"&gt;
+                {[...Array(testimonial.rating)].map((_, i) =&gt; (
+                  &lt;svg key={i} className="w-5 h-5 text-yellow-400 fill-current" viewBox="0 0 20 20"&gt;
+                    &lt;path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /&gt;
+                  &lt;/svg&gt;
+                ))}
+              &lt;/div&gt;
+
+              {/* Quote */}
+              &lt;blockquote className="text-gray-300 text-lg mb-8 leading-relaxed"&gt;
+                "{testimonial.quote}"
+              &lt;/blockquote&gt;
+
+              {/* Author */}
+              &lt;div className="flex items-center gap-4"&gt;
+                &lt;Image
+                  src={testimonial.image}
+                  alt={testimonial.author}
+                  width={48}
+                  height={48}
+                  className="rounded-full"
+                /&gt;
+                &lt;div&gt;
+                  &lt;div className="font-semibold text-white"&gt;{testimonial.author}&lt;/div&gt;
+                  &lt;div className="text-gray-400 text-sm"&gt;{testimonial.role}&lt;/div&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          ))}
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+  )
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- CTA SECTION -->
+    <h2 id="cta">Call-to-Action</h2>
+    <span class="section-label">Konvertering</span>
+    <p>Avslutt med en sterk oppfordring til handling:</p>
+
+    <div class="component-detail">
+      <div class="component-detail-header" style="background: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%);">
+        <h3>CTA Section</h3>
+        <p style="margin: 0; opacity: 0.9;">Call-to-action med gradient og animert bakgrunn</p>
+      </div>
+      <div class="component-detail-code">
+        <pre><code>// src/components/sections/CTA.tsx
+import Link from 'next/link'
+
+export default function CTA() {
+  return (
+    &lt;section className="relative py-24 px-4 overflow-hidden"&gt;
+      {/* Gradient background */}
+      &lt;div className="absolute inset-0 bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 bg-[length:200%_100%] animate-gradient" /&gt;
+
+      {/* Decorative elements */}
+      &lt;div className="absolute top-0 left-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl" /&gt;
+      &lt;div className="absolute bottom-0 right-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl" /&gt;
+
+      {/* Content */}
+      &lt;div className="relative z-10 max-w-4xl mx-auto text-center"&gt;
+        &lt;h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-6"&gt;
+          Klar til å ta steget?
+        &lt;/h2&gt;
+        &lt;p className="text-xl text-white/80 mb-10 max-w-2xl mx-auto"&gt;
+          La oss sammen skape noe fantastisk. Kontakt oss i dag for en uforpliktende samtale.
+        &lt;/p&gt;
+
+        &lt;div className="flex flex-col sm:flex-row gap-4 justify-center"&gt;
+          &lt;Link
+            href="/kontakt"
+            className="inline-flex items-center justify-center px-8 py-4 bg-white text-purple-600 font-bold rounded-xl hover:bg-gray-100 transition-colors shadow-2xl"
+          &gt;
+            Start prosjektet nå
+            &lt;svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"&gt;
+              &lt;path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /&gt;
+            &lt;/svg&gt;
+          &lt;/Link&gt;
+          &lt;Link
+            href="/om-oss"
+            className="inline-flex items-center justify-center px-8 py-4 bg-white/10 backdrop-blur-sm border-2 border-white/30 text-white font-semibold rounded-xl hover:bg-white/20 transition-colors"
+          &gt;
+            Les mer om oss
+          &lt;/Link&gt;
+        &lt;/div&gt;
+
+        {/* Trust elements */}
+        &lt;p className="mt-8 text-white/60 text-sm"&gt;
+          ✓ Gratis konsultasjon &nbsp; ✓ Ingen binding &nbsp; ✓ Svar innen 24 timer
+        &lt;/p&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+  )
+}</code></pre>
+      </div>
+    </div>
+
+    <div class="warning-box">
+      <strong>CSS for gradient-animasjon:</strong> Legg til i <code>globals.css</code>:
+    </div>
+
+    <pre><code>@keyframes gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.animate-gradient {
+  animation: gradient 6s ease infinite;
+}</code></pre>
+
+    <!-- GLASSMORPHISM COMPONENTS -->
+    <h2 id="glassmorphism">Glassmorphism Komponenter</h2>
+    <p>Legg til elegante glass-effekter for et premium utseende:</p>
+
+    <div class="component-detail">
+      <div class="component-detail-header" style="background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);">
+        <h3>Glass Card</h3>
+        <p style="margin: 0; opacity: 0.9;">Frosted glass-effekt</p>
+      </div>
+      <div class="component-detail-code">
+        <pre><code>// src/components/ui/GlassCard.tsx
+import { ReactNode } from 'react'
+
+interface GlassCardProps {
+  children: ReactNode
+  className?: string
+}
+
+export default function GlassCard({ children, className = '' }: GlassCardProps) {
+  return (
+    &lt;div className={`
+      bg-white/10
+      backdrop-blur-lg
+      border border-white/20
+      rounded-2xl
+      shadow-xl
+      ${className}
+    `}&gt;
+      {children}
+    &lt;/div&gt;
+  )
+}
+
+// ===== BRUKSEKSEMPEL =====
+&lt;div className="bg-gradient-to-br from-purple-600 to-pink-600 p-8"&gt;
+  &lt;GlassCard className="p-6"&gt;
+    &lt;h3 className="text-white font-bold text-xl mb-2"&gt;Glass Card&lt;/h3&gt;
+    &lt;p className="text-white/80"&gt;Dette er en glass-effekt komponent&lt;/p&gt;
+  &lt;/GlassCard&gt;
+&lt;/div&gt;</code></pre>
+      </div>
+    </div>
+
+    <!-- NAVIGATION -->
+    <h2 id="navigation">Moderne Navigation</h2>
+    <p>En sticky header som endres ved scroll:</p>
+
+    <div class="component-detail">
+      <div class="component-detail-header" style="background: linear-gradient(135deg, #1e293b 0%, #334155 100%);">
+        <h3>Sticky Header med Blur</h3>
+        <p style="margin: 0; opacity: 0.9;">Navigasjon som endres ved scroll</p>
+      </div>
+      <div class="component-detail-code">
+        <pre><code>// src/components/layout/Header.tsx
+'use client'
+import { useState, useEffect } from 'react'
+import Link from 'next/link'
+import Image from 'next/image'
+
+const navLinks = [
+  { href: '/tjenester', label: 'Tjenester' },
+  { href: '/portfolio', label: 'Portfolio' },
+  { href: '/om-oss', label: 'Om oss' },
+  { href: '/blogg', label: 'Blogg' },
+]
+
+export default function Header() {
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+  useEffect(() =&gt; {
+    const handleScroll = () =&gt; {
+      setIsScrolled(window.scrollY &gt; 50)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () =&gt; window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  return (
+    &lt;header className={`
+      fixed top-0 left-0 right-0 z-50 transition-all duration-300
+      ${isScrolled
+        ? 'bg-white/80 backdrop-blur-lg shadow-lg py-4'
+        : 'bg-transparent py-6'
+      }
+    `}&gt;
+      &lt;nav className="max-w-7xl mx-auto px-4 flex items-center justify-between"&gt;
+        {/* Logo */}
+        &lt;Link href="/" className="relative z-10"&gt;
+          &lt;Image
+            src={isScrolled ? '/logo-dark.svg' : '/logo-light.svg'}
+            alt="Logo"
+            width={140}
+            height={40}
+            className="transition-opacity"
+          /&gt;
+        &lt;/Link&gt;
+
+        {/* Desktop Navigation */}
+        &lt;div className="hidden md:flex items-center gap-8"&gt;
+          {navLinks.map((link) =&gt; (
+            &lt;Link
+              key={link.href}
+              href={link.href}
+              className={`
+                font-medium transition-colors
+                ${isScrolled
+                  ? 'text-gray-700 hover:text-purple-600'
+                  : 'text-white/90 hover:text-white'
+                }
+              `}
+            &gt;
+              {link.label}
+            &lt;/Link&gt;
+          ))}
+          &lt;Link
+            href="/kontakt"
+            className={`
+              px-6 py-2.5 rounded-lg font-semibold transition-all
+              ${isScrolled
+                ? 'bg-purple-600 text-white hover:bg-purple-700'
+                : 'bg-white text-purple-600 hover:bg-gray-100'
+              }
+            `}
+          &gt;
+            Kontakt oss
+          &lt;/Link&gt;
+        &lt;/div&gt;
+
+        {/* Mobile menu button */}
+        &lt;button
+          onClick={() =&gt; setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="md:hidden relative z-10"
+        &gt;
+          &lt;svg
+            className={`w-6 h-6 ${isScrolled ? 'text-gray-900' : 'text-white'}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          &gt;
+            {isMobileMenuOpen ? (
+              &lt;path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /&gt;
+            ) : (
+              &lt;path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /&gt;
+            )}
+          &lt;/svg&gt;
+        &lt;/button&gt;
+
+        {/* Mobile menu */}
+        {isMobileMenuOpen && (
+          &lt;div className="absolute top-full left-0 right-0 bg-white shadow-xl md:hidden"&gt;
+            &lt;div className="p-4 space-y-4"&gt;
+              {navLinks.map((link) =&gt; (
+                &lt;Link
+                  key={link.href}
+                  href={link.href}
+                  className="block py-2 text-gray-700 hover:text-purple-600 font-medium"
+                  onClick={() =&gt; setIsMobileMenuOpen(false)}
+                &gt;
+                  {link.label}
+                &lt;/Link&gt;
+              ))}
+              &lt;Link
+                href="/kontakt"
+                className="block w-full text-center py-3 bg-purple-600 text-white rounded-lg font-semibold"
+                onClick={() =&gt; setIsMobileMenuOpen(false)}
+              &gt;
+                Kontakt oss
+              &lt;/Link&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        )}
+      &lt;/nav&gt;
+    &lt;/header&gt;
+  )
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- SJEKKLISTE -->
+    <h2>Sjekkliste for Moderne HomePage</h2>
+    <p>Sikre at du har dekket alle punktene:</p>
+
+    <div style="background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 1.5rem; margin: 2rem 0;">
+      <div class="checklist-item">
+        <span class="checklist-check">✓</span>
+        <div>
+          <strong>Hero som fanger oppmerksomhet</strong>
+          <p style="margin: 0.25rem 0 0 0; color: #64748b; font-size: 0.9rem;">Tydelig headline, subheadline og CTA-knapper</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <span class="checklist-check">✓</span>
+        <div>
+          <strong>Value proposition synlig</strong>
+          <p style="margin: 0.25rem 0 0 0; color: #64748b; font-size: 0.9rem;">Features/fordeler presentert tydelig</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <span class="checklist-check">✓</span>
+        <div>
+          <strong>Social proof inkludert</strong>
+          <p style="margin: 0.25rem 0 0 0; color: #64748b; font-size: 0.9rem;">Kundelogoer, testimonials eller statistikk</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <span class="checklist-check">✓</span>
+        <div>
+          <strong>Tydelig CTA</strong>
+          <p style="margin: 0.25rem 0 0 0; color: #64748b; font-size: 0.9rem;">Minst én sterk oppfordring til handling</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <span class="checklist-check">✓</span>
+        <div>
+          <strong>Responsivt design</strong>
+          <p style="margin: 0.25rem 0 0 0; color: #64748b; font-size: 0.9rem;">Fungerer perfekt på mobil, tablet og desktop</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <span class="checklist-check">✓</span>
+        <div>
+          <strong>Rask lasting</strong>
+          <p style="margin: 0.25rem 0 0 0; color: #64748b; font-size: 0.9rem;">Optimaliserte bilder, lazy loading</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <span class="checklist-check">✓</span>
+        <div>
+          <strong>Micro-interactions</strong>
+          <p style="margin: 0.25rem 0 0 0; color: #64748b; font-size: 0.9rem;">Hover-effekter, animasjoner, smooth scroll</p>
+        </div>
+      </div>
+      <div class="checklist-item">
+        <span class="checklist-check">✓</span>
+        <div>
+          <strong>Konsistent branding</strong>
+          <p style="margin: 0.25rem 0 0 0; color: #64748b; font-size: 0.9rem;">Farger, fonter og stil gjennomgående</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- NESTE STEG -->
+    <h2>Neste steg</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Ressurs</th>
+          <th>Beskrivelse</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="komponenter.html">Komponent-bibliotek</a></td>
+          <td>Flere UI-komponenter du kan bruke</td>
+        </tr>
+        <tr>
+          <td><a href="tilpasning.html">Tilpasningsguide</a></td>
+          <td>Hvordan tilpasse farger og design</td>
+        </tr>
+        <tr>
+          <td><a href="seo.html">SEO & Metadata</a></td>
+          <td>Optimaliser for søkemotorer</td>
+        </tr>
+        <tr>
+          <td><a href="bilder.html">Bildehåndtering</a></td>
+          <td>Optimaliser bilder for best ytelse</td>
+        </tr>
+        <tr>
+          <td><a href="maler.html">Bransjemaler</a></td>
+          <td>Komplette maler for ulike bransjer</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="footer">
+      <p><a href="komponenter.html">← Komponenter</a> | <a href="sider.html">Sider →</a></p>
+      <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #666;">
+        <a href="https://obligarconsulting.no" target="_blank" style="color: #2563eb;">Obligar Consulting</a>
+      </p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>
