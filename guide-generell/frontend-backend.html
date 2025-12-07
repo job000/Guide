@@ -1104,6 +1104,181 @@ export async function deleteProduct(id: string) {
     <!-- ============================================ -->
     <h2 id="proxy-middleware">Proxy & Middleware - Rutebeskyttelse</h2>
 
+    <div class="warning-box" style="background: linear-gradient(135deg, #fef3c7 0%, #fffbeb 100%); border: 2px solid #f59e0b;">
+      <h3 style="margin-top: 0; color: #92400e;">Viktig å forstå!</h3>
+      <p style="margin: 0;">Middleware (Proxy) og Server Actions har <strong>helt forskjellige roller</strong>. De jobber SAMMEN, ikke istedenfor hverandre.</p>
+    </div>
+
+    <h3>Proxy/Middleware vs Server Actions - Hva er forskjellen?</h3>
+
+    <div class="architecture-diagram">
+      <h3>Hvordan de jobber sammen</h3>
+<pre style="margin:0; color: #e2e8f0; line-height: 1.8;">
+<span style="color: #4ade80;">Bruker klikker "Slett produkt"</span>
+
+     ┌─────────────────────────────────────────────────────────┐
+     │  <span style="color: #60a5fa;">STEG 1: MIDDLEWARE (Vakt/Dørvakt)</span>                     │
+     │                                                         │
+     │  "Hvem er du? Har du lov til å være her?"               │
+     │                                                         │
+     │  ✓ Sjekker JWT token i cookie                          │
+     │  ✓ Validerer at bruker er innlogget                    │
+     │  ✓ Sjekker rolle (admin/bruker)                        │
+     │  ✓ STOPPER request hvis ikke autorisert                │
+     │                                                         │
+     │  <span style="color: #f59e0b;">Middleware KAN IKKE slette produktet selv!</span>              │
+     │  <span style="color: #f59e0b;">Den bare sjekker om du har tilgang.</span>                    │
+     └─────────────────────────────────────────────────────────┘
+                              ↓
+                    <span style="color: #22c55e;">✓ Autorisert - fortsett</span>
+                              ↓
+     ┌─────────────────────────────────────────────────────────┐
+     │  <span style="color: #60a5fa;">STEG 2: SERVER ACTION (Arbeider)</span>                      │
+     │                                                         │
+     │  "OK, du har tilgang. La meg gjøre jobben."             │
+     │                                                         │
+     │  async function deleteProduct(id) {                     │
+     │    await supabase.from("products").delete().eq("id",id) │
+     │    return { success: true }                             │
+     │  }                                                      │
+     │                                                         │
+     │  <span style="color: #4ade80;">Server Action GJØR selve jobben (CRUD)</span>                 │
+     └─────────────────────────────────────────────────────────┘
+</pre>
+    </div>
+
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th style="width: 20%;">Aspekt</th>
+          <th style="width: 40%;">Middleware (Proxy)</th>
+          <th style="width: 40%;">Server Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Rolle</strong></td>
+          <td>Dørvakt - sjekker tilgang</td>
+          <td>Arbeider - utfører oppgaver</td>
+        </tr>
+        <tr>
+          <td><strong>Når kjører</strong></td>
+          <td>FØR request når siden/action</td>
+          <td>NÅR request er godkjent</td>
+        </tr>
+        <tr>
+          <td><strong>Hva gjør den</strong></td>
+          <td>Validerer token, sjekker roller, redirecter</td>
+          <td>CRUD: Create, Read, Update, Delete</td>
+        </tr>
+        <tr>
+          <td><strong>Kan stoppe request</strong></td>
+          <td><strong style="color: #22c55e;">JA</strong> - redirect til /login</td>
+          <td>NEI - den utfører bare jobben</td>
+        </tr>
+        <tr>
+          <td><strong>Har tilgang til database</strong></td>
+          <td>Nei (kun enkel validering)</td>
+          <td><strong style="color: #22c55e;">JA</strong> - full database-tilgang</td>
+        </tr>
+        <tr>
+          <td><strong>Returnerer data</strong></td>
+          <td>Nei - bare videresender eller stopper</td>
+          <td><strong style="color: #22c55e;">JA</strong> - returnerer data til frontend</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="success-box" style="background: linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%); border: 2px solid #22c55e;">
+      <h3 style="margin-top: 0; color: #166534;">Analogi: Restaurant</h3>
+      <p style="margin: 0;">
+        <strong>Middleware = Dørvakt</strong>: Sjekker reservasjon, ID, kleskode<br>
+        <strong>Server Action = Kelner/Kokk</strong>: Tar imot bestilling, lager mat, serverer
+      </p>
+      <p style="margin-top: 0.5rem; margin-bottom: 0;">
+        Dørvakten lager ikke maten. Kokken sjekker ikke ID. De har ulike jobber!
+      </p>
+    </div>
+
+    <h3>Hvorfor trenger vi begge?</h3>
+
+    <div class="architecture-diagram" style="background: linear-gradient(135deg, #7f1d1d 0%, #991b1b 100%);">
+      <h3 style="color: #fca5a5;">FEIL: Kun Server Action (ingen middleware)</h3>
+<pre style="margin:0; color: #fecaca; line-height: 1.6;">
+// Hva skjer hvis vi BARE bruker Server Action?
+
+async function deleteProduct(id: string) {
+  // Ingen sjekk om bruker er innlogget!
+  // Ingen sjekk om bruker har lov til å slette!
+
+  await supabase.from("products").delete().eq("id", id)
+  return { success: true }
+}
+
+<span style="color: #ef4444;">PROBLEM: Hvem som helst kan slette produkter!</span>
+En angriper kan kalle denne funksjonen direkte.
+</pre>
+    </div>
+
+    <div class="architecture-diagram" style="background: linear-gradient(135deg, #14532d 0%, #166534 100%);">
+      <h3 style="color: #86efac;">RIKTIG: Middleware + Server Action</h3>
+<pre style="margin:0; color: #dcfce7; line-height: 1.6;">
+// Middleware sjekker FØRST
+export async function middleware(request: NextRequest) {
+  const token = request.cookies.get("token")
+  if (!token) {
+    return NextResponse.redirect("/login")  // <span style="color: #4ade80;">STOPP!</span>
+  }
+
+  const { payload } = await jwtVerify(token, secret)
+  if (payload.role !== "admin") {
+    return NextResponse.redirect("/dashboard")  // <span style="color: #4ade80;">STOPP!</span>
+  }
+
+  return NextResponse.next()  // <span style="color: #4ade80;">OK, fortsett</span>
+}
+
+// Server Action utfører ETTER godkjenning
+async function deleteProduct(id: string) {
+  // Middleware har allerede sjekket at bruker er admin
+  await supabase.from("products").delete().eq("id", id)
+  return { success: true }
+}
+
+<span style="color: #4ade80;">TRYGT: Kun autoriserte brukere kan slette!</span>
+</pre>
+    </div>
+
+    <h3>Komplett sikkerhetslag</h3>
+
+    <p>For maksimal sikkerhet bør du ha <strong>flere lag</strong>:</p>
+
+    <div class="architecture-diagram">
+      <h3>3 Lag med Sikkerhet</h3>
+<pre style="margin:0; color: #e2e8f0; line-height: 1.8;">
+<span style="color: #f59e0b;">LAG 1: MIDDLEWARE</span> (src/middleware.ts)
+├── Kjører på ALLE requests
+├── Sjekker JWT token
+├── Validerer roller
+└── Redirecter uautoriserte
+
+         ↓ (kun autoriserte kommer forbi)
+
+<span style="color: #60a5fa;">LAG 2: SERVER ACTION</span> (src/actions/*.ts)
+├── Dobbeltsjekk av userId (ekstra sikkerhet)
+├── Validerer input data
+├── Utfører database-operasjoner
+└── Returnerer resultat
+
+         ↓ (kun gyldige operasjoner)
+
+<span style="color: #8b5cf6;">LAG 3: DATABASE RLS</span> (Supabase Row Level Security)
+├── Siste forsvarslinje
+├── Brukere kan KUN se/endre egne data
+└── Selv om alt annet feiler, stopper RLS uautorisert tilgang
+</pre>
+    </div>
+
     <p>Middleware kjører <strong>før</strong> hver request og kan:</p>
     <ul>
       <li>Sjekke om brukeren er innlogget</li>
