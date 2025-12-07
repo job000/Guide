@@ -272,7 +272,7 @@ CREATE POLICY "Users can read own data" ON users
 CREATE POLICY "Service role full access" ON users
   FOR ALL USING (true);</code></pre>
 
-    <h3><span class="step-indicator">2</span>Server Actions - auth.ts</h3>
+    <h3 id="server-actions"><span class="step-indicator">2</span>Server Actions - auth.ts</h3>
     <div class="file-path">src/actions/auth.ts</div>
     <pre><code>"use server"
 
@@ -532,7 +532,7 @@ export async function logout() {
   return { success: true }
 }</code></pre>
 
-    <h3><span class="step-indicator">3</span>Proxy - Rutebeskyttelse (Next.js 16+)</h3>
+    <h3 id="proxy"><span class="step-indicator">3</span>Proxy - Rutebeskyttelse (Next.js 16+)</h3>
     <div class="file-path">src/proxy.ts</div>
     <pre><code>// src/proxy.ts (Next.js 16+)
 import { NextResponse } from "next/server"
