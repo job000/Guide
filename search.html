@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Søk i Dokumentasjon - Next.js Guide</title>
+  <link rel="stylesheet" href="assets/styles.css">
+  <style>
+    .search-hero {
+      background: linear-gradient(135deg, #1e40af 0%, #7c3aed 100%);
+      color: white;
+      padding: 2rem;
+      border-radius: 16px;
+      margin-bottom: 2rem;
+    }
+    .search-hero h1 {
+      margin: 0 0 1rem 0;
+      color: white;
+      background: none;
+      -webkit-text-fill-color: white;
+    }
+    .search-container {
+      position: relative;
+      max-width: 600px;
+    }
+    .search-input {
+      width: 100%;
+      padding: 1rem 1rem 1rem 3rem;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 12px;
+      background: white;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    .search-input:focus {
+      outline: none;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2), 0 0 0 3px rgba(255,255,255,0.3);
+    }
+    .search-icon {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #64748b;
+    }
+    .search-stats {
+      margin-top: 1rem;
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+    .results-container {
+      margin-top: 1rem;
+    }
+    .result-card {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.25rem;
+      margin-bottom: 1rem;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+      transition: all 0.2s;
+    }
+    .result-card:hover {
+      border-color: #3b82f6;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    }
+    .result-card h3 {
+      margin: 0 0 0.5rem 0;
+      color: #1e40af;
+      font-size: 1.1rem;
+    }
+    .result-card h3::before {
+      display: none;
+    }
+    .result-path {
+      font-size: 0.75rem;
+      color: #22c55e;
+      margin-bottom: 0.5rem;
+      font-family: monospace;
+    }
+    .result-excerpt {
+      font-size: 0.9rem;
+      color: #64748b;
+      margin: 0;
+      line-height: 1.5;
+    }
+    .result-excerpt mark {
+      background: #fef08a;
+      color: inherit;
+      padding: 0.1rem 0.2rem;
+      border-radius: 3px;
+    }
+    .result-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+    .result-tag {
+      background: #f1f5f9;
+      color: #475569;
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+    }
+    .no-results {
+      text-align: center;
+      padding: 3rem;
+      color: #64748b;
+    }
+    .no-results h3 {
+      color: #1e293b;
+    }
+    .popular-searches {
+      margin-top: 2rem;
+    }
+    .popular-searches h3 {
+      margin-bottom: 1rem;
+      color: #1e293b;
+    }
+    .popular-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .popular-tag {
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+      border: 1px solid #3b82f6;
+      color: #1e40af;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .popular-tag:hover {
+      background: #3b82f6;
+      color: white;
+    }
+    .category-section {
+      margin: 2rem 0;
+    }
+    .category-section h3 {
+      color: #1e293b;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .keyboard-hint {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(255,255,255,0.2);
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      margin-left: 1rem;
+    }
+    kbd {
+      background: rgba(0,0,0,0.2);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+    @media (max-width: 768px) {
+      .keyboard-hint {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="index.html">Hjem</a>
+    <a href="guide-generell/index.html">Start</a>
+    <a href="search.html"><strong>Søk</strong></a>
+    <a href="grunnleggende/index.html">Grunnleggende</a>
+    <a href="feilmeldinger/index.html">Feilmeldinger</a>
+  </nav>
+
+  <div class="container">
+    <div class="search-hero">
+      <h1>Søk i Dokumentasjon</h1>
+      <div class="search-container">
+        <svg class="search-icon" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+        </svg>
+        <input
+          type="text"
+          class="search-input"
+          id="searchInput"
+          placeholder="Søk etter actions, proxy, komponenter, database..."
+          autofocus
+        >
+      </div>
+      <p class="search-stats" id="searchStats">Skriv for å søke i all dokumentasjon</p>
+    </div>
+
+    <div id="resultsContainer" class="results-container">
+      <!-- Populære søk vises først -->
+      <div class="popular-searches" id="popularSearches">
+        <h3>Populære søk</h3>
+        <div class="popular-tags">
+          <button class="popular-tag" onclick="search('server actions')">Server Actions</button>
+          <button class="popular-tag" onclick="search('proxy middleware')">Proxy / Middleware</button>
+          <button class="popular-tag" onclick="search('supabase database')">Supabase Database</button>
+          <button class="popular-tag" onclick="search('komponenter')">Komponenter</button>
+          <button class="popular-tag" onclick="search('autentisering login')">Login / Auth</button>
+          <button class="popular-tag" onclick="search('tailwind css')">Tailwind CSS</button>
+          <button class="popular-tag" onclick="search('typescript')">TypeScript</button>
+          <button class="popular-tag" onclick="search('frontend backend')">Frontend/Backend</button>
+          <button class="popular-tag" onclick="search('admin panel')">Admin Panel</button>
+          <button class="popular-tag" onclick="search('deploy vercel')">Deploy</button>
+        </div>
+      </div>
+
+      <!-- Kategorier -->
+      <div class="category-section" id="categories">
+        <h3>Bla etter kategori</h3>
+        <div class="guide-selector" style="margin-top: 1rem;">
+          <a href="guide-generell/frontend-backend.html" class="result-card">
+            <h3>Frontend/Backend Kommunikasjon</h3>
+            <p class="result-path">guide-generell/frontend-backend.html</p>
+            <p class="result-excerpt">Lær hvordan data flyter mellom frontend, proxy og backend. Server Actions, API Routes, Middleware.</p>
+            <div class="result-tags">
+              <span class="result-tag">Actions</span>
+              <span class="result-tag">Proxy</span>
+              <span class="result-tag">API</span>
+            </div>
+          </a>
+          <a href="guide-generell/eksempel-prosjekt.html" class="result-card">
+            <h3>Komplett Eksempel: Produktbutikk</h3>
+            <p class="result-path">guide-generell/eksempel-prosjekt.html</p>
+            <p class="result-excerpt">Hele løypen fra database til frontend. Middleware, Server Actions, komponenter - alt i ett eksempel.</p>
+            <div class="result-tags">
+              <span class="result-tag">Eksempel</span>
+              <span class="result-tag">Fullstack</span>
+              <span class="result-tag">CRUD</span>
+            </div>
+          </a>
+          <a href="guide-generell/komponenter-actions-supabase.html" class="result-card">
+            <h3>Komponenter, Actions & Supabase</h3>
+            <p class="result-path">guide-generell/komponenter-actions-supabase.html</p>
+            <p class="result-excerpt">Mobilvennlig guide for komponentbruk, Server Actions og sikker Supabase-integrasjon.</p>
+            <div class="result-tags">
+              <span class="result-tag">Komponenter</span>
+              <span class="result-tag">Supabase</span>
+              <span class="result-tag">Mobil</span>
+            </div>
+          </a>
+          <a href="guide-generell/fullstack-arkitektur.html" class="result-card">
+            <h3>Fullstack Arkitektur</h3>
+            <p class="result-path">guide-generell/fullstack-arkitektur.html</p>
+            <p class="result-excerpt">Komplett mappestruktur, Auth-system, Route Groups, Middleware og Admin Panel.</p>
+            <div class="result-tags">
+              <span class="result-tag">Arkitektur</span>
+              <span class="result-tag">Auth</span>
+              <span class="result-tag">Admin</span>
+            </div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Søkeindeks med all dokumentasjon
+    const searchIndex = [
+      // Guide Generell
+      {
+        title: "Frontend/Backend Kommunikasjon",
+        path: "guide-generell/frontend-backend.html",
+        category: "Guide",
+        tags: ["frontend", "backend", "proxy", "middleware", "server actions", "api routes", "dataflyt"],
+        content: "Hvordan frontend kommuniserer med backend. Server Actions vs API Routes. Middleware og proxy for rutebeskyttelse. Dynamisk ruting med [id]. Route Groups for organisering."
+      },
+      {
+        title: "Komplett Eksempel: Produktbutikk",
+        path: "guide-generell/eksempel-prosjekt.html",
+        category: "Guide",
+        tags: ["eksempel", "produktbutikk", "crud", "fullstack", "middleware", "actions", "supabase"],
+        content: "Komplett eksempel med hele flyten. Database setup med RLS. Middleware for beskyttelse. Server Actions for CRUD. Client og Server Components. Admin-sider."
+      },
+      {
+        title: "Komponenter, Actions & Supabase",
+        path: "guide-generell/komponenter-actions-supabase.html",
+        category: "Guide",
+        tags: ["komponenter", "server actions", "supabase", "tailwind", "sikkerhet", "mobil"],
+        content: "Mobilvennlig guide. Tech Stack oversikt. Tailwind CSS klasser. Server vs Client Components. Server Actions CRUD. Supabase oppsett og sikkerhet."
+      },
+      {
+        title: "Fullstack Arkitektur",
+        path: "guide-generell/fullstack-arkitektur.html",
+        category: "Guide",
+        tags: ["arkitektur", "mappestruktur", "auth", "login", "register", "admin", "middleware", "route groups"],
+        content: "Komplett mappestruktur for store prosjekter. Auth-system med login, register, glemt passord. Proxy rutebeskyttelse. Route Groups. Admin Panel. Gjenbrukbare komponenter."
+      },
+      {
+        title: "Server Component vs Server Action",
+        path: "guide-generell/frontend-backend.html#server-vs-action",
+        category: "Guide",
+        tags: ["server component", "server action", "forskjell", "når bruke", "return data"],
+        content: "Forskjellen mellom Server Components og Server Actions. Server Component henter data FØR siden vises. Server Action kjører NÅR bruker klikker. Hvordan data returneres til frontend."
+      },
+      {
+        title: "Proxy vs Server Actions",
+        path: "guide-generell/frontend-backend.html#proxy-middleware",
+        category: "Guide",
+        tags: ["proxy", "middleware", "server actions", "sikkerhet", "dørvakt", "arbeider"],
+        content: "Middleware er dørvakten - sjekker tilgang. Server Actions er arbeideren - utfører CRUD. De jobber sammen, ikke istedenfor hverandre. 3 lag med sikkerhet."
+      },
+      {
+        title: "Database (Supabase)",
+        path: "guide-generell/database.html",
+        category: "Guide",
+        tags: ["database", "supabase", "postgresql", "sql", "rls", "row level security"],
+        content: "Supabase oppsett og konfigurasjon. SQL for tabeller. Row Level Security policies. Koble til fra Next.js."
+      },
+      {
+        title: "Autentisering",
+        path: "guide-generell/autentisering.html",
+        category: "Guide",
+        tags: ["autentisering", "auth", "login", "register", "jwt", "token", "cookies"],
+        content: "Login og registrering. JWT tokens. Cookies. Passord-hashing. Glemt passord. Middleware beskyttelse."
+      },
+      {
+        title: "Admin Panel",
+        path: "guide-generell/admin.html",
+        category: "Guide",
+        tags: ["admin", "dashboard", "panel", "beskyttet", "crud"],
+        content: "Bygg admin-panel. Dashboard med statistikk. CRUD for innhold. Beskyttet med middleware og rolle-sjekk."
+      },
+      {
+        title: "Komponenter Bibliotek",
+        path: "guide-generell/komponenter.html",
+        category: "Guide",
+        tags: ["komponenter", "buttons", "forms", "hero", "navbar", "footer", "cards"],
+        content: "Copy-paste komponenter. Buttons, forms, hero-seksjoner. Navbar og footer. Cards og grids. Tailwind styling."
+      },
+      {
+        title: "Moderne HomePage",
+        path: "guide-generell/homepage.html",
+        category: "Guide",
+        tags: ["homepage", "forside", "hero", "animasjoner", "design", "trender"],
+        content: "Moderne forside med 2024/2025 designtrender. Hero-seksjoner. Animasjoner. Bento Grid. Glassmorphism."
+      },
+      {
+        title: "Deploy",
+        path: "guide-generell/deploy.html",
+        category: "Guide",
+        tags: ["deploy", "vercel", "docker", "vps", "produksjon"],
+        content: "Deploy til Vercel. Docker oppsett. VPS konfigurasjon. Nginx reverse proxy. SSL sertifikater."
+      },
+      {
+        title: "Auto-Setup Script",
+        path: "guide-generell/auto-setup.html",
+        category: "Guide",
+        tags: ["setup", "script", "oppsett", "automatisk", "nytt prosjekt"],
+        content: "Opprett nytt prosjekt på 3 minutter. Ett script gjør alt. Installerer avhengigheter og oppretter filer."
+      },
+      {
+        title: "Manuelt Oppsett",
+        path: "guide-generell/manuell-oppsett.html",
+        category: "Guide",
+        tags: ["manuelt", "oppsett", "steg for steg", "kontroll"],
+        content: "Full kontroll over oppsettet. Steg-for-steg guide. Perfekt for læring og feilsøking."
+      },
+      {
+        title: "Booking og Bestilling",
+        path: "guide-generell/booking.html",
+        category: "Guide",
+        tags: ["booking", "bestilling", "timebestilling", "kalender"],
+        content: "Timebestilling for restaurant, frisør, trening. Kalender-integrasjon. Bekreftelse på e-post."
+      },
+      {
+        title: "Betalingsintegrasjon",
+        path: "guide-generell/betaling.html",
+        category: "Guide",
+        tags: ["betaling", "stripe", "checkout", "webhooks", "abonnement"],
+        content: "Stripe Checkout. Webhooks for betalingsbekreftelse. Abonnementer. Refundering."
+      },
+      {
+        title: "SEO og Metadata",
+        path: "guide-generell/seo.html",
+        category: "Guide",
+        tags: ["seo", "metadata", "sitemap", "google", "søkemotor"],
+        content: "Metadata API i Next.js. Sitemap generering. Structured data. Open Graph tags."
+      },
+      {
+        title: "Bildehåndtering",
+        path: "guide-generell/bilder.html",
+        category: "Guide",
+        tags: ["bilder", "next/image", "opplasting", "storage", "optimalisering"],
+        content: "next/image for optimalisering. Supabase Storage. Bildeopplasting. Lazy loading."
+      },
+      {
+        title: "Bransjemaler",
+        path: "guide-generell/maler.html",
+        category: "Guide",
+        tags: ["maler", "restaurant", "treningssenter", "nettbutikk", "konsulent"],
+        content: "Ferdige maler for ulike bransjer. Restaurant, treningssenter, nettbutikk, konsulent."
+      },
+      // Grunnleggende
+      {
+        title: "TypeScript Grunnleggende",
+        path: "grunnleggende/typescript.html",
+        category: "Grunnleggende",
+        tags: ["typescript", "typer", "interface", "generics", "type safety"],
+        content: "TypeScript grunnleggende. Typer og interfaces. Generics. Type assertions. Vanlige feil og løsninger."
+      },
+      {
+        title: "React + Next.js + Tailwind",
+        path: "grunnleggende/react-nextjs-tailwind.html",
+        category: "Grunnleggende",
+        tags: ["react", "nextjs", "tailwind", "komponenter", "props", "state", "hooks"],
+        content: "Komplett guide for React i Next.js. Komponenter, props, state. Hooks. Client vs Server Components."
+      },
+      {
+        title: "Tailwind CSS",
+        path: "grunnleggende/tailwind.html",
+        category: "Grunnleggende",
+        tags: ["tailwind", "css", "styling", "responsive", "flexbox", "grid"],
+        content: "Alle Tailwind-klasser forklart. Flexbox og grid. Responsive design. Farger og spacing."
+      },
+      {
+        title: "Bruke Komponenter",
+        path: "grunnleggende/komponenter.html",
+        category: "Grunnleggende",
+        tags: ["komponenter", "import", "props", "children", "gjenbruk"],
+        content: "Hvordan importere og bruke komponenter. Props og children. Gjenbrukbar kode."
+      },
+      {
+        title: "RPA til Web Konsepter",
+        path: "guide-generell/konsepter.html",
+        category: "Grunnleggende",
+        tags: ["rpa", "uipath", "konsepter", "sammenligning"],
+        content: "Next.js konsepter forklart for RPA-utviklere. Sammenligning med UiPath og BluePrism."
+      },
+      // Feilmeldinger
+      {
+        title: "Vanlige Feilmeldinger",
+        path: "feilmeldinger/index.html",
+        category: "Feilsøking",
+        tags: ["feilmeldinger", "errors", "debugging", "løsninger"],
+        content: "Vanlige feilmeldinger og hvordan løse dem. TypeScript feil. React feil. Next.js feil."
+      }
+    ];
+
+    const searchInput = document.getElementById('searchInput');
+    const resultsContainer = document.getElementById('resultsContainer');
+    const searchStats = document.getElementById('searchStats');
+    const popularSearches = document.getElementById('popularSearches');
+    const categories = document.getElementById('categories');
+
+    // Søkefunksjon
+    function search(query) {
+      searchInput.value = query;
+      performSearch(query);
+    }
+
+    function performSearch(query) {
+      if (!query || query.length < 2) {
+        popularSearches.style.display = 'block';
+        categories.style.display = 'block';
+        searchStats.textContent = 'Skriv for å søke i all dokumentasjon';
+        // Fjern tidligere resultater
+        const oldResults = document.querySelectorAll('.search-results');
+        oldResults.forEach(el => el.remove());
+        return;
+      }
+
+      popularSearches.style.display = 'none';
+      categories.style.display = 'none';
+
+      const terms = query.toLowerCase().split(' ').filter(t => t.length > 0);
+
+      // Søk og ranger resultater
+      const results = searchIndex.map(item => {
+        let score = 0;
+        const searchableText = `${item.title} ${item.tags.join(' ')} ${item.content}`.toLowerCase();
+
+        terms.forEach(term => {
+          // Tittel-match gir høy score
+          if (item.title.toLowerCase().includes(term)) score += 10;
+          // Tag-match gir middels score
+          if (item.tags.some(tag => tag.includes(term))) score += 5;
+          // Innhold-match gir lav score
+          if (item.content.toLowerCase().includes(term)) score += 2;
+        });
+
+        return { ...item, score };
+      })
+      .filter(item => item.score > 0)
+      .sort((a, b) => b.score - a.score);
+
+      // Vis resultater
+      displayResults(results, query, terms);
+    }
+
+    function displayResults(results, query, terms) {
+      // Fjern gamle resultater
+      const oldResults = document.querySelectorAll('.search-results');
+      oldResults.forEach(el => el.remove());
+
+      searchStats.textContent = `${results.length} resultat${results.length !== 1 ? 'er' : ''} for "${query}"`;
+
+      if (results.length === 0) {
+        const noResults = document.createElement('div');
+        noResults.className = 'search-results no-results';
+        noResults.innerHTML = `
+          <h3>Ingen resultater funnet</h3>
+          <p>Prøv andre søkeord eller sjekk populære søk nedenfor.</p>
+        `;
+        resultsContainer.appendChild(noResults);
+        popularSearches.style.display = 'block';
+        return;
+      }
+
+      const resultsDiv = document.createElement('div');
+      resultsDiv.className = 'search-results';
+
+      results.forEach(item => {
+        const card = document.createElement('a');
+        card.href = item.path;
+        card.className = 'result-card';
+
+        // Marker søkeord i excerpt
+        let excerpt = item.content;
+        terms.forEach(term => {
+          const regex = new RegExp(`(${term})`, 'gi');
+          excerpt = excerpt.replace(regex, '<mark>$1</mark>');
+        });
+
+        card.innerHTML = `
+          <h3>${item.title}</h3>
+          <p class="result-path">${item.path}</p>
+          <p class="result-excerpt">${excerpt}</p>
+          <div class="result-tags">
+            ${item.tags.slice(0, 5).map(tag => `<span class="result-tag">${tag}</span>`).join('')}
+          </div>
+        `;
+
+        resultsDiv.appendChild(card);
+      });
+
+      resultsContainer.appendChild(resultsDiv);
+    }
+
+    // Event listeners
+    searchInput.addEventListener('input', (e) => {
+      performSearch(e.target.value);
+    });
+
+    // Keyboard shortcut: / for å fokusere søk
+    document.addEventListener('keydown', (e) => {
+      if (e.key === '/' && document.activeElement !== searchInput) {
+        e.preventDefault();
+        searchInput.focus();
+      }
+      if (e.key === 'Escape') {
+        searchInput.blur();
+      }
+    });
+
+    // Sjekk URL-parameter for søk
+    const urlParams = new URLSearchParams(window.location.search);
+    const queryParam = urlParams.get('q');
+    if (queryParam) {
+      searchInput.value = queryParam;
+      performSearch(queryParam);
+    }
+  </script>
+</body>
+</html>
