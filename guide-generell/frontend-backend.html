@@ -222,6 +222,7 @@
       <strong>Hopp til:</strong><br>
       <a href="#oversikt">Oversikt & Dataflyt</a>
       <a href="#kommunikasjon">Kommunikasjonsmetoder</a>
+      <a href="#server-vs-action">Server Component vs Action</a>
       <a href="#server-actions">Server Actions</a>
       <a href="#api-routes">API Routes</a>
       <a href="#proxy-middleware">Proxy & Middleware</a>
@@ -350,6 +351,260 @@
     <div class="success-box">
       <h3 style="margin-top: 0;">Anbefaling</h3>
       <p style="margin: 0;"><strong>Server Actions</strong> for 90% av behovene dine (skjemaer, CRUD-operasjoner). <strong>API Routes</strong> kun når du trenger webhooks eller ekstern tilgang.</p>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- SERVER COMPONENT VS SERVER ACTION -->
+    <!-- ============================================ -->
+    <h2 id="server-vs-action">Server Component vs Server Action - Hva er forskjellen?</h2>
+
+    <div class="warning-box" style="background: linear-gradient(135deg, #fef3c7 0%, #fffbeb 100%); border: 2px solid #f59e0b;">
+      <h3 style="margin-top: 0; color: #92400e;">Viktig konsept!</h3>
+      <p style="margin: 0;">Mange forveksler disse to. Begge kjører på serveren, men på <strong>helt forskjellige tidspunkter</strong> og med <strong>ulike formål</strong>.</p>
+    </div>
+
+    <h3>Visuell Forklaring</h3>
+
+    <div class="architecture-diagram">
+      <h3>Server Component: Data FØR siden vises</h3>
+<pre style="margin:0; color: #e2e8f0; line-height: 1.8;">
+<span style="color: #4ade80;">Bruker skriver: www.nettside.no/produkter</span>
+
+     ┌─────────────────────────────────────────────────────────┐
+     │  <span style="color: #60a5fa;">STEG 1: SERVER</span>                                        │
+     │                                                         │
+     │  async function ProductsPage() {                        │
+     │    <span style="color: #f59e0b;">// Kjører HER på serveren</span>                           │
+     │    const products = await supabase                      │
+     │      .from("products")                                  │
+     │      .select("*")                                       │
+     │                                                         │
+     │    <span style="color: #4ade80;">// products = [{id: 1, name: "Sko"}, ...]</span>            │
+     │  }                                                      │
+     └─────────────────────────────────────────────────────────┘
+                              ↓
+                    <span style="color: #f59e0b;">Server sender FERDIG HTML</span>
+                              ↓
+     ┌─────────────────────────────────────────────────────────┐
+     │  <span style="color: #60a5fa;">STEG 2: BROWSER</span>                                       │
+     │                                                         │
+     │  &lt;div&gt;                                                 │
+     │    &lt;h3&gt;<span style="color: #4ade80;">Sko</span>&lt;/h3&gt;                                        │
+     │    &lt;p&gt;<span style="color: #4ade80;">499 kr</span>&lt;/p&gt;                                       │
+     │  &lt;/div&gt;                                                │
+     │                                                         │
+     │  <span style="color: #22c55e;">✓ Data er ALLEREDE i HTML - ingen loading!</span>            │
+     └─────────────────────────────────────────────────────────┘
+</pre>
+    </div>
+
+    <div class="architecture-diagram" style="background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%);">
+      <h3>Server Action: Data NÅR bruker gjør noe</h3>
+<pre style="margin:0; color: #e2e8f0; line-height: 1.8;">
+<span style="color: #4ade80;">Bruker klikker "Legg til produkt"-knappen</span>
+
+     ┌─────────────────────────────────────────────────────────┐
+     │  <span style="color: #60a5fa;">STEG 1: BROWSER (Client Component)</span>                    │
+     │                                                         │
+     │  async function handleSubmit(formData) {                │
+     │    <span style="color: #f59e0b;">// Kaller server action</span>                              │
+     │    const result = await createProduct(formData)         │
+     │                         <span style="color: #f59e0b;">↑</span>                              │
+     │                    <span style="color: #f59e0b;">Denne går til serveren</span>               │
+     │  }                                                      │
+     └─────────────────────────────────────────────────────────┘
+                              ↓
+                    <span style="color: #f59e0b;">Next.js sender request til server</span>
+                              ↓
+     ┌─────────────────────────────────────────────────────────┐
+     │  <span style="color: #60a5fa;">STEG 2: SERVER (Server Action)</span>                        │
+     │                                                         │
+     │  "use server"                                           │
+     │  async function createProduct(formData) {               │
+     │    await supabase.from("products").insert({...})        │
+     │    <span style="color: #4ade80;">return { success: true, message: "Opprettet!" }</span>       │
+     │           <span style="color: #f59e0b;">↑</span>                                             │
+     │      <span style="color: #f59e0b;">Denne sendes TILBAKE til frontend</span>                   │
+     │  }                                                      │
+     └─────────────────────────────────────────────────────────┘
+                              ↓
+                    <span style="color: #f59e0b;">Return-verdien sendes til browser</span>
+                              ↓
+     ┌─────────────────────────────────────────────────────────┐
+     │  <span style="color: #60a5fa;">STEG 3: BROWSER (mottar svar)</span>                         │
+     │                                                         │
+     │  const result = await createProduct(formData)           │
+     │  <span style="color: #4ade80;">// result = { success: true, message: "Opprettet!" }</span>   │
+     │                                                         │
+     │  console.log(result.message) <span style="color: #4ade80;">// "Opprettet!"</span>           │
+     └─────────────────────────────────────────────────────────┘
+</pre>
+    </div>
+
+    <h3>Sammenligning: Når bruke hva?</h3>
+
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th style="width: 20%;">Aspekt</th>
+          <th style="width: 40%;">Server Component</th>
+          <th style="width: 40%;">Server Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Når kjører den?</strong></td>
+          <td>Ved sidelasting (før HTML sendes)</td>
+          <td>Når bruker klikker/submitter (etter sidelasting)</td>
+        </tr>
+        <tr>
+          <td><strong>Hvordan får frontend data?</strong></td>
+          <td>Data er allerede i HTML fra server</td>
+          <td>Via <code>return</code>-verdien fra funksjonen</td>
+        </tr>
+        <tr>
+          <td><strong>Typisk bruk</strong></td>
+          <td>Vise lister, produkter, artikler</td>
+          <td>Skjemaer, "Legg til", "Slett", "Oppdater"</td>
+        </tr>
+        <tr>
+          <td><strong>Trenger loading state?</strong></td>
+          <td>Nei - data er klar med én gang</td>
+          <td>Ja - bruker venter på respons</td>
+        </tr>
+        <tr>
+          <td><strong>Synlig i nettleseren?</strong></td>
+          <td>Nei - kun HTML sendes</td>
+          <td>Nei - kun return-verdien sendes</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Komplett Kodeeksempel</h3>
+
+    <div class="file-path">Server Component: Henter data ved sidelast</div>
+    <pre><code>// src/app/produkter/page.tsx
+// INGEN "use client" = Server Component
+
+import supabase from "@/config/supabase-config"
+
+export default async function ProductsPage() {
+  // ┌─────────────────────────────────────────────────┐
+  // │  Dette kjører på SERVEREN før HTML sendes      │
+  // │  Bruker ser ALDRI denne koden i nettleseren    │
+  // └─────────────────────────────────────────────────┘
+  const { data: products } = await supabase
+    .from("products")
+    .select("*")
+
+  // HTML sendes til bruker MED data ferdig utfylt
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;Produkter&lt;/h1&gt;
+      {products?.map((product) => (
+        &lt;div key={product.id}&gt;
+          &lt;h3&gt;{product.name}&lt;/h3&gt;
+          &lt;p&gt;{product.price} kr&lt;/p&gt;
+        &lt;/div&gt;
+      ))}
+    &lt;/div&gt;
+  )
+}
+
+// Bruker åpner /produkter:
+// 1. Server kjører funksjonen
+// 2. Server henter data fra database
+// 3. Server sender ferdig HTML: "&lt;div&gt;&lt;h3&gt;Sko&lt;/h3&gt;&lt;p&gt;499 kr&lt;/p&gt;&lt;/div&gt;"
+// 4. Bruker ser produktene UMIDDELBART (ingen loading)</code></pre>
+
+    <div class="file-path">Server Action: Kjører når bruker klikker</div>
+    <pre><code>// src/actions/products.ts
+"use server"  // ← Markerer at dette er en Server Action
+
+import supabase from "@/config/supabase-config"
+
+export async function createProduct(formData: FormData) {
+  // ┌─────────────────────────────────────────────────┐
+  // │  Dette kjører på SERVEREN når bruker submitter │
+  // │  formData kommer fra frontend skjemaet         │
+  // └─────────────────────────────────────────────────┘
+  const name = formData.get("name") as string
+  const price = parseFloat(formData.get("price") as string)
+
+  const { error } = await supabase
+    .from("products")
+    .insert({ name, price })
+
+  if (error) {
+    // ┌─────────────────────────────────────────────────┐
+    // │  return-verdien sendes TILBAKE til frontend    │
+    // └─────────────────────────────────────────────────┘
+    return { success: false, message: "Kunne ikke opprette" }
+  }
+
+  return { success: true, message: "Produkt opprettet!" }
+}</code></pre>
+
+    <div class="file-path">Client Component: Bruker Server Action</div>
+    <pre><code>// src/components/CreateProductForm.tsx
+"use client"  // ← MÅ være client for interaktivitet
+
+import { useState } from "react"
+import { createProduct } from "@/actions/products"
+
+export default function CreateProductForm() {
+  const [message, setMessage] = useState("")
+  const [loading, setLoading] = useState(false)
+
+  async function handleSubmit(formData: FormData) {
+    setLoading(true)
+
+    // ┌─────────────────────────────────────────────────┐
+    // │  Kall Server Action - den kjører på serveren   │
+    // │  MEN return-verdien kommer TILBAKE hit         │
+    // └─────────────────────────────────────────────────┘
+    const result = await createProduct(formData)
+
+    // result = { success: true, message: "Produkt opprettet!" }
+    setMessage(result.message)
+    setLoading(false)
+  }
+
+  return (
+    &lt;form action={handleSubmit}&gt;
+      &lt;input name="name" placeholder="Produktnavn" /&gt;
+      &lt;input name="price" type="number" placeholder="Pris" /&gt;
+
+      &lt;button type="submit" disabled={loading}&gt;
+        {loading ? "Lagrer..." : "Opprett"}
+      &lt;/button&gt;
+
+      {/* Viser meldingen som kom fra server */}
+      {message && &lt;p&gt;{message}&lt;/p&gt;}
+    &lt;/form&gt;
+  )
+}</code></pre>
+
+    <div class="success-box" style="background: linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%); border: 2px solid #22c55e;">
+      <h3 style="margin-top: 0; color: #166534;">Nøkkelpunkt: Hvordan data kommer tilbake</h3>
+      <p style="margin: 0.5rem 0;">
+        <strong>Server Action er som en vanlig <code>await</code>-funksjon!</strong><br>
+        Selv om funksjonen kjører på serveren, får du return-verdien akkurat som om den kjørte lokalt.
+      </p>
+      <pre style="background: white; padding: 1rem; border-radius: 8px; margin-top: 1rem;"><code>// Dette er MAGIEN i Server Actions:
+
+// Gammel måte (fetch til API):
+const response = await fetch("/api/products", {
+  method: "POST",
+  body: formData
+})
+const result = await response.json()
+
+// Ny måte (Server Action) - MYE enklere:
+const result = await createProduct(formData)
+
+// Begge gir SAMME result!
+// Next.js håndterer HTTP-kallet automatisk i bakgrunnen</code></pre>
     </div>
 
     <!-- ============================================ -->
