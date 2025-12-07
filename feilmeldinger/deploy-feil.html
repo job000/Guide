@@ -420,7 +420,7 @@ Vercel Pro: 3008 MB RAM</code></pre>
 
     <!-- EDGE FUNCTIONS -->
     <div class="category-header">
-      <h2>Edge Functions/Middleware Feil</h2>
+      <h2>Edge Functions/Proxy Feil</h2>
     </div>
 
     <div class="error-card" data-search="edge runtime node.js api not compatible">
@@ -458,7 +458,7 @@ const uuid = crypto.randomUUID()  // ✓ Fungerer i Edge
 // Bruk fetch, supabase storage, eller database</code></pre>
           <h5>Løsning 3: Forstå når Edge Runtime trengs</h5>
           <pre><code>// Bruk Edge Runtime kun for:
-// - Middleware
+// - Proxy (Next.js 16)
 // - Enkle API routes som trenger global distribusjon
 // - Lav-latency responses
 

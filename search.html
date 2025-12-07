@@ -205,7 +205,7 @@
         <h3>Populære søk</h3>
         <div class="popular-tags">
           <button class="popular-tag" onclick="search('server actions')">Server Actions</button>
-          <button class="popular-tag" onclick="search('proxy middleware')">Proxy / Middleware</button>
+          <button class="popular-tag" onclick="search('proxy')">Proxy (Next.js 16)</button>
           <button class="popular-tag" onclick="search('supabase database')">Supabase Database</button>
           <button class="popular-tag" onclick="search('komponenter')">Komponenter</button>
           <button class="popular-tag" onclick="search('autentisering login')">Login / Auth</button>
@@ -224,7 +224,7 @@
           <a href="guide-generell/frontend-backend.html" class="result-card">
             <h3>Frontend/Backend Kommunikasjon</h3>
             <p class="result-path">guide-generell/frontend-backend.html</p>
-            <p class="result-excerpt">Lær hvordan data flyter mellom frontend, proxy og backend. Server Actions, API Routes, Middleware.</p>
+            <p class="result-excerpt">Lær hvordan data flyter mellom frontend, proxy og backend. Server Actions, API Routes, Proxy.</p>
             <div class="result-tags">
               <span class="result-tag">Actions</span>
               <span class="result-tag">Proxy</span>
@@ -234,7 +234,7 @@
           <a href="guide-generell/eksempel-prosjekt.html" class="result-card">
             <h3>Komplett Eksempel: Produktbutikk</h3>
             <p class="result-path">guide-generell/eksempel-prosjekt.html</p>
-            <p class="result-excerpt">Hele løypen fra database til frontend. Middleware, Server Actions, komponenter - alt i ett eksempel.</p>
+            <p class="result-excerpt">Hele løypen fra database til frontend. Proxy, Server Actions, komponenter - alt i ett eksempel.</p>
             <div class="result-tags">
               <span class="result-tag">Eksempel</span>
               <span class="result-tag">Fullstack</span>
@@ -254,7 +254,7 @@
           <a href="guide-generell/fullstack-arkitektur.html" class="result-card">
             <h3>Fullstack Arkitektur</h3>
             <p class="result-path">guide-generell/fullstack-arkitektur.html</p>
-            <p class="result-excerpt">Komplett mappestruktur, Auth-system, Route Groups, Middleware og Admin Panel.</p>
+            <p class="result-excerpt">Komplett mappestruktur, Auth-system, Route Groups, Proxy og Admin Panel.</p>
             <div class="result-tags">
               <span class="result-tag">Arkitektur</span>
               <span class="result-tag">Auth</span>
@@ -274,15 +274,15 @@
         title: "Frontend/Backend Kommunikasjon",
         path: "guide-generell/frontend-backend.html",
         category: "Guide",
-        tags: ["frontend", "backend", "proxy", "middleware", "server actions", "api routes", "dataflyt"],
-        content: "Hvordan frontend kommuniserer med backend. Server Actions vs API Routes. Middleware og proxy for rutebeskyttelse. Dynamisk ruting med [id]. Route Groups for organisering."
+        tags: ["frontend", "backend", "proxy", "server actions", "api routes", "dataflyt"],
+        content: "Hvordan frontend kommuniserer med backend. Server Actions vs API Routes. Proxy for rutebeskyttelse (Next.js 16). Dynamisk ruting med [id]. Route Groups for organisering."
       },
       {
         title: "Komplett Eksempel: Produktbutikk",
         path: "guide-generell/eksempel-prosjekt.html",
         category: "Guide",
-        tags: ["eksempel", "produktbutikk", "crud", "fullstack", "middleware", "actions", "supabase"],
-        content: "Komplett eksempel med hele flyten. Database setup med RLS. Middleware for beskyttelse. Server Actions for CRUD. Client og Server Components. Admin-sider."
+        tags: ["eksempel", "produktbutikk", "crud", "fullstack", "proxy", "actions", "supabase"],
+        content: "Komplett eksempel med hele flyten. Database setup med RLS. Proxy for beskyttelse. Server Actions for CRUD. Client og Server Components. Admin-sider."
       },
       {
         title: "Komponenter, Actions & Supabase",
@@ -295,7 +295,7 @@
         title: "Fullstack Arkitektur",
         path: "guide-generell/fullstack-arkitektur.html",
         category: "Guide",
-        tags: ["arkitektur", "mappestruktur", "auth", "login", "register", "admin", "middleware", "route groups"],
+        tags: ["arkitektur", "mappestruktur", "auth", "login", "register", "admin", "proxy", "route groups"],
         content: "Komplett mappestruktur for store prosjekter. Auth-system med login, register, glemt passord. Proxy rutebeskyttelse. Route Groups. Admin Panel. Gjenbrukbare komponenter."
       },
       {
@@ -307,10 +307,10 @@
       },
       {
         title: "Proxy vs Server Actions",
-        path: "guide-generell/frontend-backend.html#proxy-middleware",
+        path: "guide-generell/frontend-backend.html#proxy",
         category: "Guide",
-        tags: ["proxy", "middleware", "server actions", "sikkerhet", "dørvakt", "arbeider"],
-        content: "Middleware er dørvakten - sjekker tilgang. Server Actions er arbeideren - utfører CRUD. De jobber sammen, ikke istedenfor hverandre. 3 lag med sikkerhet."
+        tags: ["proxy", "server actions", "sikkerhet", "dørvakt", "arbeider"],
+        content: "Proxy er dørvakten - sjekker tilgang. Server Actions er arbeideren - utfører CRUD. De jobber sammen, ikke istedenfor hverandre. 3 lag med sikkerhet."
       },
       {
         title: "Database (Supabase)",
@@ -324,14 +324,14 @@
         path: "guide-generell/autentisering.html",
         category: "Guide",
         tags: ["autentisering", "auth", "login", "register", "jwt", "token", "cookies"],
-        content: "Login og registrering. JWT tokens. Cookies. Passord-hashing. Glemt passord. Middleware beskyttelse."
+        content: "Login og registrering. JWT tokens. Cookies. Passord-hashing. Glemt passord. Proxy beskyttelse."
       },
       {
         title: "Admin Panel",
         path: "guide-generell/admin.html",
         category: "Guide",
         tags: ["admin", "dashboard", "panel", "beskyttet", "crud"],
-        content: "Bygg admin-panel. Dashboard med statistikk. CRUD for innhold. Beskyttet med middleware og rolle-sjekk."
+        content: "Bygg admin-panel. Dashboard med statistikk. CRUD for innhold. Beskyttet med proxy og rolle-sjekk."
       },
       {
         title: "Komponenter Bibliotek",
