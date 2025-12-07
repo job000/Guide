@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRUD Guide - Database til Frontend</title>
+  <link rel="stylesheet" href="../assets/styles.css">
+  <style>
+    .crud-flow {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      border-radius: 16px;
+      padding: 2rem;
+      margin: 2rem 0;
+      overflow-x: auto;
+    }
+    .crud-operation {
+      background: linear-gradient(135deg, #1e3a5f 0%, #2d4a6f 100%);
+      border: 2px solid #3b82f6;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .crud-operation.create { border-color: #22c55e; }
+    .crud-operation.create h3 { color: #4ade80; }
+    .crud-operation.read { border-color: #3b82f6; }
+    .crud-operation.read h3 { color: #60a5fa; }
+    .crud-operation.update { border-color: #f59e0b; }
+    .crud-operation.update h3 { color: #fbbf24; }
+    .crud-operation.delete { border-color: #ef4444; }
+    .crud-operation.delete h3 { color: #f87171; }
+    .crud-operation h3 {
+      margin: 0 0 1rem 0;
+      font-size: 1.2rem;
+    }
+    .crud-operation h3::before { display: none; }
+    .layer-indicator {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      margin-right: 0.5rem;
+    }
+    .layer-database { background: #8b5cf6; color: white; }
+    .layer-action { background: #22c55e; color: white; }
+    .layer-component { background: #3b82f6; color: white; }
+    .layer-frontend { background: #ec4899; color: white; }
+    .file-path {
+      background: #1e293b;
+      color: #60a5fa;
+      padding: 0.5rem 1rem;
+      border-radius: 8px 8px 0 0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      display: inline-block;
+      margin-top: 1rem;
+    }
+    .flow-visual {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      justify-content: center;
+      padding: 1.5rem;
+      background: rgba(0,0,0,0.2);
+      border-radius: 12px;
+      margin: 1rem 0;
+    }
+    .flow-box {
+      padding: 0.75rem 1.25rem;
+      border-radius: 10px;
+      font-weight: 600;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+    .flow-arrow {
+      font-size: 1.5rem;
+      color: #64748b;
+    }
+    .step-section {
+      border-left: 4px solid #3b82f6;
+      padding-left: 1.5rem;
+      margin: 2rem 0;
+    }
+    .step-number {
+      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      margin-right: 0.75rem;
+    }
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin: 1.5rem 0;
+    }
+    .comparison-card {
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    .comparison-card h4 {
+      margin: 0 0 1rem 0;
+      color: #1e293b;
+    }
+    .comparison-card.recommended {
+      border-color: #22c55e;
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    }
+    @media (max-width: 768px) {
+      .flow-visual {
+        flex-direction: column;
+      }
+      .flow-arrow {
+        transform: rotate(90deg);
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <a href="../index.html">Hjem</a>
+    <a href="index.html">Start</a>
+    <a href="frontend-backend.html">Frontend/Backend</a>
+    <a href="crud-guide.html"><strong>CRUD Guide</strong></a>
+    <a href="database.html">Database</a>
+  </nav>
+
+  <div class="container">
+    <h1>CRUD Guide: Database til Frontend</h1>
+
+    <blockquote>
+      <p>Komplett guide som viser hele flyten for Create, Read, Update og Delete - fra Supabase database via Server Actions til React-komponenter.</p>
+    </blockquote>
+
+    <div class="quick-nav">
+      <strong>Hopp til:</strong><br>
+      <a href="#oversikt">Oversikt</a>
+      <a href="#database">1. Database Setup</a>
+      <a href="#actions">2. Server Actions</a>
+      <a href="#komponenter">3. Komponenter</a>
+      <a href="#create">CREATE</a>
+      <a href="#read">READ</a>
+      <a href="#update">UPDATE</a>
+      <a href="#delete">DELETE</a>
+      <a href="#komplett">Komplett Eksempel</a>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- OVERSIKT -->
+    <!-- ============================================ -->
+    <h2 id="oversikt">Oversikt: CRUD Arkitektur</h2>
+
+    <div class="crud-flow">
+      <pre style="margin:0; color: #e2e8f0; line-height: 1.8;">
+<span style="color: #60a5fa;">┌─────────────────────────────────────────────────────────────────────┐</span>
+<span style="color: #60a5fa;">│</span>                        <span style="color: #f472b6;">FRONTEND (Browser)</span>                          <span style="color: #60a5fa;">│</span>
+<span style="color: #60a5fa;">│</span>                                                                     <span style="color: #60a5fa;">│</span>
+<span style="color: #60a5fa;">│</span>   <span style="color: #4ade80;">Server Component</span>          <span style="color: #fbbf24;">Client Component</span>                      <span style="color: #60a5fa;">│</span>
+<span style="color: #60a5fa;">│</span>   (Viser data)               (Håndterer interaksjon)                <span style="color: #60a5fa;">│</span>
+<span style="color: #60a5fa;">│</span>   - ProductList              - CreateForm                           <span style="color: #60a5fa;">│</span>
+<span style="color: #60a5fa;">│</span>   - ProductCard              - EditForm                             <span style="color: #60a5fa;">│</span>
+<span style="color: #60a5fa;">│</span>                              - DeleteButton                         <span style="color: #60a5fa;">│</span>
+<span style="color: #60a5fa;">└─────────────────────────────────────────────────────────────────────┘</span>
+                                    │
+                     Kaller Server Actions
+                                    ▼
+<span style="color: #22c55e;">┌─────────────────────────────────────────────────────────────────────┐</span>
+<span style="color: #22c55e;">│</span>                      <span style="color: #4ade80;">SERVER ACTIONS</span>                                <span style="color: #22c55e;">│</span>
+<span style="color: #22c55e;">│</span>                   (actions/products.ts)                             <span style="color: #22c55e;">│</span>
+<span style="color: #22c55e;">│</span>                                                                     <span style="color: #22c55e;">│</span>
+<span style="color: #22c55e;">│</span>   <span style="color: #4ade80;">getProducts()</span>     → Hent alle produkter (READ)                   <span style="color: #22c55e;">│</span>
+<span style="color: #22c55e;">│</span>   <span style="color: #4ade80;">getProductById()</span>  → Hent ett produkt (READ)                      <span style="color: #22c55e;">│</span>
+<span style="color: #22c55e;">│</span>   <span style="color: #4ade80;">createProduct()</span>   → Opprett nytt produkt (CREATE)                <span style="color: #22c55e;">│</span>
+<span style="color: #22c55e;">│</span>   <span style="color: #4ade80;">updateProduct()</span>   → Oppdater produkt (UPDATE)                    <span style="color: #22c55e;">│</span>
+<span style="color: #22c55e;">│</span>   <span style="color: #4ade80;">deleteProduct()</span>   → Slett produkt (DELETE)                       <span style="color: #22c55e;">│</span>
+<span style="color: #22c55e;">└─────────────────────────────────────────────────────────────────────┘</span>
+                                    │
+                        Supabase Client
+                                    ▼
+<span style="color: #8b5cf6;">┌─────────────────────────────────────────────────────────────────────┐</span>
+<span style="color: #8b5cf6;">│</span>                        <span style="color: #a78bfa;">DATABASE (Supabase)</span>                         <span style="color: #8b5cf6;">│</span>
+<span style="color: #8b5cf6;">│</span>                                                                     <span style="color: #8b5cf6;">│</span>
+<span style="color: #8b5cf6;">│</span>   Tabell: products                                                  <span style="color: #8b5cf6;">│</span>
+<span style="color: #8b5cf6;">│</span>   ├── id (uuid)                                                     <span style="color: #8b5cf6;">│</span>
+<span style="color: #8b5cf6;">│</span>   ├── name (text)                                                   <span style="color: #8b5cf6;">│</span>
+<span style="color: #8b5cf6;">│</span>   ├── description (text)                                            <span style="color: #8b5cf6;">│</span>
+<span style="color: #8b5cf6;">│</span>   ├── price (numeric)                                               <span style="color: #8b5cf6;">│</span>
+<span style="color: #8b5cf6;">│</span>   └── created_at (timestamp)                                        <span style="color: #8b5cf6;">│</span>
+<span style="color: #8b5cf6;">│</span>                                                                     <span style="color: #8b5cf6;">│</span>
+<span style="color: #8b5cf6;">│</span>   + Row Level Security (RLS)                                        <span style="color: #8b5cf6;">│</span>
+<span style="color: #8b5cf6;">└─────────────────────────────────────────────────────────────────────┘</span>
+      </pre>
+    </div>
+
+    <div class="info-box">
+      <strong>Viktig konsept:</strong> Data flyter alltid gjennom Server Actions. Frontend kaller ALDRI databasen direkte!
+    </div>
+
+    <!-- ============================================ -->
+    <!-- STEG 1: DATABASE -->
+    <!-- ============================================ -->
+    <h2 id="database"><span class="step-number">1</span>Database Setup (Supabase)</h2>
+
+    <p>Først oppretter vi tabellen i Supabase:</p>
+
+    <div class="file-path">Supabase SQL Editor</div>
+    <pre><code>-- ============================================
+-- TABELL: products
+-- ============================================
+CREATE TABLE products (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name TEXT NOT NULL,
+  description TEXT,
+  price DECIMAL(10,2) NOT NULL CHECK (price >= 0),
+  image_url TEXT,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ============================================
+-- ROW LEVEL SECURITY (RLS)
+-- ============================================
+ALTER TABLE products ENABLE ROW LEVEL SECURITY;
+
+-- Alle kan LESE aktive produkter
+CREATE POLICY "Alle kan lese aktive produkter"
+ON products FOR SELECT
+USING (is_active = true);
+
+-- Kun autentiserte kan opprette (via service_role)
+CREATE POLICY "Service role kan alt"
+ON products FOR ALL
+USING (auth.role() = 'service_role');
+
+-- ============================================
+-- TRIGGER: Oppdater updated_at automatisk
+-- ============================================
+CREATE OR REPLACE FUNCTION update_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER products_updated_at
+  BEFORE UPDATE ON products
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at();
+
+-- ============================================
+-- TEST DATA
+-- ============================================
+INSERT INTO products (name, description, price) VALUES
+  ('Laptop Pro', 'Kraftig laptop for profesjonelle', 12999.00),
+  ('Wireless Mouse', 'Ergonomisk trådløs mus', 499.00),
+  ('USB-C Hub', '7-i-1 USB-C hub', 799.00);</code></pre>
+
+    <h3>Supabase Config</h3>
+
+    <div class="file-path">src/config/supabase-config.ts</div>
+    <pre><code>import { createClient } from "@supabase/supabase-js"
+
+// Bruk service_role for Server Actions (full tilgang)
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!  // ← Viktig: SERVICE_ROLE, ikke anon
+)
+
+export default supabase
+
+// TypeScript type for produkter
+export interface Product {
+  id: string
+  name: string
+  description: string | null
+  price: number
+  image_url: string | null
+  is_active: boolean
+  created_at: string
+  updated_at: string
+}</code></pre>
+
+    <!-- ============================================ -->
+    <!-- STEG 2: SERVER ACTIONS -->
+    <!-- ============================================ -->
+    <h2 id="actions"><span class="step-number">2</span>Server Actions (CRUD Operasjoner)</h2>
+
+    <p>Server Actions er funksjoner som kjører på serveren og utfører database-operasjoner:</p>
+
+    <div class="file-path">src/actions/products.ts</div>
+    <pre><code>"use server"
+
+import { revalidatePath } from "next/cache"
+import supabase, { Product } from "@/config/supabase-config"
+
+// ============================================
+// TYPE: Standard respons fra alle actions
+// ============================================
+interface ActionResponse&lt;T = null&gt; {
+  success: boolean
+  data?: T
+  message: string
+}
+
+// ============================================
+// READ: Hent alle produkter
+// ============================================
+export async function getProducts(): Promise&lt;ActionResponse&lt;Product[]&gt;&gt; {
+  try {
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("is_active", true)
+      .order("created_at", { ascending: false })
+
+    if (error) throw error
+
+    return {
+      success: true,
+      data: data || [],
+      message: "Produkter hentet"
+    }
+  } catch (error) {
+    console.error("getProducts error:", error)
+    return {
+      success: false,
+      message: "Kunne ikke hente produkter"
+    }
+  }
+}
+
+// ============================================
+// READ: Hent ett produkt
+// ============================================
+export async function getProductById(id: string): Promise&lt;ActionResponse&lt;Product&gt;&gt; {
+  try {
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .eq("id", id)
+      .single()
+
+    if (error) throw error
+
+    return {
+      success: true,
+      data,
+      message: "Produkt hentet"
+    }
+  } catch (error) {
+    console.error("getProductById error:", error)
+    return {
+      success: false,
+      message: "Kunne ikke hente produkt"
+    }
+  }
+}
+
+// ============================================
+// CREATE: Opprett nytt produkt
+// ============================================
+export async function createProduct(formData: FormData): Promise&lt;ActionResponse&lt;Product&gt;&gt; {
+  // 1. Hent data fra skjema
+  const name = formData.get("name") as string
+  const description = formData.get("description") as string
+  const priceStr = formData.get("price") as string
+
+  // 2. Valider input
+  if (!name || !priceStr) {
+    return { success: false, message: "Navn og pris er påkrevd" }
+  }
+
+  const price = parseFloat(priceStr)
+  if (isNaN(price) || price &lt; 0) {
+    return { success: false, message: "Ugyldig pris" }
+  }
+
+  try {
+    // 3. Sett inn i database
+    const { data, error } = await supabase
+      .from("products")
+      .insert({
+        name: name.trim(),
+        description: description?.trim() || null,
+        price
+      })
+      .select()
+      .single()
+
+    if (error) throw error
+
+    // 4. Oppdater cache så listen viser nytt produkt
+    revalidatePath("/produkter")
+    revalidatePath("/admin/produkter")
+
+    return {
+      success: true,
+      data,
+      message: "Produkt opprettet!"
+    }
+  } catch (error) {
+    console.error("createProduct error:", error)
+    return { success: false, message: "Kunne ikke opprette produkt" }
+  }
+}
+
+// ============================================
+// UPDATE: Oppdater eksisterende produkt
+// ============================================
+export async function updateProduct(
+  id: string,
+  formData: FormData
+): Promise&lt;ActionResponse&lt;Product&gt;&gt; {
+  const name = formData.get("name") as string
+  const description = formData.get("description") as string
+  const priceStr = formData.get("price") as string
+
+  if (!name || !priceStr) {
+    return { success: false, message: "Navn og pris er påkrevd" }
+  }
+
+  const price = parseFloat(priceStr)
+  if (isNaN(price) || price &lt; 0) {
+    return { success: false, message: "Ugyldig pris" }
+  }
+
+  try {
+    const { data, error } = await supabase
+      .from("products")
+      .update({
+        name: name.trim(),
+        description: description?.trim() || null,
+        price
+      })
+      .eq("id", id)
+      .select()
+      .single()
+
+    if (error) throw error
+
+    revalidatePath("/produkter")
+    revalidatePath(`/produkter/${id}`)
+    revalidatePath("/admin/produkter")
+
+    return {
+      success: true,
+      data,
+      message: "Produkt oppdatert!"
+    }
+  } catch (error) {
+    console.error("updateProduct error:", error)
+    return { success: false, message: "Kunne ikke oppdatere produkt" }
+  }
+}
+
+// ============================================
+// DELETE: Slett produkt (soft delete)
+// ============================================
+export async function deleteProduct(id: string): Promise&lt;ActionResponse&gt; {
+  try {
+    // Soft delete: Sett is_active = false
+    const { error } = await supabase
+      .from("products")
+      .update({ is_active: false })
+      .eq("id", id)
+
+    if (error) throw error
+
+    revalidatePath("/produkter")
+    revalidatePath("/admin/produkter")
+
+    return {
+      success: true,
+      message: "Produkt slettet!"
+    }
+  } catch (error) {
+    console.error("deleteProduct error:", error)
+    return { success: false, message: "Kunne ikke slette produkt" }
+  }
+}
+
+// ============================================
+// DELETE: Hard delete (permanent)
+// ============================================
+export async function hardDeleteProduct(id: string): Promise&lt;ActionResponse&gt; {
+  try {
+    const { error } = await supabase
+      .from("products")
+      .delete()
+      .eq("id", id)
+
+    if (error) throw error
+
+    revalidatePath("/produkter")
+    revalidatePath("/admin/produkter")
+
+    return {
+      success: true,
+      message: "Produkt permanent slettet!"
+    }
+  } catch (error) {
+    console.error("hardDeleteProduct error:", error)
+    return { success: false, message: "Kunne ikke slette produkt" }
+  }
+}</code></pre>
+
+    <!-- ============================================ -->
+    <!-- STEG 3: KOMPONENTER -->
+    <!-- ============================================ -->
+    <h2 id="komponenter"><span class="step-number">3</span>React Komponenter</h2>
+
+    <p>Nå lager vi komponentene som bruker Server Actions:</p>
+
+    <div class="comparison-grid">
+      <div class="comparison-card">
+        <h4>Server Components</h4>
+        <p>For å <strong>vise data</strong></p>
+        <ul>
+          <li>Kan være async</li>
+          <li>Henter data direkte</li>
+          <li>Ingen "use client"</li>
+          <li>Kjører på server</li>
+        </ul>
+        <code>ProductList, ProductCard</code>
+      </div>
+      <div class="comparison-card">
+        <h4>Client Components</h4>
+        <p>For <strong>interaksjon</strong></p>
+        <ul>
+          <li>Har "use client"</li>
+          <li>useState, useEffect</li>
+          <li>onClick, onSubmit</li>
+          <li>Kjører i browser</li>
+        </ul>
+        <code>CreateForm, DeleteButton</code>
+      </div>
+    </div>
+
+    <!-- ============================================ -->
+    <!-- CREATE -->
+    <!-- ============================================ -->
+    <h2 id="create">CREATE: Opprett Produkt</h2>
+
+    <div class="crud-operation create">
+      <h3>CREATE - Hele flyten</h3>
+      <div class="flow-visual">
+        <div class="flow-box" style="background: #ec4899; color: white;">Bruker fyller skjema</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box" style="background: #f59e0b; color: white;">Form onSubmit</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box" style="background: #22c55e; color: white;">createProduct()</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box" style="background: #8b5cf6; color: white;">Database INSERT</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box" style="background: #3b82f6; color: white;">Return data</div>
+      </div>
+    </div>
+
+    <div class="file-path">src/components/CreateProductForm.tsx</div>
+    <pre><code>"use client"
+
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { createProduct } from "@/actions/products"
+
+export default function CreateProductForm() {
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState&lt;string | null&gt;(null)
+
+  async function handleSubmit(e: React.FormEvent&lt;HTMLFormElement&gt;) {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+
+    const formData = new FormData(e.currentTarget)
+
+    // Kall Server Action
+    const result = await createProduct(formData)
+
+    if (result.success) {
+      // Redirect til produktlisten
+      router.push("/admin/produkter")
+    } else {
+      setError(result.message)
+    }
+
+    setLoading(false)
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit} className="space-y-4 max-w-md"&gt;
+      {error && (
+        &lt;div className="bg-red-50 text-red-600 p-3 rounded-lg"&gt;
+          {error}
+        &lt;/div&gt;
+      )}
+
+      &lt;div&gt;
+        &lt;label className="block text-sm font-medium mb-1"&gt;
+          Produktnavn *
+        &lt;/label&gt;
+        &lt;input
+          type="text"
+          name="name"
+          required
+          className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          placeholder="F.eks. Laptop Pro"
+        /&gt;
+      &lt;/div&gt;
+
+      &lt;div&gt;
+        &lt;label className="block text-sm font-medium mb-1"&gt;
+          Beskrivelse
+        &lt;/label&gt;
+        &lt;textarea
+          name="description"
+          rows={3}
+          className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          placeholder="Kort beskrivelse av produktet..."
+        /&gt;
+      &lt;/div&gt;
+
+      &lt;div&gt;
+        &lt;label className="block text-sm font-medium mb-1"&gt;
+          Pris (NOK) *
+        &lt;/label&gt;
+        &lt;input
+          type="number"
+          name="price"
+          required
+          min="0"
+          step="0.01"
+          className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
+          placeholder="999.00"
+        /&gt;
+      &lt;/div&gt;
+
+      &lt;button
+        type="submit"
+        disabled={loading}
+        className="w-full py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
+      &gt;
+        {loading ? "Oppretter..." : "Opprett produkt"}
+      &lt;/button&gt;
+    &lt;/form&gt;
+  )
+}</code></pre>
+
+    <h3>Alternativ: Form med Server Action direkte</h3>
+
+    <div class="file-path">src/app/(admin)/admin/produkter/ny/page.tsx</div>
+    <pre><code>import { createProduct } from "@/actions/products"
+import { redirect } from "next/navigation"
+
+export default function NewProductPage() {
+  // Server Action wrapper med redirect
+  async function handleCreate(formData: FormData) {
+    "use server"
+    const result = await createProduct(formData)
+    if (result.success) {
+      redirect("/admin/produkter")
+    }
+  }
+
+  return (
+    &lt;div className="max-w-md mx-auto p-6"&gt;
+      &lt;h1 className="text-2xl font-bold mb-6"&gt;Nytt Produkt&lt;/h1&gt;
+
+      {/* Form med action direkte til Server Action */}
+      &lt;form action={handleCreate} className="space-y-4"&gt;
+        &lt;input
+          type="text"
+          name="name"
+          placeholder="Produktnavn"
+          required
+          className="w-full px-4 py-2 border rounded-lg"
+        /&gt;
+        &lt;textarea
+          name="description"
+          placeholder="Beskrivelse"
+          className="w-full px-4 py-2 border rounded-lg"
+        /&gt;
+        &lt;input
+          type="number"
+          name="price"
+          placeholder="Pris"
+          required
+          step="0.01"
+          className="w-full px-4 py-2 border rounded-lg"
+        /&gt;
+        &lt;button
+          type="submit"
+          className="w-full py-3 bg-green-600 text-white rounded-lg"
+        &gt;
+          Opprett produkt
+        &lt;/button&gt;
+      &lt;/form&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- ============================================ -->
+    <!-- READ -->
+    <!-- ============================================ -->
+    <h2 id="read">READ: Vis Produkter</h2>
+
+    <div class="crud-operation read">
+      <h3>READ - Hele flyten</h3>
+      <div class="flow-visual">
+        <div class="flow-box" style="background: #3b82f6; color: white;">Bruker åpner side</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box" style="background: #22c55e; color: white;">getProducts()</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box" style="background: #8b5cf6; color: white;">Database SELECT</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box" style="background: #ec4899; color: white;">Server Component rendrer</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box" style="background: #0ea5e9; color: white;">HTML sendes til browser</div>
+      </div>
+    </div>
+
+    <h3>Server Component: Produktliste</h3>
+
+    <div class="file-path">src/components/ProductList.tsx</div>
+    <pre><code>// Server Component - ingen "use client"
+import { getProducts } from "@/actions/products"
+import ProductCard from "./ProductCard"
+
+export default async function ProductList() {
+  // Hent data direkte i komponenten
+  const { success, data: products, message } = await getProducts()
+
+  if (!success) {
+    return (
+      &lt;div className="text-red-500 p-4 bg-red-50 rounded-lg"&gt;
+        Feil: {message}
+      &lt;/div&gt;
+    )
+  }
+
+  if (!products || products.length === 0) {
+    return (
+      &lt;div className="text-gray-500 p-8 text-center"&gt;
+        Ingen produkter funnet
+      &lt;/div&gt;
+    )
+  }
+
+  return (
+    &lt;div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"&gt;
+      {products.map((product) =&gt; (
+        &lt;ProductCard key={product.id} product={product} /&gt;
+      ))}
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h3>Server Component: Produktkort</h3>
+
+    <div class="file-path">src/components/ProductCard.tsx</div>
+    <pre><code>// Server Component
+import Link from "next/link"
+import { Product } from "@/config/supabase-config"
+
+interface Props {
+  product: Product
+}
+
+export default function ProductCard({ product }: Props) {
+  // Formater pris
+  const formattedPrice = new Intl.NumberFormat("nb-NO", {
+    style: "currency",
+    currency: "NOK"
+  }).format(product.price)
+
+  return (
+    &lt;div className="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition"&gt;
+      &lt;h3 className="text-lg font-semibold mb-2"&gt;{product.name}&lt;/h3&gt;
+
+      {product.description && (
+        &lt;p className="text-gray-600 text-sm mb-4 line-clamp-2"&gt;
+          {product.description}
+        &lt;/p&gt;
+      )}
+
+      &lt;div className="flex justify-between items-center"&gt;
+        &lt;span className="text-xl font-bold text-green-600"&gt;
+          {formattedPrice}
+        &lt;/span&gt;
+
+        &lt;Link
+          href={`/produkter/${product.id}`}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        &gt;
+          Se mer
+        &lt;/Link&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h3>Page: Produktside</h3>
+
+    <div class="file-path">src/app/(public)/produkter/page.tsx</div>
+    <pre><code>import ProductList from "@/components/ProductList"
+
+export const metadata = {
+  title: "Produkter",
+  description: "Se alle våre produkter"
+}
+
+export default function ProductsPage() {
+  return (
+    &lt;div className="container mx-auto px-4 py-8"&gt;
+      &lt;h1 className="text-3xl font-bold mb-8"&gt;Våre Produkter&lt;/h1&gt;
+
+      {/* Server Component som henter og viser data */}
+      &lt;ProductList /&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <h3>Page: Enkelprodukt med [id]</h3>
+
+    <div class="file-path">src/app/(public)/produkter/[id]/page.tsx</div>
+    <pre><code>import { notFound } from "next/navigation"
+import { getProductById } from "@/actions/products"
+
+interface Props {
+  params: Promise&lt;{ id: string }&gt;
+}
+
+// Dynamisk metadata
+export async function generateMetadata({ params }: Props) {
+  const { id } = await params
+  const { data: product } = await getProductById(id)
+
+  return {
+    title: product?.name || "Produkt ikke funnet",
+    description: product?.description || ""
+  }
+}
+
+export default async function ProductPage({ params }: Props) {
+  const { id } = await params
+  const { success, data: product } = await getProductById(id)
+
+  if (!success || !product) {
+    notFound()
+  }
+
+  const formattedPrice = new Intl.NumberFormat("nb-NO", {
+    style: "currency",
+    currency: "NOK"
+  }).format(product.price)
+
+  return (
+    &lt;div className="container mx-auto px-4 py-8"&gt;
+      &lt;div className="max-w-2xl mx-auto"&gt;
+        &lt;h1 className="text-3xl font-bold mb-4"&gt;{product.name}&lt;/h1&gt;
+
+        &lt;p className="text-gray-600 mb-6"&gt;{product.description}&lt;/p&gt;
+
+        &lt;div className="text-3xl font-bold text-green-600 mb-8"&gt;
+          {formattedPrice}
+        &lt;/div&gt;
+
+        &lt;button className="w-full py-4 bg-blue-600 text-white rounded-xl text-lg font-semibold hover:bg-blue-700"&gt;
+          Legg i handlekurv
+        &lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- ============================================ -->
+    <!-- UPDATE -->
+    <!-- ============================================ -->
+    <h2 id="update">UPDATE: Rediger Produkt</h2>
+
+    <div class="crud-operation update">
+      <h3>UPDATE - Hele flyten</h3>
+      <div class="flow-visual">
+        <div class="flow-box" style="background: #3b82f6; color: white;">Hent eksisterende</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box" style="background: #ec4899; color: white;">Vis i skjema</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box" style="background: #f59e0b; color: white;">Bruker endrer</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box" style="background: #22c55e; color: white;">updateProduct()</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box" style="background: #8b5cf6; color: white;">Database UPDATE</div>
+      </div>
+    </div>
+
+    <div class="file-path">src/components/EditProductForm.tsx</div>
+    <pre><code>"use client"
+
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { updateProduct } from "@/actions/products"
+import { Product } from "@/config/supabase-config"
+
+interface Props {
+  product: Product
+}
+
+export default function EditProductForm({ product }: Props) {
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState&lt;string | null&gt;(null)
+
+  async function handleSubmit(e: React.FormEvent&lt;HTMLFormElement&gt;) {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+
+    const formData = new FormData(e.currentTarget)
+
+    // Kall Server Action med produkt-ID
+    const result = await updateProduct(product.id, formData)
+
+    if (result.success) {
+      router.push("/admin/produkter")
+      router.refresh() // Oppdater cache
+    } else {
+      setError(result.message)
+    }
+
+    setLoading(false)
+  }
+
+  return (
+    &lt;form onSubmit={handleSubmit} className="space-y-4 max-w-md"&gt;
+      {error && (
+        &lt;div className="bg-red-50 text-red-600 p-3 rounded-lg"&gt;
+          {error}
+        &lt;/div&gt;
+      )}
+
+      &lt;div&gt;
+        &lt;label className="block text-sm font-medium mb-1"&gt;
+          Produktnavn *
+        &lt;/label&gt;
+        &lt;input
+          type="text"
+          name="name"
+          required
+          defaultValue={product.name}
+          className="w-full px-4 py-2 border rounded-lg"
+        /&gt;
+      &lt;/div&gt;
+
+      &lt;div&gt;
+        &lt;label className="block text-sm font-medium mb-1"&gt;
+          Beskrivelse
+        &lt;/label&gt;
+        &lt;textarea
+          name="description"
+          rows={3}
+          defaultValue={product.description || ""}
+          className="w-full px-4 py-2 border rounded-lg"
+        /&gt;
+      &lt;/div&gt;
+
+      &lt;div&gt;
+        &lt;label className="block text-sm font-medium mb-1"&gt;
+          Pris (NOK) *
+        &lt;/label&gt;
+        &lt;input
+          type="number"
+          name="price"
+          required
+          min="0"
+          step="0.01"
+          defaultValue={product.price}
+          className="w-full px-4 py-2 border rounded-lg"
+        /&gt;
+      &lt;/div&gt;
+
+      &lt;div className="flex gap-4"&gt;
+        &lt;button
+          type="button"
+          onClick={() =&gt; router.back()}
+          className="flex-1 py-3 border rounded-lg hover:bg-gray-50"
+        &gt;
+          Avbryt
+        &lt;/button&gt;
+        &lt;button
+          type="submit"
+          disabled={loading}
+          className="flex-1 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+        &gt;
+          {loading ? "Lagrer..." : "Lagre endringer"}
+        &lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/form&gt;
+  )
+}</code></pre>
+
+    <h3>Page: Rediger-side</h3>
+
+    <div class="file-path">src/app/(admin)/admin/produkter/[id]/rediger/page.tsx</div>
+    <pre><code>import { notFound } from "next/navigation"
+import { getProductById } from "@/actions/products"
+import EditProductForm from "@/components/EditProductForm"
+
+interface Props {
+  params: Promise&lt;{ id: string }&gt;
+}
+
+export default async function EditProductPage({ params }: Props) {
+  const { id } = await params
+  const { success, data: product } = await getProductById(id)
+
+  if (!success || !product) {
+    notFound()
+  }
+
+  return (
+    &lt;div className="max-w-md mx-auto p-6"&gt;
+      &lt;h1 className="text-2xl font-bold mb-6"&gt;Rediger: {product.name}&lt;/h1&gt;
+
+      {/* Pass produktet til Client Component */}
+      &lt;EditProductForm product={product} /&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- ============================================ -->
+    <!-- DELETE -->
+    <!-- ============================================ -->
+    <h2 id="delete">DELETE: Slett Produkt</h2>
+
+    <div class="crud-operation delete">
+      <h3>DELETE - Hele flyten</h3>
+      <div class="flow-visual">
+        <div class="flow-box" style="background: #ec4899; color: white;">Bruker klikker Slett</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box" style="background: #f59e0b; color: white;">Bekreft dialog</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box" style="background: #22c55e; color: white;">deleteProduct()</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box" style="background: #8b5cf6; color: white;">Database UPDATE/DELETE</div>
+        <span class="flow-arrow">→</span>
+        <div class="flow-box" style="background: #3b82f6; color: white;">Oppdater UI</div>
+      </div>
+    </div>
+
+    <div class="file-path">src/components/DeleteProductButton.tsx</div>
+    <pre><code>"use client"
+
+import { useState } from "react"
+import { useRouter } from "next/navigation"
+import { deleteProduct } from "@/actions/products"
+
+interface Props {
+  productId: string
+  productName: string
+}
+
+export default function DeleteProductButton({ productId, productName }: Props) {
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
+
+  async function handleDelete() {
+    setLoading(true)
+
+    const result = await deleteProduct(productId)
+
+    if (result.success) {
+      router.refresh() // Oppdater listen
+    } else {
+      alert(result.message)
+    }
+
+    setLoading(false)
+    setShowConfirm(false)
+  }
+
+  if (showConfirm) {
+    return (
+      &lt;div className="flex items-center gap-2"&gt;
+        &lt;span className="text-sm text-red-600"&gt;Sikker?&lt;/span&gt;
+        &lt;button
+          onClick={handleDelete}
+          disabled={loading}
+          className="px-3 py-1 bg-red-600 text-white text-sm rounded hover:bg-red-700 disabled:opacity-50"
+        &gt;
+          {loading ? "..." : "Ja"}
+        &lt;/button&gt;
+        &lt;button
+          onClick={() =&gt; setShowConfirm(false)}
+          className="px-3 py-1 border text-sm rounded hover:bg-gray-50"
+        &gt;
+          Nei
+        &lt;/button&gt;
+      &lt;/div&gt;
+    )
+  }
+
+  return (
+    &lt;button
+      onClick={() =&gt; setShowConfirm(true)}
+      className="px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg transition"
+    &gt;
+      Slett
+    &lt;/button&gt;
+  )
+}</code></pre>
+
+    <h3>Bruk i Admin-tabell</h3>
+
+    <div class="file-path">src/app/(admin)/admin/produkter/page.tsx</div>
+    <pre><code>import Link from "next/link"
+import { getProducts } from "@/actions/products"
+import DeleteProductButton from "@/components/DeleteProductButton"
+
+export default async function AdminProductsPage() {
+  const { success, data: products } = await getProducts()
+
+  return (
+    &lt;div className="p-6"&gt;
+      &lt;div className="flex justify-between items-center mb-6"&gt;
+        &lt;h1 className="text-2xl font-bold"&gt;Produkter&lt;/h1&gt;
+        &lt;Link
+          href="/admin/produkter/ny"
+          className="px-4 py-2 bg-green-600 text-white rounded-lg"
+        &gt;
+          + Nytt produkt
+        &lt;/Link&gt;
+      &lt;/div&gt;
+
+      &lt;div className="bg-white rounded-xl shadow-sm overflow-hidden"&gt;
+        &lt;table className="w-full"&gt;
+          &lt;thead className="bg-gray-50"&gt;
+            &lt;tr&gt;
+              &lt;th className="text-left p-4"&gt;Navn&lt;/th&gt;
+              &lt;th className="text-left p-4"&gt;Pris&lt;/th&gt;
+              &lt;th className="text-right p-4"&gt;Handlinger&lt;/th&gt;
+            &lt;/tr&gt;
+          &lt;/thead&gt;
+          &lt;tbody&gt;
+            {products?.map((product) =&gt; (
+              &lt;tr key={product.id} className="border-t"&gt;
+                &lt;td className="p-4"&gt;{product.name}&lt;/td&gt;
+                &lt;td className="p-4"&gt;{product.price} kr&lt;/td&gt;
+                &lt;td className="p-4 text-right"&gt;
+                  &lt;Link
+                    href={`/admin/produkter/${product.id}/rediger`}
+                    className="px-4 py-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                  &gt;
+                    Rediger
+                  &lt;/Link&gt;
+                  &lt;DeleteProductButton
+                    productId={product.id}
+                    productName={product.name}
+                  /&gt;
+                &lt;/td&gt;
+              &lt;/tr&gt;
+            ))}
+          &lt;/tbody&gt;
+        &lt;/table&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</code></pre>
+
+    <!-- ============================================ -->
+    <!-- KOMPLETT EKSEMPEL -->
+    <!-- ============================================ -->
+    <h2 id="komplett">Komplett Mappestruktur</h2>
+
+    <div class="folder-tree">
+<span class="folder">src/</span>
+├── <span class="folder">app/</span>
+│   ├── <span class="special">(public)/</span>
+│   │   └── <span class="folder">produkter/</span>
+│   │       ├── <span class="file">page.tsx</span>              <span class="comment"># Liste (READ)</span>
+│   │       └── <span class="special">[id]/</span>
+│   │           └── <span class="file">page.tsx</span>          <span class="comment"># Detalj (READ)</span>
+│   │
+│   └── <span class="special">(admin)/</span>
+│       └── <span class="folder">admin/</span>
+│           └── <span class="folder">produkter/</span>
+│               ├── <span class="file">page.tsx</span>          <span class="comment"># Admin liste (READ)</span>
+│               ├── <span class="folder">ny/</span>
+│               │   └── <span class="file">page.tsx</span>      <span class="comment"># Opprett (CREATE)</span>
+│               └── <span class="special">[id]/</span>
+│                   └── <span class="folder">rediger/</span>
+│                       └── <span class="file">page.tsx</span>  <span class="comment"># Rediger (UPDATE)</span>
+│
+├── <span class="folder">actions/</span>
+│   └── <span class="file">products.ts</span>                   <span class="comment"># Alle CRUD operasjoner</span>
+│
+├── <span class="folder">components/</span>
+│   ├── <span class="file">ProductList.tsx</span>               <span class="comment"># Server Component</span>
+│   ├── <span class="file">ProductCard.tsx</span>               <span class="comment"># Server Component</span>
+│   ├── <span class="file">CreateProductForm.tsx</span>         <span class="comment"># Client Component</span>
+│   ├── <span class="file">EditProductForm.tsx</span>           <span class="comment"># Client Component</span>
+│   └── <span class="file">DeleteProductButton.tsx</span>       <span class="comment"># Client Component</span>
+│
+└── <span class="folder">config/</span>
+    └── <span class="file">supabase-config.ts</span>            <span class="comment"># Database client + types</span>
+    </div>
+
+    <!-- OPPSUMMERING -->
+    <div class="success-box" style="margin-top: 3rem;">
+      <h3 style="margin-top: 0;">CRUD Oppsummering</h3>
+      <table style="width: 100%; margin-top: 1rem;">
+        <tr>
+          <td><strong style="color: #22c55e;">CREATE</strong></td>
+          <td>Client Component → createProduct() → INSERT → revalidatePath</td>
+        </tr>
+        <tr>
+          <td><strong style="color: #3b82f6;">READ</strong></td>
+          <td>Server Component → getProducts() → SELECT → Render HTML</td>
+        </tr>
+        <tr>
+          <td><strong style="color: #f59e0b;">UPDATE</strong></td>
+          <td>Client Component → updateProduct(id) → UPDATE → revalidatePath</td>
+        </tr>
+        <tr>
+          <td><strong style="color: #ef4444;">DELETE</strong></td>
+          <td>Client Component → deleteProduct(id) → UPDATE/DELETE → revalidatePath</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="warning-box" style="margin-top: 2rem;">
+      <h4 style="margin-top: 0;">Viktig å huske</h4>
+      <ul style="margin: 0;">
+        <li><strong>revalidatePath()</strong> - Oppdaterer cache etter CUD operasjoner</li>
+        <li><strong>Soft delete</strong> - Sett is_active = false i stedet for å slette</li>
+        <li><strong>Error handling</strong> - Alltid try/catch rundt database-kall</li>
+        <li><strong>Validering</strong> - Valider input i Server Action før database</li>
+      </ul>
+    </div>
+
+    <h2>Neste Steg</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Ressurs</th>
+          <th>Beskrivelse</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="frontend-backend.html"><strong>Frontend/Backend</strong></a></td>
+          <td>Dypere forklaring av dataflyt og Proxy</td>
+        </tr>
+        <tr>
+          <td><a href="eksempel-prosjekt.html">Komplett Eksempel</a></td>
+          <td>Full produktbutikk med auth og admin</td>
+        </tr>
+        <tr>
+          <td><a href="database.html">Database Guide</a></td>
+          <td>Mer om Supabase, RLS og SQL</td>
+        </tr>
+        <tr>
+          <td><a href="autentisering.html">Autentisering</a></td>
+          <td>Beskytt CRUD med login</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="footer">
+      <p><a href="frontend-backend.html">← Frontend/Backend</a> | <a href="eksempel-prosjekt.html">Komplett Eksempel →</a></p>
+    </div>
+  </div>
+
+  <script src="../assets/copy-code.js"></script>
+</body>
+</html>

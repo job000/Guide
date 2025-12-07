@@ -204,6 +204,7 @@
       <div class="popular-searches" id="popularSearches">
         <h3>Populære søk</h3>
         <div class="popular-tags">
+          <button class="popular-tag" onclick="search('crud')">CRUD Guide</button>
           <button class="popular-tag" onclick="search('server actions')">Server Actions</button>
           <button class="popular-tag" onclick="search('proxy')">Proxy (Next.js 16)</button>
           <button class="popular-tag" onclick="search('supabase database')">Supabase Database</button>
@@ -221,6 +222,16 @@
       <div class="category-section" id="categories">
         <h3>Bla etter kategori</h3>
         <div class="guide-selector" style="margin-top: 1rem;">
+          <a href="guide-generell/crud-guide.html" class="result-card">
+            <h3>CRUD Guide: Database til Frontend</h3>
+            <p class="result-path">guide-generell/crud-guide.html</p>
+            <p class="result-excerpt">Komplett guide for Create, Read, Update, Delete. Fra Supabase via Server Actions til React komponenter.</p>
+            <div class="result-tags">
+              <span class="result-tag">CRUD</span>
+              <span class="result-tag">Database</span>
+              <span class="result-tag">Actions</span>
+            </div>
+          </a>
           <a href="guide-generell/frontend-backend.html" class="result-card">
             <h3>Frontend/Backend Kommunikasjon</h3>
             <p class="result-path">guide-generell/frontend-backend.html</p>
@@ -276,6 +287,13 @@
         category: "Guide",
         tags: ["frontend", "backend", "proxy", "server actions", "api routes", "dataflyt"],
         content: "Hvordan frontend kommuniserer med backend. Server Actions vs API Routes. Proxy for rutebeskyttelse (Next.js 16). Dynamisk ruting med [id]. Route Groups for organisering."
+      },
+      {
+        title: "CRUD Guide: Database til Frontend",
+        path: "guide-generell/crud-guide.html",
+        category: "Guide",
+        tags: ["crud", "create", "read", "update", "delete", "database", "server actions", "supabase", "komponenter"],
+        content: "Komplett CRUD guide. Create med form og createProduct. Read med Server Components. Update med EditForm. Delete med bekreftelse. Hele flyten fra database til frontend visning."
       },
       {
         title: "Komplett Eksempel: Produktbutikk",
